@@ -16,7 +16,7 @@ class Coach
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::ARRAY)]
+    #[ORM\Column]
     private array $specialites = [];
 
     #[ORM\Column]
@@ -128,4 +128,5 @@ class Coach
 
         return $this;
     }
+
 }
