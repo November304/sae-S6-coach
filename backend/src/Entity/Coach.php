@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Entity(repositoryClass: CoachRepository::class)]
 class Coach extends Utilisateur
 {
-    #[ORM\Column(type: Types::ARRAY)]
+    #[ORM\Column]
     private array $specialites = [];
 
     #[ORM\Column]
@@ -118,4 +118,5 @@ class Coach extends Utilisateur
 
         return $this;
     }
+
 }
