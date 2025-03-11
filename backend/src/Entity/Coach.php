@@ -7,14 +7,18 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CoachRepository::class)]
 class Coach extends Utilisateur
 {
     #[ORM\Column]
+    #[Assert\NotBlank]
     private array $specialites = [];
 
     #[ORM\Column]
+    #[Assert\NotNull]
+    #[Assert\Positive]
     private ?float $tarif_horaire = null;
 
     /**

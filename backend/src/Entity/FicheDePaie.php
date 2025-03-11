@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\FicheDePaieRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: FicheDePaieRepository::class)]
 class FicheDePaie
@@ -18,12 +19,15 @@ class FicheDePaie
     private ?Coach $coach_id = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Choice(choices: ["mois", "semaine"], message: "Période invalide.")]
     private ?string $periode = null;
 
     #[ORM\Column]
+    #[Assert\Positive]
     private ?int $total_heures = null;
 
     #[ORM\Column]
+    #[Assert\Positive]
     private ?float $montant_total = null;
 
     public function getId(): ?int
