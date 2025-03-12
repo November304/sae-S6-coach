@@ -22,11 +22,10 @@ class Seance
     private ?\DateTimeInterface $date_heure = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\Choice(choices: ["solo", "duo", "trio"], message: "Type de séance invalide.")]
+    #[Assert\Choice(choices: ["solo", "duo", "trio"], message: "Type de séance invalide. (solo, duo,trio)")]
     private ?string $type_seance = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\Choice(choices: ["fitness", "cardio", "muscu", "crossfit"], message: "Thème de séance invalide.")]
     private ?string $theme_seance = null;
 
     #[ORM\Column(length: 255)]
@@ -41,7 +40,7 @@ class Seance
      * @var Collection<int, Sportif>
      */
     #[ORM\ManyToMany(targetEntity: Sportif::class, inversedBy: 'seances')]
-    #[Assert\Count(min: 1, max: 3, exactMessage: "Une séance peut avoir entre 1 et 3 sportifs.")]
+    #[Assert\Count(min: 0, max: 3, exactMessage: "Une séance peut avoir maximum 3 sportifs.")]
     private Collection $sportifs;
 
     #[ORM\Column(length: 255)]
