@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 #[ORM\Entity(repositoryClass: SeanceRepository::class)]
 class Seance
@@ -15,26 +16,32 @@ class Seance
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['seance:read', 'seance:write'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotNull]
+    #[Groups(['seance:read', 'seance:write'])]
     private ?\DateTimeInterface $date_heure = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["solo", "duo", "trio"], message: "Type de séance invalide.")]
+    #[Groups(['seance:read', 'seance:write'])]
     private ?string $type_seance = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["fitness", "cardio", "muscu", "crossfit"], message: "Thème de séance invalide.")]
+    #[Groups(['seance:read', 'seance:write'])]
     private ?string $theme_seance = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["débutant", "intermédiaire", "avancé"], message: "Niveau de séance invalide.")]
+    #[Groups(['seance:read', 'seance:write'])]
     private ?string $niveau_seance = null;
 
     #[ORM\ManyToOne(inversedBy: 'seances')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['seance:read', 'seance:write'])]
     private ?Coach $coach_id = null;
 
     /**
@@ -42,16 +49,19 @@ class Seance
      */
     #[ORM\ManyToMany(targetEntity: Sportif::class, inversedBy: 'seances')]
     #[Assert\Count(min: 1, max: 3, exactMessage: "Une séance peut avoir entre 1 et 3 sportifs.")]
+    #[Groups(['seance:read', 'seance:write'])]
     private Collection $sportifs;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["prévue", "validée", "annulée"], message: "Statut invalide.")]
+    #[Groups(['seance:read', 'seance:write'])]
     private ?string $statut = null;
 
     /**
      * @var Collection<int, Exercice>
      */
     #[ORM\ManyToMany(targetEntity: Exercice::class, inversedBy: 'seances')]
+    #[Groups(['seance:read', 'seance:write'])]
     private Collection $exercices;
 
     public function __construct()
