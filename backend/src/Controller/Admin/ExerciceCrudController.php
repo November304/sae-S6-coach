@@ -3,6 +3,10 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Exercice;
+use Dom\Text;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -34,14 +38,19 @@ class ExerciceCrudController extends AbstractCrudController
             ->setPageTitle('edit', 'Modifier un exercice');
     }
 
-    /*
+
     public function configureFields(string $pageName): iterable
     {
         return [
-            IdField::new('id'),
-            TextField::new('title'),
-            TextEditorField::new('description'),
+            TextField::new('nom', 'Nom'),
+            TextField::new('description', 'Description'),
+            IntegerField::new('duree_estimee', 'Durée estimée'),
+            ChoiceField::new('difficulte', 'Difficulté')
+                ->setChoices([
+                    'Facile' => 'facile',
+                    'Moyen' => 'moyen',
+                    'Difficile' => 'difficile'
+                ])
         ];
     }
-    */
 }

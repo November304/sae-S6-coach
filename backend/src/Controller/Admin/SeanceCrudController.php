@@ -62,7 +62,9 @@ class SeanceCrudController extends AbstractCrudController
             DateTimeField::new('date_heure')->setLabel("Date et heure"),
             TextField::new('type_seance')->setLabel("Type de séance"),
             TextField::new('theme_seance')->setLabel("Thème de la séance"),
-            AssociationField::new('sportifs')->setLabel("Sportifs"),
+            AssociationField::new('sportifs')
+                ->setLabel("Sportifs")                
+                ->setFormTypeOption('choice_label', 'nom'),
             AssociationField::new('exercices')->setLabel("Exercices"),
             ChoiceField::new('niveau_seance')
                 ->setChoices([

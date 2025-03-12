@@ -17,7 +17,7 @@ class Sportif extends Utilisateur
     private ?\DateTimeInterface $date_inscription = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\All(choices: ["débutant", "intermédiaire", "avancé"], message: "Niveau sportif invalide.")]
+    #[Assert\Choice(choices: ["débutant", "intermédiaire", "avancé"], message: "Niveau sportif invalide.")]
     private ?string $niveau_sportif = null;
 
     /**
@@ -29,6 +29,7 @@ class Sportif extends Utilisateur
     public function __construct()
     {
         $this->seances = new ArrayCollection();
+        $this->setRoles(['ROLE_SPORTIF']);
     }
     
     public function getDateInscription(): ?\DateTimeInterface
