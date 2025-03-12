@@ -65,7 +65,9 @@ class SeanceCrudController extends AbstractCrudController
             AssociationField::new('sportifs')
                 ->setLabel("Sportifs")                
                 ->setFormTypeOption('choice_label', 'nom'),
-            AssociationField::new('exercices')->setLabel("Exercices"),
+            AssociationField::new('exercices')
+                ->setLabel("Exercices")
+                ->setFormTypeOption('choice_label', 'nom'),
             ChoiceField::new('niveau_seance')
                 ->setChoices([
                     'Débutant' => 'débutant',
