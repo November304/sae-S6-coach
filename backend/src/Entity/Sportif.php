@@ -29,7 +29,7 @@ class Sportif extends Utilisateur
     public function __construct()
     {
         $this->seances = new ArrayCollection();
-        $this->setRoles(['ROLE_SPORTIF']);
+        $this->setRoles(["ROLE_SPORTIF"]);
     }
     
     public function getDateInscription(): ?\DateTimeInterface

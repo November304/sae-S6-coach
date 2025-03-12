@@ -7,13 +7,13 @@
           <a class="nav-link" routerLink="/">Accueil</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/coachs">Entraineurs</a>
+          <a class="nav-link" routerLink="/coaches">Entraineurs</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/seance">Type de séance</a>
+          <a class="nav-link" routerLink="/seances">Séance</a>
         </li>
-        <li class="nav-item" *ngIf="authService.currentAuthUserValue.isLogged()">
-          <a class="nav-link" routerLink="/activite">Activités</a>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/planning">Planning</a>
         </li>
         <li class="nav-item" *ngIf="authService.currentAuthUserValue.isLogged()">
           <a class="nav-link" routerLink="/espace-personnel">Espace personnel</a>

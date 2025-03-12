@@ -1,0 +1,16 @@
+<div class="card mb-3" *ngFor="let coach of coaches">
+    <div class="card-body">
+        <h5 class="card-title">{{ coach.nom }} {{ coach.prenom }}</h5>
+        <h6 class="card-subtitle mb-2 text-muted">{{ coach.email }}</h6>
+        
+        <p class="card-text"><strong>Spécialités:</strong></p>
+        <ul *ngIf="coach.specialite && coach.specialite.length > 0">
+            <li *ngFor="let specialite of coach.specialite">{{ specialite }}</li>
+        </ul>
+        <p *ngIf="!coach.specialite || coach.specialite.length === 0" class="text-muted">Aucune spécialité renseignée</p>
+
+        <p class="card-text">
+            <strong>Tarif horaire:</strong> {{ coach.tarif_horaire ? coach.tarif_horaire + ' €' : 'Non renseigné' }}
+        </p>
+    </div>
+</div>

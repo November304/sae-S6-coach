@@ -1,0 +1,25 @@
+<div class="card mb-3" *ngFor="let seance of seances">
+    <div class="card-body">
+        <h5 class="card-title">
+            {{ seance.type_seance }} - {{ seance.theme_seance }}
+        </h5>
+        <h6 class="card-subtitle mb-2 text-muted">
+            Date: {{ seance.date_heure | date:'dd/MM/yyyy HH:mm' }}
+        </h6>
+
+        <p class="card-text"><strong>Coach:</strong> {{ getCoachName(seance.coach_id) }}</p>
+
+        <p class="card-text"><strong>Exercices:</strong></p>
+        <ul *ngIf="seance.exercices && seance.exercices.length > 0">
+            <li *ngFor="let exercice of seance.exercices">{{ exercice }}</li>
+        </ul>
+        <p *ngIf="!seance.exercices || seance.exercices.length === 0" class="text-muted">Aucun exercice prévu</p>
+
+        <p class="card-text">
+            <strong>Niveau:</strong> {{ seance.niveau_sceance }}
+        </p>
+        <p class="card-text">
+            <strong>Statut:</strong> {{ seance.statut }}
+        </p>
+    </div>
+</div>
