@@ -24,11 +24,11 @@ class FicheDePaie
 
     #[ORM\Column]
     #[Assert\Positive]
-    private ?int $total_heures = null;
+    private ?int $total_heures = 0;
 
     #[ORM\Column]
     #[Assert\Positive]
-    private ?float $montant_total = null;
+    private ?float $montant_total = 0;
 
     public function getId(): ?int
     {

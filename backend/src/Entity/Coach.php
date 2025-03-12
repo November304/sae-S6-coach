@@ -19,7 +19,7 @@ class Coach extends Utilisateur
     #[ORM\Column]
     #[Assert\NotNull]
     #[Assert\Positive]
-    private ?float $tarif_horaire = null;
+    private ?float $tarif_horaire = 0;
 
     /**
      * @var Collection<int, Seance>

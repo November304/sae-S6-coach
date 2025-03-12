@@ -21,12 +21,11 @@ class Exercice
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\NotBlank]
     private ?string $description = null;
 
     #[ORM\Column]
     #[Assert\Positive(message: "La durée estimée doit être un nombre positif.")]
-    private ?int $duree_estimee = null;
+    private ?int $duree_estimee = 0;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["facile", "moyen", "difficile"], message: "Difficulté invalide.")]
