@@ -8,9 +8,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\EmailField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\FormField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
 
 class SportifCrudController extends AbstractCrudController
@@ -49,9 +51,12 @@ class SportifCrudController extends AbstractCrudController
             EmailField::new('email')
                 ->setLabel("Email"),
             TextField::new('password')
-                ->setLabel("Mot de passe"),
+                ->setFormType(PasswordType::class)
+                ->setLabel("Mot de passe")
+                ->onlyOnForms(),
             DateField::new('date_inscription')
-                ->setLabel("Date inscription"),
+                ->setLabel("Date inscription")
+                ->setFormTypeOption('data', new \DateTimeImmutable()),
             ChoiceField::new('niveau_sportif')
                 ->setChoices([
                     'Débutant' => 'débutant',
