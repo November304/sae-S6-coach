@@ -19,7 +19,7 @@ class FicheDePaie
     private ?Coach $coach_id = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\Choice(choices: ["mois", "semaine"], message: "Période invalide.")]
+    #[Assert\All(choices: ["mois", "semaine"], message: "Période invalide.")]
     private ?string $periode = null;
 
     #[ORM\Column]
