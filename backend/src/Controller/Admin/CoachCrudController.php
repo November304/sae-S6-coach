@@ -11,6 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\CollectionField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 
 
 class CoachCrudController extends AbstractCrudController
@@ -49,7 +50,9 @@ class CoachCrudController extends AbstractCrudController
             EmailField::new('email')
                 ->setLabel("Email"),
             TextField::new('password')
-                ->setLabel("Mot de passe"),
+                ->setFormType(PasswordType::class)
+                ->setLabel("Mot de passe")
+                ->onlyOnForms(),
             MoneyField::new('tarif_horaire')
                 ->setCurrency('EUR')
                 ->setLabel("Tarif horaire"),

@@ -39,7 +39,6 @@ class SeanceCrudController extends AbstractCrudController
 
     public function configureCrud(Crud $crud): Crud
     {
-        // Modification du titre principal
         return $crud
             ->setPageTitle('index', 'Séances')
             ->setPageTitle('new', 'Créer une séance')
@@ -58,9 +57,18 @@ class SeanceCrudController extends AbstractCrudController
         return [
             AssociationField::new('coach_id')
                 ->setLabel("Coach")
-                ->setFormTypeOption('choice_label', 'nom'),
+                ->setFormTypeOption('choice_label', 'nom')
+                ->formatValue(function ($value, $entity) {
+                    return $entity->getCoachId()->getNom();
+                }),
             DateTimeField::new('date_heure')->setLabel("Date et heure"),
-            TextField::new('type_seance')->setLabel("Type de séance"),
+            ChoiceField::new('type_seance')
+                ->setChoices([
+                    'Solo' => 'solo',
+                    'Duo' => 'duo',
+                    'Trio' => 'trio',
+                ])
+                ->setLabel("Type de séance"),
             TextField::new('theme_seance')->setLabel("Thème de la séance"),
             AssociationField::new('sportifs')
                 ->setLabel("Sportifs")                
