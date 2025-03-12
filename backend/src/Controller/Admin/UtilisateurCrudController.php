@@ -43,13 +43,12 @@ class UtilisateurCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        // Personnalisation des champs affichés
         return [
             IdField::new('id')->hideOnForm(),
             TextField::new('email'),
             TextField::new('nom'),
             TextField::new('prenom'),
-            // Ajoutez d'autres champs selon votre entité
+            
         ];
     }
 
