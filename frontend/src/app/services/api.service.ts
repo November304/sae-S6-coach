@@ -16,43 +16,43 @@ export class ApiService {
 
   // ------------------- COACH ------------------- //
   getCoachsList(): Observable<Coach[]> {
-    return this.http.get<Coach[]>(`${this.apiUrl}/coachs`);
+    return this.http.get<Coach[]>(`${this.apiUrl}/coaches`);
   }
 
   getCoach(id: number): Observable<Coach> {
-    return this.http.get<Coach>(`${this.apiUrl}/coachs/${id}`);
+    return this.http.get<Coach>(`${this.apiUrl}/coaches/${id}`);
   }
 
   createCoach(coach: Coach): Observable<Coach> {
-    return this.http.post<Coach>(`${this.apiUrl}/coachs`, coach);
+    return this.http.post<Coach>(`${this.apiUrl}/coaches`, coach);
   }
 
   updateCoach(coach: Coach): Observable<Coach> {
-    return this.http.put<Coach>(`${this.apiUrl}/coachs/${coach.id}`, coach);
+    return this.http.put<Coach>(`${this.apiUrl}/coaches/${coach.id}`, coach);
   }
 
   deleteCoach(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/coachs/${id}`);
+    return this.http.delete(`${this.apiUrl}/coaches/${id}`);
   }
 
   // ------------------- SPORTIF ------------------- //
-  getSportList(): Observable<Sportif[]> {
+  getSportifList(): Observable<Sportif[]> {
     return this.http.get<Sportif[]>(`${this.apiUrl}/sports`);
   }
 
-  getSport(id: number): Observable<Sportif> {
+  getSportif(id: number): Observable<Sportif> {
     return this.http.get<Sportif>(`${this.apiUrl}/sports/${id}`);
   }
 
-  createSport(sport: Sportif): Observable<Sportif> {
+  createSportif(sport: Sportif): Observable<Sportif> {
     return this.http.post<Sportif>(`${this.apiUrl}/sports`, sport);
   }
 
-  updateSport(sport: Sportif): Observable<Sportif> {
+  updateSportif(sport: Sportif): Observable<Sportif> {
     return this.http.put<Sportif>(`${this.apiUrl}/sports/${sport.id}`, sport);
   }
 
-  deleteSport(id: number): Observable<any> {
+  deleteSportif(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/sports/${id}`);
   }
 

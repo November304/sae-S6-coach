@@ -8,6 +8,9 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 
 use App\Repository\CoachRepository;
 
@@ -24,6 +27,23 @@ class SeanceCrudController extends AbstractCrudController
         return Seance::class;
     }
 
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
+                return $action
+                    ->setLabel('Créer une nouvelle séance')
+                    ->setIcon('fa fa-plus');
+            });
+    }
+
+    public function configureCrud(Crud $crud): Crud
+    {
+        return $crud
+            ->setPageTitle('index', 'Séances')
+            ->setPageTitle('new', 'Créer une séance')
+            ->setPageTitle('edit', 'Modifier une séance');
+    }
     
     public function configureFields(string $pageName): iterable
     {
@@ -35,14 +55,27 @@ class SeanceCrudController extends AbstractCrudController
 
 
         return [
+            AssociationField::new('coach_id')
+                ->setLabel("Coach")
+                ->setFormTypeOption('choice_label', 'nom')
+                ->formatValue(function ($value, $entity) {
+                    return $entity->getCoachId()->getNom();
+                }),
             DateTimeField::new('date_heure')->setLabel("Date et heure"),
-            TextField::new('type_seance')->setLabel("Type de séance"),
+            ChoiceField::new('type_seance')
+                ->setChoices([
+                    'Solo' => 'solo',
+                    'Duo' => 'duo',
+                    'Trio' => 'trio',
+                ])
+                ->setLabel("Type de séance"),
             TextField::new('theme_seance')->setLabel("Thème de la séance"),
-            ChoiceField::new('coach_id')
-                ->setChoices($choices)
-                ->setLabel("Coach"),
-            AssociationField::new('sportifs')->setLabel("Sportifs"),
-            AssociationField::new('exercices')->setLabel("Exercices"),
+            AssociationField::new('sportifs')
+                ->setLabel("Sportifs")                
+                ->setFormTypeOption('choice_label', 'nom'),
+            AssociationField::new('exercices')
+                ->setLabel("Exercices")
+                ->setFormTypeOption('choice_label', 'nom'),
             ChoiceField::new('niveau_seance')
                 ->setChoices([
                     'Débutant' => 'débutant',

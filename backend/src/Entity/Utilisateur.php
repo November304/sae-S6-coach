@@ -33,7 +33,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
      * @var list<string> The user roles
      */
     #[ORM\Column]
-    #[Assert\NotBlank]
     #[Assert\All([
         new Assert\Choice(choices: ["ROLE_SPORTIF", "ROLE_COACH", "ROLE_RESPONSABLE"], message: "Rôle invalide.")
     ])]    
