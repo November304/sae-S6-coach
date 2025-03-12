@@ -12,6 +12,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 
 class UtilisateurCrudController extends AbstractCrudController
 {
@@ -25,8 +27,18 @@ class UtilisateurCrudController extends AbstractCrudController
         // Modification du titre principal
         return $crud
             ->setPageTitle('index', 'Responsables')
-            ->setPageTitle('new', 'Créer un Responsable')
-            ->setPageTitle('edit', 'Modifier un Responsable');
+            ->setPageTitle('new', 'Créer un responsable')
+            ->setPageTitle('edit', 'Modifier un responsable');
+    }
+
+    public function configureActions(Actions $actions): Actions
+    {
+        return $actions
+            ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
+                return $action
+                    ->setLabel('Créer un nouveau responsable')
+                    ->setIcon('fa fa-plus');
+            });
     }
 
     public function configureFields(string $pageName): iterable

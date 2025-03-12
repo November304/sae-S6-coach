@@ -70,9 +70,9 @@
                     <ul class="list-group list-group-flush">
                         {% for seance in stats.prochaines_seances %}
                             <li class="list-group-item">
-                                {{ seance.date_heure|date('d/m/Y H:i') }} - {{ seance.theme_seance }}
+                                {{ seance.dateheure|date('d/m/Y H:i') }} - {{ seance.themeseance }}
                                 <div class="text-muted small">
-                                    Coach: {{ seance.coach_id.nom }}
+                                    Coach: {{ seance.coachid.nom }}
                                     {% if seance.sportifs|length > 0 %}
                                         - Sportifs: {{ seance.sportifs|map(s => s.nom)|join(', ') }}
                                     {% endif %}

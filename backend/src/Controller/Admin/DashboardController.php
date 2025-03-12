@@ -91,7 +91,8 @@ class DashboardController extends AbstractDashboardController
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
-            ->setTitle('Backoffice');
+            ->setTitle('Gestion administrateur');
+            
     }
 
     public function configureMenuItems(): iterable
@@ -102,7 +103,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Responsables', 'fas fa-users', Utilisateur::class);
 
         yield MenuItem::section('Salle de sport');
-        yield MenuItem::linkToCrud('Seances', 'fas fa-calendar-alt', Seance::class);
+        yield MenuItem::linkToCrud('Séances', 'fas fa-calendar-alt', Seance::class);
         yield MenuItem::linkToCrud('Exercices', 'fas fa-dumbbell', Exercice::class);
 
         yield MenuItem::section('Statistiques Responsables');

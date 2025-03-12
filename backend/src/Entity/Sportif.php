@@ -17,7 +17,7 @@ class Sportif extends Utilisateur
     private ?\DateTimeInterface $date_inscription = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\Choice(choices: ["débutant", "intermédiaire", "avancé"], message: "Niveau sportif invalide.")]
+    #[Assert\All(choices: ["débutant", "intermédiaire", "avancé"], message: "Niveau sportif invalide.")]
     private ?string $niveau_sportif = null;
 
     /**
