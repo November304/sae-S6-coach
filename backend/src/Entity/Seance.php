@@ -26,7 +26,6 @@ class Seance
     private ?string $type_seance = null;
 
     #[ORM\Column(length: 255)]
-    #[Assert\Choice(choices: ["fitness", "cardio", "muscu", "crossfit"], message: "Thème de séance invalide.")]
     private ?string $theme_seance = null;
 
     #[ORM\Column(length: 255)]
