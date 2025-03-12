@@ -6,6 +6,7 @@ use App\Repository\ExerciceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ExerciceRepository::class)]
@@ -14,27 +15,33 @@ class Exercice
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['exercice:read', 'seance:read', 'seance:write'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
+    #[Groups(['exercice:read', 'exercice:write', 'seance:read', 'seance:write'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['exercice:read', 'exercice:write', 'seance:read', 'seance:write'])]
     private ?string $description = null;
 
     #[ORM\Column]
     #[Assert\Positive(message: "La durée estimée doit être un nombre positif.")]
+    #[Groups(['exercice:read', 'exercice:write', 'seance:read', 'seance:write'])]
     private ?int $duree_estimee = 0;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["facile", "moyen", "difficile"], message: "Difficulté invalide.")]
+    #[Groups(['exercice:read', 'exercice:write', 'seance:read', 'seance:write'])]
     private ?string $difficulte = null;
 
     /**
      * @var Collection<int, Seance>
      */
     #[ORM\ManyToMany(targetEntity: Seance::class, mappedBy: 'exercices')]
+    #[Groups(['exercice:read', 'exercice:write'])]
     private Collection $seances;
 
     public function __construct()
