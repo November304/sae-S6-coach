@@ -40,7 +40,7 @@ final class SeanceController extends AbstractController {
         $seance->setTypeSeance($data['type_seance'] ?? null);
         $seance->setThemeSeance($data['theme_seance'] ?? null);
         $seance->setNiveauSeance($data['niveau_seance'] ?? null);
-        $seance->setCoachId($data['coach_id'] ?? null);
+        $seance->setCoach($data['coach'] ?? null);
         if (isset($data['sportifs']) && is_array($data['sportifs'])) {
             foreach ($data['sportifs'] as $sportif) {
                 $seance->addSportif($sportif);
@@ -86,8 +86,8 @@ final class SeanceController extends AbstractController {
         if (isset($data['niveau_seance'])) {
             $seance->setNiveauSeance($data['niveau_seance']);
         }
-        if (isset($data['coach_id'])) {
-            $seance->setCoachId($data['coach_id']);
+        if (isset($data['coach'])) {
+            $seance->setCoach($data['coach']);
         }
         if (isset($data['sportifs']) && is_array($data['sportifs'])) {
             foreach ($seance->getSportifs() as $sportif) {
