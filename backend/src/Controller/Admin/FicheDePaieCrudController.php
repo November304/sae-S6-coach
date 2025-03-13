@@ -60,7 +60,9 @@ class FicheDePaieCrudController extends AbstractCrudController
                 ->setChoices(['Mois' => 'mois', 'Semaine' => 'semaine'])
                 ->allowMultipleChoices(false),
             IntegerField::new('total_heures', 'Total heures'),
-            MoneyField::new('montant_total', 'Montant total')->setCurrency('EUR'),
+            MoneyField::new('montant_total', 'Montant total')
+                ->setCurrency('EUR')
+                ->setStoredAsCents(false),
 
         ];
     }
