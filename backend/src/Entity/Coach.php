@@ -15,7 +15,7 @@ class Coach extends Utilisateur
 {
     #[ORM\Column]
     #[Assert\NotBlank]
-    #[Groups(['coach:read','coach:write'])]
+    #[Groups(['coach:read','coach:write','seance:read'])]
     private array $specialites = [];
 
     #[ORM\Column]

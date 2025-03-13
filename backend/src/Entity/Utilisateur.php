@@ -20,13 +20,13 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write'])]
+    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write','seance:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
     #[Assert\NotBlank]
     #[Assert\Email]
-    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write'])]
+    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write','seance:read'])]
     private ?string $email = null;
 
     /**
@@ -49,13 +49,13 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 50)]
-    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write'])]
+    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write','seance:read'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 50)]
-    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write'])]
+    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write','seance:read'])]
     private ?string $prenom = null;
 
     public function getId(): ?int
