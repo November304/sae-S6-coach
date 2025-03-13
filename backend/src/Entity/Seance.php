@@ -19,7 +19,7 @@ class Seance
     #[Groups(['seance:read', 'seance:write'])]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Assert\NotNull]
     #[Groups(['seance:read', 'seance:write'])]
     private ?\DateTimeInterface $date_heure = null;
