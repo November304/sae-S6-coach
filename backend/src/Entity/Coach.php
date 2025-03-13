@@ -27,14 +27,14 @@ class Coach extends Utilisateur
     /**
      * @var Collection<int, Seance>
      */
-    #[ORM\OneToMany(targetEntity: Seance::class, mappedBy: 'coach_id')]
+    #[ORM\OneToMany(targetEntity: Seance::class, mappedBy: 'coach')]
     #[Groups(['coach:read','coach:write'])]
     private Collection $seances;
 
     /**
      * @var Collection<int, FicheDePaie>
      */
-    #[ORM\OneToMany(targetEntity: FicheDePaie::class, mappedBy: 'coach_id')]
+    #[ORM\OneToMany(targetEntity: FicheDePaie::class, mappedBy: 'coach')]
     #[Groups(['coach:read','coach:write'])]
     private Collection $ficheDePaies;
 
@@ -81,7 +81,7 @@ class Coach extends Utilisateur
     {
         if (!$this->seances->contains($seance)) {
             $this->seances->add($seance);
-            $seance->setCoachId($this);
+            $seance->setCoach($this);
         }
 
         return $this;
@@ -91,8 +91,8 @@ class Coach extends Utilisateur
     {
         if ($this->seances->removeElement($seance)) {
             // set the owning side to null (unless already changed)
-            if ($seance->getCoachId() === $this) {
-                $seance->setCoachId(null);
+            if ($seance->getCoach() === $this) {
+                $seance->setCoach(null);
             }
         }
 
@@ -111,7 +111,7 @@ class Coach extends Utilisateur
     {
         if (!$this->ficheDePaies->contains($ficheDePaie)) {
             $this->ficheDePaies->add($ficheDePaie);
-            $ficheDePaie->setCoachId($this);
+            $ficheDePaie->setCoach($this);
         }
 
         return $this;
@@ -121,8 +121,8 @@ class Coach extends Utilisateur
     {
         if ($this->ficheDePaies->removeElement($ficheDePaie)) {
             // set the owning side to null (unless already changed)
-            if ($ficheDePaie->getCoachId() === $this) {
-                $ficheDePaie->setCoachId(null);
+            if ($ficheDePaie->getCoach() === $this) {
+                $ficheDePaie->setCoach(null);
             }
         }
 
