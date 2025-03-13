@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: SportifRepository::class)]
@@ -14,10 +15,12 @@ class Sportif extends Utilisateur
 {
     #[ORM\Column(type: Types::DATE_MUTABLE)]
     #[Assert\NotNull]
+    #[Groups(['sportif:read', 'sportif:write'])]
     private ?\DateTimeInterface $date_inscription = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["débutant", "intermédiaire", "avancé"], message: "Niveau sportif invalide.")]
+    #[Groups(['sportif:read', 'sportif:write'])]
     private ?string $niveau_sportif = null;
 
     /**

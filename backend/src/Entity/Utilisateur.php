@@ -6,6 +6,7 @@ use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UtilisateurRepository::class)]
@@ -19,11 +20,13 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
     #[Assert\NotBlank]
     #[Assert\Email]
+    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write'])]
     private ?string $email = null;
 
     /**
@@ -33,22 +36,26 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\All([
         new Assert\Choice(choices: ["ROLE_SPORTIF", "ROLE_COACH", "ROLE_RESPONSABLE"], message: "Rôle invalide.")
     ])]    
+    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write'])]
     private array $roles = [];
 
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
+    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write'])]
     private ?string $password = null;
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 50)]
+    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 50)]
+    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write'])]
     private ?string $prenom = null;
 
     public function getId(): ?int

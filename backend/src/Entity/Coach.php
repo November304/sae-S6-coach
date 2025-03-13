@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CoachRepository::class)]
@@ -14,23 +15,27 @@ class Coach extends Utilisateur
 {
     #[ORM\Column]
     #[Assert\NotBlank]
+    #[Groups(['coach:read','coach:write'])]
     private array $specialites = [];
 
     #[ORM\Column]
     #[Assert\NotNull]
     #[Assert\Positive]
+    #[Groups(['coach:read','coach:write'])]
     private ?float $tarif_horaire = 0;
 
     /**
      * @var Collection<int, Seance>
      */
     #[ORM\OneToMany(targetEntity: Seance::class, mappedBy: 'coach_id')]
+    #[Groups(['coach:read','coach:write'])]
     private Collection $seances;
 
     /**
      * @var Collection<int, FicheDePaie>
      */
     #[ORM\OneToMany(targetEntity: FicheDePaie::class, mappedBy: 'coach_id')]
+    #[Groups(['coach:read','coach:write'])]
     private Collection $ficheDePaies;
 
     public function __construct()
