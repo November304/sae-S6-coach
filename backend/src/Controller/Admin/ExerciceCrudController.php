@@ -44,7 +44,7 @@ class ExerciceCrudController extends AbstractCrudController
         return [
             TextField::new('nom', 'Nom'),
             TextField::new('description', 'Description'),
-            IntegerField::new('duree_estimee', 'Durée estimée'),
+            IntegerField::new('duree_estimee', 'Durée estimée (en min)'),
             ChoiceField::new('difficulte', 'Difficulté')
                 ->setChoices([
                     'Facile' => 'facile',
