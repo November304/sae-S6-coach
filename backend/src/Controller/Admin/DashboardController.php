@@ -43,7 +43,7 @@ class DashboardController extends AbstractDashboardController
                 ->getSingleScalarResult(),
             'prochaines_seances' => $seanceRepository->createQueryBuilder('s')
                 ->addSelect('c')
-                ->leftJoin('s.coach_id', 'c')
+                ->leftJoin('s.coach', 'c')
                 ->where('s.date_heure >= :now')
                 ->setParameter('now', new \DateTime())
                 ->orderBy('s.date_heure', 'ASC')
@@ -52,7 +52,7 @@ class DashboardController extends AbstractDashboardController
                 ->getResult(),
             'reservations_par_coach' => $seanceRepository->createQueryBuilder('s')
                 ->select('c.nom as coach_nom, COUNT(s.id) as total')
-                ->join('s.coach_id', 'c')
+                ->join('s.coach', 'c')
                 ->groupBy('c.id')
                 ->getQuery()
                 ->getResult(),

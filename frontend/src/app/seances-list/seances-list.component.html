@@ -7,7 +7,7 @@
             Date: {{ seance.date_heure | date:'dd/MM/yyyy HH:mm' }}
         </h6>
 
-        <p class="card-text"><strong>Coach:</strong> {{ getCoachName(seance.coach_id) }}</p>
+        <p class="card-text"><strong>Coach:</strong> {{ getCoachName(seance.coach) }}</p>
 
         <p class="card-text"><strong>Exercices:</strong></p>
         <ul *ngIf="seance.exercices && seance.exercices.length > 0">
