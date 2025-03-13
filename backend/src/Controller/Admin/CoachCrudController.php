@@ -84,10 +84,12 @@ class CoachCrudController extends AbstractCrudController
                     ],
                     'invalid_message' => 'Les mots de passe ne correspondent pas.',
                 ])
-                ->onlyOnForms(),
+                ->onlyOnForms()
+                ->onlyWhenCreating(),
             MoneyField::new('tarif_horaire')
                 ->setCurrency('EUR')
-                ->setLabel("Tarif horaire"),
+                ->setLabel("Tarif horaire")
+                ->setStoredAsCents(false),
             CollectionField::new('specialites')
                 ->setLabel("Spécialités"),
         ];
