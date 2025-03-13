@@ -6,7 +6,7 @@ import { ApiService } from '../services/api.service';
 @Component({
   selector: 'app-seances-list',
   templateUrl: './seances-list.component.html',
-  styleUrls: ['./seances-list.component.css']
+  styleUrls: ['./seances-list.component.css'],
 })
 export class SeancesListComponent implements OnInit {
   seances: Seance[] = [];
@@ -24,8 +24,8 @@ export class SeancesListComponent implements OnInit {
     });
   }
 
-  getCoachName(coach_id: number): string {
-    const coach = this.coaches.find(c => c.id === coach_id);
+  getCoachName(coach: number): string {
+    const coach = this.coaches.find((c) => c.id === coach);
     return coach ? `${coach.nom} ${coach.prenom}` : 'Coach inconnu';
   }
 }

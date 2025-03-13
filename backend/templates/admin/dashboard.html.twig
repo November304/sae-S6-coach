@@ -72,7 +72,7 @@
                             <li class="list-group-item">
                                 {{ seance.dateheure|date('d/m/Y H:i') }} - {{ seance.themeseance }}
                                 <div class="text-muted small">
-                                    Coach: {{ seance.coachid.nom }}
+                                    Coach: {{ seance.coach.nom }}
                                     {% if seance.sportifs|length > 0 %}
                                         - Sportifs: {{ seance.sportifs|map(s => s.nom)|join(', ') }}
                                     {% endif %}
