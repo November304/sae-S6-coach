@@ -18,9 +18,8 @@ class FicheDePaie
 
     #[ORM\ManyToOne(inversedBy: 'ficheDePaies')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['fiche_de_paie:read', 'fiche_de_paie:write'])]
-    private ?Coach $coach_id = null;
-
+    private ?Coach $coach = null;
+  
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["mois", "semaine"], message: "Période invalide.")]
     #[Groups(['fiche_de_paie:read', 'fiche_de_paie:write'])]
@@ -41,14 +40,14 @@ class FicheDePaie
         return $this->id;
     }
 
-    public function getCoachId(): ?Coach
+    public function getCoach(): ?Coach
     {
-        return $this->coach_id;
+        return $this->coach;
     }
 
-    public function setCoachId(?Coach $coach_id): static
+    public function setCoach(?Coach $coach): static
     {
-        $this->coach_id = $coach_id;
+        $this->coach = $coach;
 
         return $this;
     }
