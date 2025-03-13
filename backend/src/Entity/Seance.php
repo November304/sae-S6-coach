@@ -40,6 +40,7 @@ class Seance
 
     #[ORM\ManyToOne(inversedBy: 'seances')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['seance:read', 'seance:write'])]
     private ?Coach $coach = null;
 
     /**
