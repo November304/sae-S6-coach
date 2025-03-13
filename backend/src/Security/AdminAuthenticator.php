@@ -2,6 +2,7 @@
 
 namespace App\Security;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,19 +22,18 @@ class AdminAuthenticator extends AbstractLoginFormAuthenticator
 
     public const LOGIN_ROUTE = 'app_login';
 
-    public function __construct(private UrlGeneratorInterface $urlGenerator)
+    public function __construct(private UrlGeneratorInterface $urlGenerator, private LoggerInterface $logger)
     {
     }
 
     public function authenticate(Request $request): Passport
     {
-        $email = $request->getPayload()->getString('email');
-
+        $email = $request->getPayload()->getString('_username');
         $request->getSession()->set(SecurityRequestAttributes::LAST_USERNAME, $email);
-
+        $this->logger->warning("Authentication attempt for email: " . $email);
         return new Passport(
             new UserBadge($email),
-            new PasswordCredentials($request->getPayload()->getString('password')),
+            new PasswordCredentials($request->getPayload()->getString('_password')),
             [
                 new CsrfTokenBadge('authenticate', $request->getPayload()->getString('_csrf_token')),            ]
         );
@@ -44,8 +44,8 @@ class AdminAuthenticator extends AbstractLoginFormAuthenticator
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
-
-        if(in_array('ROLE_ADMIN', $token->getUser()->getRoles())){
+        $this->logger->warning("Authentication attempt for chose: " . $token->getUser());
+        if(in_array('ROLE_RESPONSABLE', $token->getUser()->getRoles())){
             return new RedirectResponse("/admin");
         }
         else {
