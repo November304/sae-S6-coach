@@ -101,7 +101,8 @@ class UtilisateurCrudController extends AbstractCrudController
                     ],
                     'invalid_message' => 'Les mots de passe ne correspondent pas.',
                 ])
-                ->onlyOnForms(),
+                ->onlyOnForms()
+                ->onlyWhenCreating(),
             ChoiceField::new('roles')
             ->setLabel('Rôles') 
             ->setChoices([

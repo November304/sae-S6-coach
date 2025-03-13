@@ -83,7 +83,8 @@ class SportifCrudController extends AbstractCrudController
                     ],
                     'invalid_message' => 'Les mots de passe ne correspondent pas.',
                 ])
-                ->onlyOnForms(),
+                ->onlyOnForms()
+                ->onlyWhenCreating(),
             DateField::new('date_inscription')
                 ->setLabel("Date inscription")
                 ->setFormTypeOption('data', new \DateTimeImmutable()),
