@@ -55,11 +55,11 @@ class SeanceCrudController extends AbstractCrudController
 
 
         return [
-            AssociationField::new('coach_id')
+            AssociationField::new('coach')
                 ->setLabel("Coach")
                 ->setFormTypeOption('choice_label', 'nom')
                 ->formatValue(function ($value, $entity) {
-                    return $entity->getCoachId()->getNom();
+                    return $entity->getCoach()->getNom();
                 }),
             DateTimeField::new('date_heure')->setLabel("Date et heure"),
             ChoiceField::new('type_seance')

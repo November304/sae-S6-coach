@@ -53,7 +53,7 @@ class FicheDePaieCrudController extends AbstractCrudController
         }
 
         return [
-            ChoiceField::new('coach_id')
+            ChoiceField::new('coach')
                 ->setChoices($choices)
                 ->setLabel("Coach"),
             ChoiceField::new('periode', 'Période')
