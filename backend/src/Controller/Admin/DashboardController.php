@@ -22,46 +22,10 @@ class DashboardController extends AbstractDashboardController
         private EntityManagerInterface $em
     ) {}
 
-    public function index(): Response
+   public function index(): Response
     {
-        // Statistiques de réservations
-        $seanceRepository = $this->em->getRepository(Seance::class);
-        
-        $stats = [
-            'total_reservations' => $seanceRepository->count([]),
-            'reservations_mois' => $seanceRepository->createQueryBuilder('s')
-                ->select('COUNT(s.id)')
-                ->where('s.date_heure BETWEEN :start AND :end')
-                ->setParameter('start', new \DateTime('first day of this month'))
-                ->setParameter('end', new \DateTime('last day of this month'))
-                ->getQuery()
-                ->getSingleScalarResult(),
-            'utilisateurs_actifs' => $seanceRepository->createQueryBuilder('s')
-                ->select('COUNT(DISTINCT sp.id)')
-                ->join('s.sportifs', 'sp')
-                ->getQuery()
-                ->getSingleScalarResult(),
-            'prochaines_seances' => $seanceRepository->createQueryBuilder('s')
-                ->addSelect('c')
-                ->leftJoin('s.coach', 'c')
-                ->where('s.date_heure >= :now')
-                ->setParameter('now', new \DateTime())
-                ->orderBy('s.date_heure', 'ASC')
-                ->setMaxResults(5)
-                ->getQuery()
-                ->getResult(),
-            'reservations_par_coach' => $seanceRepository->createQueryBuilder('s')
-                ->select('c.nom as coach_nom, COUNT(s.id) as total')
-                ->join('s.coach', 'c')
-                ->groupBy('c.id')
-                ->getQuery()
-                ->getResult(),
-        ];
-
-        return $this->render('admin/dashboard.html.twig', [
-            'stats' => $stats,
-            'chart_data' => $this->getChartData()
-        ]);
+        // Page d'accueil simple qui redirige vers les différentes sections
+        return $this->render('admin/index.html.twig');
     }
 
     private function getChartData(): array
@@ -97,6 +61,8 @@ class DashboardController extends AbstractDashboardController
 
     public function configureMenuItems(): iterable
     {
+        yield MenuItem::linkToDashboard('Accueil', 'fas fa-home');
+        
         yield MenuItem::section('Utilisateurs');
         yield MenuItem::linkToCrud('Coachs', 'fas fa-users', Coach::class);
         yield MenuItem::linkToCrud('Sportifs', 'fas fa-users', Sportif::class);
@@ -107,10 +73,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Exercices', 'fas fa-dumbbell', Exercice::class);
 
         yield MenuItem::section('Statistiques Responsables');
-        yield MenuItem::linkToDashboard('Dashboard', 'fas fa-tachometer-alt');
+        yield MenuItem::linkToRoute('Dashboard Stats', 'fas fa-tachometer-alt', 'admin_stats');
         yield MenuItem::linkToCrud('Fiche de paie', 'fa fa-file-invoice', FicheDePaie::class);
-
-        
-        
     }
 }
