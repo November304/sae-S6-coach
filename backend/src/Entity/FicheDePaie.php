@@ -35,6 +35,15 @@ class FicheDePaie
     #[Groups(['fiche_de_paie:read', 'fiche_de_paie:write'])]
     private ?float $montant_total = 0;
 
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function calculateMontantTotal(): void
+    {
+        if ($this->coach && $this->total_heures !== null) {
+            $this->montant_total = $this->total_heures * $this->coach->getTarifHoraire();
+        }
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -48,7 +57,7 @@ class FicheDePaie
     public function setCoach(?Coach $coach): static
     {
         $this->coach = $coach;
-
+        $this->calculateMontantTotal();
         return $this;
     }
 
@@ -81,10 +90,13 @@ class FicheDePaie
         return $this->montant_total;
     }
 
+    /**
+     * Le set est inutile car le montant est calculé automatiquement
+     */
     public function setMontantTotal(float $montant_total): static
     {
         $this->montant_total = $montant_total;
-
+        $this->calculateMontantTotal();
         return $this;
     }
 }
