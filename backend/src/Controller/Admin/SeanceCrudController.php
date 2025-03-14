@@ -104,11 +104,19 @@ class SeanceCrudController extends AbstractCrudController
                     return $this->formatDuration($value);
                 })
                 ->onlyOnIndex(),
+            IntegerField::new('dureeEstimeeTotal', 'Durée totale')
+                ->setFormTypeOption('disabled', true)
+                ->setFormTypeOption('attr', ['readonly' => true])
+                ->formatValue(function ($value, $entity) {
+                    return $this->formatDuration($value);
+                })
+                ->onlyOnDetail(),
             TextField::new('dureeEstimeeTotal', 'Durée totale')
                 ->setFormTypeOption('disabled', true)
                 ->setFormTypeOption('attr', ['readonly' => true])
-                ->onlyOnForms()
-                ->onlyOnDetail(),
+                ->hideOnForm()
+                ->hideOnDetail()
+                ->hideOnIndex(),
             ChoiceField::new('statut')
                 ->setChoices([
                     'Prévue' => 'prévue',
