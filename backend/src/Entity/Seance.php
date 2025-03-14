@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: SeanceRepository::class)]
 class Seance
@@ -192,5 +193,25 @@ class Seance
         $this->exercices->removeElement($exercice);
 
         return $this;
+    }
+
+    #[Assert\Callback]
+    public function validateSportifCount(ExecutionContextInterface $context): void
+    {
+        $typeSeance = $this->getTypeSeance();
+        $sportifCount = $this->getSportifs()->count();
+        
+        $maxSportifs = match($typeSeance) {
+            'solo' => 1,
+            'duo' => 2,
+            'trio' => 3,
+            default => 0,
+        };
+        
+        if ($sportifCount > $maxSportifs) {
+            $context->buildViolation("Une séance de type '{$typeSeance}' ne peut pas avoir plus de {$maxSportifs} sportif(s).")
+                ->atPath('sportifs')
+                ->addViolation();
+        }
     }
 }

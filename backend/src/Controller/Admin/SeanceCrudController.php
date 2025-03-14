@@ -11,7 +11,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
-
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use App\Repository\CoachRepository;
 
 class SeanceCrudController extends AbstractCrudController
@@ -22,6 +22,7 @@ class SeanceCrudController extends AbstractCrudController
     {
         $this->coachRepository = $coachRepository;
     }
+    
     public static function getEntityFqcn(): string
     {
         return Seance::class;
@@ -45,6 +46,12 @@ class SeanceCrudController extends AbstractCrudController
             ->setPageTitle('edit', 'Modifier une séance');
     }
     
+    public function configureAssets(Assets $assets): Assets
+    {
+        return $assets
+            ->addJsFile('public/js/seance-form.js');
+    }
+    
     public function configureFields(string $pageName): iterable
     {
         $coaches = $this->coachRepository->findAll();
@@ -52,7 +59,6 @@ class SeanceCrudController extends AbstractCrudController
         foreach ($coaches as $coach) {
             $choices[$coach->getNom()] = $coach->getId();
         }
-
 
         return [
             AssociationField::new('coach')
@@ -72,7 +78,12 @@ class SeanceCrudController extends AbstractCrudController
             TextField::new('theme_seance')->setLabel("Thème de la séance"),
             AssociationField::new('sportifs')
                 ->setLabel("Sportifs")                
-                ->setFormTypeOption('choice_label', 'nom'),
+                ->setFormTypeOption('choice_label', 'nom')
+                ->setFormTypeOption('multiple', true)
+                ->setFormTypeOption('attr', [
+                    'data-max-items' => 3, // Valeur par défaut, sera mise à jour par JS
+                    'class' => 'sportifs-select'
+                ]),
             AssociationField::new('exercices')
                 ->setLabel("Exercices")
                 ->setFormTypeOption('choice_label', 'nom'),
@@ -92,5 +103,4 @@ class SeanceCrudController extends AbstractCrudController
                 ->setLabel("Statut"),
         ];
     }
-    
 }
