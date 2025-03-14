@@ -25,7 +25,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_RESPONSABLE')]
 class UtilisateurCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
@@ -108,7 +110,9 @@ class UtilisateurCrudController extends AbstractCrudController
             ])
             ->allowMultipleChoices() 
             ->setValue(['ROLE_RESPONSABLE'])
-            ->hideOnForm(), 
+            ->hideOnForm()
+            ->hideOnIndex()
+            ->hideOnDetail(), 
             
         ];
     }
