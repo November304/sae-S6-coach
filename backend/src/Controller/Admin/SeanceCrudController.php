@@ -12,16 +12,11 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
-use App\Repository\CoachRepository;
+use Doctrine\ORM\EntityManagerInterface;
+
 
 class SeanceCrudController extends AbstractCrudController
 {
-    private $coachRepository;
-
-    public function __construct(CoachRepository $coachRepository)
-    {
-        $this->coachRepository = $coachRepository;
-    }
     
     public static function getEntityFqcn(): string
     {
@@ -43,23 +38,12 @@ class SeanceCrudController extends AbstractCrudController
         return $crud
             ->setPageTitle('index', 'Séances')
             ->setPageTitle('new', 'Créer une séance')
-            ->setPageTitle('edit', 'Modifier une séance');
-    }
-    
-    public function configureAssets(Assets $assets): Assets
-    {
-        return $assets
-            ->addJsFile('public/js/seance-form.js');
+            ->setPageTitle('edit', 'Modifier une séance')
+            ->setFormThemes(['@EasyAdmin/crud/form_theme.html.twig', 'admin/form/seance_form_theme.html.twig']);
     }
     
     public function configureFields(string $pageName): iterable
     {
-        $coaches = $this->coachRepository->findAll();
-        $choices = [];
-        foreach ($coaches as $coach) {
-            $choices[$coach->getNom()] = $coach->getId();
-        }
-
         return [
             AssociationField::new('coach')
                 ->setLabel("Coach")
@@ -68,39 +52,111 @@ class SeanceCrudController extends AbstractCrudController
                     return $entity->getCoach()->getNom();
                 }),
             DateTimeField::new('date_heure')->setLabel("Date et heure"),
+            TextField::new('theme_seance')->setLabel("Thème de la séance"),
             ChoiceField::new('type_seance')
                 ->setChoices([
                     'Solo' => 'solo',
                     'Duo' => 'duo',
                     'Trio' => 'trio',
                 ])
-                ->setLabel("Type de séance"),
-            TextField::new('theme_seance')->setLabel("Thème de la séance"),
-            AssociationField::new('sportifs')
-                ->setLabel("Sportifs")                
-                ->setFormTypeOption('choice_label', 'nom')
-                ->setFormTypeOption('multiple', true)
+                ->setLabel("Type de séance")
                 ->setFormTypeOption('attr', [
-                    'data-max-items' => 3, // Valeur par défaut, sera mise à jour par JS
-                    'class' => 'sportifs-select'
+                    'class' => 'type-seance-select',
+                    'onChange' => 'updateSportifLimit(this.value)'
                 ]),
+            ChoiceField::new('niveau_seance')
+                ->setChoices([
+                    'Débutant'      => 'débutant',
+                    'Intermédiaire' => 'intermédiaire',
+                    'Avancée'       => 'avancée',
+                ])
+                ->setLabel("Niveau de la séance")
+                ->setFormTypeOption('attr', [
+                    'class' => 'niveau-seance-select',
+                ]),
+            AssociationField::new('sportifs')
+                ->setLabel("Sportifs")
+                ->setFormTypeOption('choice_label', 'nom')
+                ->setFormTypeOption('choice_attr', function($sportif, $key, $value) {
+                    return ['data-level' => $sportif->getNiveauSportif()];
+                })
+                ->setFormTypeOption('attr', [
+                    'class' => 'sportifs-select',
+                    'data-controller' => 'seance-sportifs'
+                ])
+                ->setHelp('<div id="sportifs-help"></div>'),
             AssociationField::new('exercices')
                 ->setLabel("Exercices")
                 ->setFormTypeOption('choice_label', 'nom'),
-            ChoiceField::new('niveau_seance')
-                ->setChoices([
-                    'Débutant' => 'débutant',
-                    'Intérmédiaire' => 'intermédiaire',
-                    'Avancée' => 'avancé',
-                ])
-                ->setLabel("Niveau de la séance"),
             ChoiceField::new('statut')
                 ->setChoices([
                     'Prévue' => 'prévue',
                     'Validée' => 'validée',
                     'Annulée' => 'annulée',
                 ])
-                ->setLabel("Statut"),
+                ->setLabel("Statut")
+                ->setFormTypeOption('data', 'prévue'),
         ];
+    }
+
+
+    private function checkNiveauSportifs(Seance $seance): void
+    {
+        $sessionNiveau = $seance->getNiveauSeance();
+        foreach ($seance->getSportifs() as $sportif) {
+            // On vérifie que le niveau du sportif correspond exactement à celui de la séance
+            if ($sportif->getNiveauSportif() !== $sessionNiveau) {
+                throw new \Exception(
+                    "Le sportif " . $sportif->getNom() . " (niveau " . $sportif->getNiveauSportif() . 
+                    ") ne peut pas participer à une séance de niveau " . $sessionNiveau . "."
+                );
+            }
+        }
+    }
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof Seance) {
+            parent::persistEntity($entityManager, $entityInstance);
+            return;
+        }
+        
+        // Vérification du niveau des sportifs
+        $this->checkNiveauSportifs($entityInstance);
+        
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof Seance) {
+            parent::updateEntity($entityManager, $entityInstance);
+            return;
+        }
+        
+        // Vérification du niveau des sportifs
+        $this->checkNiveauSportifs($entityInstance);
+        
+        parent::updateEntity($entityManager, $entityInstance);
+    }
+
+
+    public function configureAssets(Assets $assets): Assets
+    {
+        return $assets
+            ->addJsFile('/js/seance-form.js')
+            ->addHtmlContentToBody('
+                <style>
+                    #seance-help-container div { margin-bottom: 0.5rem; }
+                    #sportifs-help, #niveau-help {
+                        color:rgb(128, 128, 128);
+                        font-size: 0.9em;
+                    }
+                    #sportifs-help strong, #niveau-help strong {
+                        color:rgb(128, 128, 128);
+                    }
+                    .invalid-feedback { color: red !important; }
+                </style>
+            ');
     }
 }
