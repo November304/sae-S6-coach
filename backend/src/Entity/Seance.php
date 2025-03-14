@@ -214,4 +214,14 @@ class Seance
                 ->addViolation();
         }
     }
+
+    public function getDureeEstimeeTotal(): int
+    {
+        $duree = 0;
+        foreach ($this->exercices as $exercice) {
+            $duree += $exercice->getDureeEstimee();
+        }
+
+        return $duree;
+    }
 }
