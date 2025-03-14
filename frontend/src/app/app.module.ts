@@ -9,6 +9,8 @@ import { HomeComponent } from './home/home.component';
 import { authInterceptor } from './services/auth.interceptor';
 import { CoachesListComponent } from './coaches-list/coaches-list.component';
 import { SeancesListComponent } from './seances-list/seances-list.component';
+import { PlanningComponent } from './planning/planning.component';
+import { LoginComponent } from './login/login.component';
 
 @NgModule({
   declarations: [
@@ -16,11 +18,13 @@ import { SeancesListComponent } from './seances-list/seances-list.component';
     HomeComponent,
     CoachesListComponent,
     SeancesListComponent,
+    PlanningComponent,
+    LoginComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    FormsModule,
+    FormsModule
   ],
   providers: [provideHttpClient(withInterceptors([authInterceptor]))],
   bootstrap: [AppComponent]
