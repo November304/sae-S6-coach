@@ -100,9 +100,7 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::section('Utilisateurs');
         yield MenuItem::linkToCrud('Coachs', 'fas fa-users', Coach::class);
         yield MenuItem::linkToCrud('Sportifs', 'fas fa-users', Sportif::class);
-        if ($this->isGranted('ROLE_RESPONSABLE')) {
-            yield MenuItem::linkToCrud('Responsables', 'fas fa-users', Utilisateur::class);
-        }
+        yield MenuItem::linkToCrud('Responsables', 'fas fa-users', Utilisateur::class);
         
         yield MenuItem::section('Salle de sport');
         yield MenuItem::linkToCrud('Séances', 'fas fa-calendar-alt', Seance::class);
@@ -110,8 +108,6 @@ class DashboardController extends AbstractDashboardController
 
         yield MenuItem::section('Statistiques Responsables');
         yield MenuItem::linkToDashboard('Dashboard', 'fas fa-tachometer-alt');
-        if ($this->isGranted('ROLE_RESPONSABLE')) {
-            yield MenuItem::linkToCrud('Fiche de paie', 'fa fa-file-invoice', FicheDePaie::class);
-        }
+        yield MenuItem::linkToCrud('Fiche de paie', 'fa fa-file-invoice', FicheDePaie::class);
     }
 }
