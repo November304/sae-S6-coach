@@ -52,6 +52,7 @@ class SeanceCrudController extends AbstractCrudController
                     return $entity->getCoach()->getNom();
                 }),
             DateTimeField::new('date_heure')->setLabel("Date et heure"),
+            TextField::new('theme_seance')->setLabel("Thème de la séance"),
             ChoiceField::new('type_seance')
                 ->setChoices([
                     'Solo' => 'solo',
@@ -63,22 +64,7 @@ class SeanceCrudController extends AbstractCrudController
                     'class' => 'type-seance-select',
                     'onChange' => 'updateSportifLimit(this.value)'
                 ]),
-            TextField::new('theme_seance')->setLabel("Thème de la séance"),
-           AssociationField::new('sportifs')
-            ->setLabel("Sportifs")
-            ->setFormTypeOption('choice_label', 'nom')
-            ->setFormTypeOption('choice_attr', function($sportif, $key, $value) {
-                return ['data-level' => $sportif->getNiveauSportif()];
-            })
-            ->setFormTypeOption('attr', [
-                'class' => 'sportifs-select',
-                'data-controller' => 'seance-sportifs'
-            ])
-            ->setHelp('<span id="sportifs-help">Sélectionnez uniquement des sportifs du niveau correspondant à la séance.</span>'),
-            AssociationField::new('exercices')
-                ->setLabel("Exercices")
-                ->setFormTypeOption('choice_label', 'nom'),
-             ChoiceField::new('niveau_seance')
+            ChoiceField::new('niveau_seance')
                 ->setChoices([
                     'Débutant'      => 'débutant',
                     'Intermédiaire' => 'intermédiaire',
@@ -88,13 +74,28 @@ class SeanceCrudController extends AbstractCrudController
                 ->setFormTypeOption('attr', [
                     'class' => 'niveau-seance-select',
                 ]),
+            AssociationField::new('sportifs')
+                ->setLabel("Sportifs")
+                ->setFormTypeOption('choice_label', 'nom')
+                ->setFormTypeOption('choice_attr', function($sportif, $key, $value) {
+                    return ['data-level' => $sportif->getNiveauSportif()];
+                })
+                ->setFormTypeOption('attr', [
+                    'class' => 'sportifs-select',
+                    'data-controller' => 'seance-sportifs'
+                ])
+                ->setHelp('<div id="sportifs-help"></div>'),
+            AssociationField::new('exercices')
+                ->setLabel("Exercices")
+                ->setFormTypeOption('choice_label', 'nom'),
             ChoiceField::new('statut')
                 ->setChoices([
                     'Prévue' => 'prévue',
                     'Validée' => 'validée',
                     'Annulée' => 'annulée',
                 ])
-                ->setLabel("Statut"),
+                ->setLabel("Statut")
+                ->setFormTypeOption('data', 'prévue'),
         ];
     }
 
@@ -146,9 +147,15 @@ class SeanceCrudController extends AbstractCrudController
             ->addJsFile('/js/seance-form.js')
             ->addHtmlContentToBody('
                 <style>
-                    #sportif-errors br { margin-bottom: 0.5rem; }
-                    .disabled-select { opacity: 0.6; cursor: not-allowed; }
-                    .is-invalid { border-color: #dc3545 !important; }
+                    #seance-help-container div { margin-bottom: 0.5rem; }
+                    #sportifs-help, #niveau-help {
+                        color:rgb(128, 128, 128);
+                        font-size: 0.9em;
+                    }
+                    #sportifs-help strong, #niveau-help strong {
+                        color:rgb(128, 128, 128);
+                    }
+                    .invalid-feedback { color: red !important; }
                 </style>
             ');
     }
