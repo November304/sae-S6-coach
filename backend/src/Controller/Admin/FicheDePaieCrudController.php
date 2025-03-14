@@ -11,18 +11,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 
 class FicheDePaieCrudController extends AbstractCrudController
 {
     public static function getEntityFqcn(): string
     {
         return FicheDePaie::class;
-    }
-    private $coachRepository;
-
-    public function __construct(CoachRepository $coachRepository)
-    {
-        $this->coachRepository = $coachRepository;
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -46,16 +41,10 @@ class FicheDePaieCrudController extends AbstractCrudController
     
     public function configureFields(string $pageName): iterable
     {
-        $coaches = $this->coachRepository->findAll();
-        $choices = [];
-        foreach ($coaches as $coach) {
-            $choices[$coach->getNom()] = $coach->getId();
-        }
-
         return [
-            ChoiceField::new('coach')
-                ->setChoices($choices)
-                ->setLabel("Coach"),
+            AssociationField::new('coach')
+                ->setLabel("Coach")
+                ->setFormTypeOption('choice_label', 'nom'),
             ChoiceField::new('periode', 'Période')
                 ->setChoices(['Mois' => 'mois', 'Semaine' => 'semaine'])
                 ->allowMultipleChoices(false),
