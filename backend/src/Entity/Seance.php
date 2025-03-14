@@ -9,6 +9,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 #[ORM\Entity(repositoryClass: SeanceRepository::class)]
 class Seance
@@ -16,31 +17,31 @@ class Seance
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['seance:read', 'seance:write'])]
+    #[Groups(['seance:read', 'seance:write','coach:read','sportif:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Assert\NotNull]
-    #[Groups(['seance:read', 'seance:write'])]
+    #[Groups(['seance:read', 'seance:write','coach:read','sportif:read'])]
     private ?\DateTimeInterface $date_heure = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["solo", "duo", "trio"], message: "Type de séance invalide. (solo, duo,trio)")]
-    #[Groups(['seance:read', 'seance:write'])]
+    #[Groups(['seance:read', 'seance:write','coach:read','sportif:read'])]
     private ?string $type_seance = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['seance:read', 'seance:write'])]
+    #[Groups(['seance:read', 'seance:write','coach:read','sportif:read'])]
     private ?string $theme_seance = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["débutant", "intermédiaire", "avancé"], message: "Niveau de séance invalide.")]
-    #[Groups(['seance:read', 'seance:write'])]
+    #[Groups(['seance:read', 'seance:write','coach:read','sportif:read'])]
     private ?string $niveau_seance = null;
 
     #[ORM\ManyToOne(inversedBy: 'seances')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['seance:read', 'seance:write'])]
+    #[Groups(['seance:read', 'seance:write','sportif:read'])]
     private ?Coach $coach = null;
 
     /**
@@ -53,7 +54,7 @@ class Seance
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["prévue", "validée", "annulée"], message: "Statut invalide.")]
-    #[Groups(['seance:read', 'seance:write'])]
+    #[Groups(['seance:read', 'seance:write','coach:read','sportif:read'])]
     private ?string $statut = null;
 
     /**
@@ -192,5 +193,35 @@ class Seance
         $this->exercices->removeElement($exercice);
 
         return $this;
+    }
+
+    #[Assert\Callback]
+    public function validateSportifCount(ExecutionContextInterface $context): void
+    {
+        $typeSeance = $this->getTypeSeance();
+        $sportifCount = $this->getSportifs()->count();
+        
+        $maxSportifs = match($typeSeance) {
+            'solo' => 1,
+            'duo' => 2,
+            'trio' => 3,
+            default => 0,
+        };
+        
+        if ($sportifCount > $maxSportifs) {
+            $context->buildViolation("Une séance de type '{$typeSeance}' ne peut pas avoir plus de {$maxSportifs} sportif(s).")
+                ->atPath('sportifs')
+                ->addViolation();
+        }
+    }
+
+    public function getDureeEstimeeTotal(): int
+    {
+        $duree = 0;
+        foreach ($this->exercices as $exercice) {
+            $duree += $exercice->getDureeEstimee();
+        }
+
+        return $duree;
     }
 }

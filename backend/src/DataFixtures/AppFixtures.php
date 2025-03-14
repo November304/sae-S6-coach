@@ -151,10 +151,12 @@ class AppFixtures extends Fixture
         // Création de 10 fiches de paie
         for ($i = 0; $i < 10; $i++) {
             $fiche = new \App\Entity\FicheDePaie();
-            $fiche->setCoach($faker->randomElement($coaches))
+            $totalHeures = $faker->numberBetween(10, 40);
+            $coach = $faker->randomElement($coaches);
+            $fiche->setCoach($coach)
                   ->setPeriode($faker->randomElement(['mois', 'semaine']))
-                  ->setTotalHeures($faker->numberBetween(10, 40))
-                  ->setMontantTotal($faker->randomFloat(2, 200, 1000));
+                  ->setTotalHeures($totalHeures)
+                  ->setMontantTotal(round($coach->getTarifHoraire() * $totalHeures, 2));
             $manager->persist($fiche);
         }
 
