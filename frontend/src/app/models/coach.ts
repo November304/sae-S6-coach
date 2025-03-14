@@ -2,7 +2,7 @@ import { Utilisateur } from "./utilisateur";
 
 export class Coach extends Utilisateur {
     constructor(
-        public specialite: string[],
+        public specialites: string[],
         public tarif_horaire: number,
         data: Partial<Utilisateur>
     ) {

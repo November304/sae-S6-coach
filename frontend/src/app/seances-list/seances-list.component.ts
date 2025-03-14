@@ -24,8 +24,23 @@ export class SeancesListComponent implements OnInit {
     });
   }
 
-  getCoachName(coach: number): string {
-    const coach = this.coaches.find((c) => c.id === coach);
+  getCoachName(coach_id: number): string {
+    console.log('getCoachName', coach_id);
+    const coach = this.coaches.find((c) => c.id === coach_id);
     return coach ? `${coach.nom} ${coach.prenom}` : 'Coach inconnu';
   }
+
+  getPlacesMax(type_seance: string): number {
+    switch (type_seance.toLowerCase()) {
+      case 'solo':
+        return 1;
+      case 'duo':
+        return 2;
+      case 'trio':
+        return 3;
+      default:
+        return 0;
+    }
+  }
+
 }
