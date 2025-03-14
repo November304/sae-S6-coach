@@ -41,7 +41,6 @@ class Exercice
      * @var Collection<int, Seance>
      */
     #[ORM\ManyToMany(targetEntity: Seance::class, mappedBy: 'exercices')]
-    #[Groups(['exercice:read', 'exercice:write'])]
     private Collection $seances;
 
     public function __construct()

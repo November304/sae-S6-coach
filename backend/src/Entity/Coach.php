@@ -21,7 +21,7 @@ class Coach extends Utilisateur
     #[ORM\Column]
     #[Assert\NotNull]
     #[Assert\Positive]
-    #[Groups(['coach:read','coach:write'])]
+    #[Groups(['coach:write'])]
     private ?float $tarif_horaire = 0;
 
     /**
@@ -35,7 +35,6 @@ class Coach extends Utilisateur
      * @var Collection<int, FicheDePaie>
      */
     #[ORM\OneToMany(targetEntity: FicheDePaie::class, mappedBy: 'coach')]
-    #[Groups(['coach:read','coach:write'])]
     private Collection $ficheDePaies;
 
     public function __construct()
