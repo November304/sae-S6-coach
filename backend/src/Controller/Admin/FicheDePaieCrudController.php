@@ -67,6 +67,9 @@ class FicheDePaieCrudController extends AbstractCrudController
             AssociationField::new('coach')
                 ->setLabel("Coach")
                 ->setFormTypeOption('choice_label', 'nom')
+                ->formatValue(function ($value, $entity) {
+                    return $entity->getCoach()->getNom();
+                })
                 ->setFormTypeOption('attr', ['class' => 'coach-field']),
 
             ChoiceField::new('periode', 'Période')

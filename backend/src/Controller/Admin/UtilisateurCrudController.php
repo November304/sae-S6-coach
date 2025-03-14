@@ -79,8 +79,6 @@ class UtilisateurCrudController extends AbstractCrudController
     {
         
         return [
-            IdField::new('id')
-                ->hideOnForm(),
             TextField::new('nom')
                 ->setLabel("Nom"),
             TextField::new('prenom')
