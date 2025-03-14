@@ -20,7 +20,7 @@ class Sportif extends Utilisateur
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["débutant", "intermédiaire", "avancé"], message: "Niveau sportif invalide.")]
-    #[Groups(['sportif:read', 'sportif:write'])]
+    #[Groups(['sportif:read', 'sportif:write','seance:read'])]
     private ?string $niveau_sportif = null;
 
     /**
