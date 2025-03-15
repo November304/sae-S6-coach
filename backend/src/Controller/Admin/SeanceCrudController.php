@@ -13,7 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use Doctrine\ORM\EntityManagerInterface;
-
+use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 
 class SeanceCrudController extends AbstractCrudController
 {
@@ -44,7 +44,7 @@ class SeanceCrudController extends AbstractCrudController
     
     public function configureFields(string $pageName): iterable
     {
-        return [
+        $fields = [
             AssociationField::new('coach')
                 ->setLabel("Coach")
                 ->setFormTypeOption('choice_label', 'nom')
@@ -68,7 +68,7 @@ class SeanceCrudController extends AbstractCrudController
                 ->setChoices([
                     'Débutant'      => 'débutant',
                     'Intermédiaire' => 'intermédiaire',
-                    'Avancée'       => 'avancée',
+                    'Avancé'       => 'avancé',
                 ])
                 ->setLabel("Niveau de la séance")
                 ->setFormTypeOption('attr', [
@@ -76,7 +76,9 @@ class SeanceCrudController extends AbstractCrudController
                 ]),
             AssociationField::new('sportifs')
                 ->setLabel("Sportifs")
-                ->setFormTypeOption('choice_label', 'nom')
+                ->setFormTypeOption('choice_label', function($sportif) {
+                    return $sportif->getNom() . ' (niveau ' . $sportif->getNiveauSportif() . ')';
+                })
                 ->setFormTypeOption('choice_attr', function($sportif, $key, $value) {
                     return ['data-level' => $sportif->getNiveauSportif()];
                 })
@@ -87,7 +89,26 @@ class SeanceCrudController extends AbstractCrudController
                 ->setHelp('<div id="sportifs-help"></div>'),
             AssociationField::new('exercices')
                 ->setLabel("Exercices")
-                ->setFormTypeOption('choice_label', 'nom'),
+                ->setFormTypeOption('choice_label', 'nom')
+                ->setFormTypeOption('choice_attr', function ($exercice) {
+                    return ['data-duree' => $exercice->getDureeEstimee()];
+                })
+                ->setFormTypeOption('attr', [
+                    'data-controller' => 'exercices-duree',
+                ])
+                ->setHelp('<div id="duree-preview" class="mt-2">Durée totale estimée : <strong>0 min</strong></div>'),
+            IntegerField::new('dureeEstimeeTotal', 'Durée totale')
+                ->setFormTypeOption('disabled', true)
+                ->setFormTypeOption('attr', ['readonly' => true])
+                ->formatValue(function ($value, $entity) {
+                    return $this->formatDuration($value);
+                })
+                ->onlyOnIndex(),
+            TextField::new('dureeEstimeeTotal', 'Durée totale')
+                ->setFormTypeOption('disabled', true)
+                ->setFormTypeOption('attr', ['readonly' => true])
+                ->onlyOnForms()
+                ->onlyOnDetail(),
             ChoiceField::new('statut')
                 ->setChoices([
                     'Prévue' => 'prévue',
@@ -97,8 +118,21 @@ class SeanceCrudController extends AbstractCrudController
                 ->setLabel("Statut")
                 ->setFormTypeOption('data', 'prévue'),
         ];
+
+        return $fields;
     }
 
+    private function formatDuration(int $minutes): string
+    {
+        if ($minutes < 60) {
+            return $minutes . ' min';
+        }
+
+        $hours = floor($minutes / 60);
+        $remainingMinutes = $minutes % 60;
+        
+        return sprintf('%dh%02d', $hours, $remainingMinutes);
+    }
 
     private function checkNiveauSportifs(Seance $seance): void
     {
@@ -140,7 +174,6 @@ class SeanceCrudController extends AbstractCrudController
         parent::updateEntity($entityManager, $entityInstance);
     }
 
-
     public function configureAssets(Assets $assets): Assets
     {
         return $assets
@@ -148,11 +181,11 @@ class SeanceCrudController extends AbstractCrudController
             ->addHtmlContentToBody('
                 <style>
                     #seance-help-container div { margin-bottom: 0.5rem; }
-                    #sportifs-help, #niveau-help {
+                    #sportifs-help, #niveau-help, #duree-preview {
                         color:rgb(128, 128, 128);
                         font-size: 0.9em;
                     }
-                    #sportifs-help strong, #niveau-help strong {
+                    #sportifs-help strong, #niveau-help strong, #duree-preview strong {
                         color:rgb(128, 128, 128);
                     }
                     .invalid-feedback { color: red !important; }

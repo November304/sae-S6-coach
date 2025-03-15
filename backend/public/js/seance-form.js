@@ -57,6 +57,61 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }, 100);
   }
+
+  const exercicesSelect = document.querySelector(
+    '[data-controller="exercices-duree"]'
+  );
+  const dureeTotalField = document.getElementById("dureeEstimeeTotal");
+  const dureePreview = document.getElementById("duree-preview");
+
+  function updateDureeTotale() {
+    let totalMinutes = 0;
+    const selectedOptions = exercicesSelect.selectedOptions;
+
+    Array.from(selectedOptions).forEach((option) => {
+      totalMinutes += parseInt(option.dataset.duree) || 0;
+    });
+
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+
+    // Format différent pour l'affichage en temps réel vs. la valeur du champ
+    const formatted = hours
+      ? `${hours}h${minutes.toString().padStart(2, "0")}`
+      : `${minutes} min`;
+
+    // Mise à jour du champ caché
+    if (dureeTotalField) {
+      dureeTotalField.value = formatted;
+    }
+
+    // Mise à jour de la prévisualisation
+    if (dureePreview) {
+      dureePreview.innerHTML = `Durée totale estimée : <strong>${formatted}</strong>`;
+    }
+  }
+
+  // Écouter les changements
+  if (exercicesSelect) {
+    exercicesSelect.addEventListener("change", updateDureeTotale);
+
+    // Gérer TomSelect (choix multiples EasyAdmin)
+    if (exercicesSelect.tomselect) {
+      exercicesSelect.tomselect.on("change", updateDureeTotale);
+    } else {
+      const interval = setInterval(() => {
+        if (exercicesSelect.tomselect) {
+          clearInterval(interval);
+          exercicesSelect.tomselect.on("change", updateDureeTotale);
+          // Mise à jour initiale après l'initialisation de TomSelect
+          updateDureeTotale();
+        }
+      }, 100);
+    }
+
+    // Mise à jour initiale
+    updateDureeTotale();
+  }
 });
 
 // Modifier updateNiveauHelp pour utiliser le même style
@@ -65,7 +120,7 @@ function updateNiveauHelp(niveau) {
   const niveauxLabels = {
     débutant: "Débutant",
     intermédiaire: "Intermédiaire",
-    avancée: "Avancée",
+    avancé: "Avancé",
   };
 
   if (!niveau) {
@@ -110,9 +165,7 @@ function checkNiveauSportif() {
     errorDiv.className = "invalid-feedback d-block mt-2";
     errorDiv.style.color = "red";
 
-    const errorList = invalidSportifs
-      .map((s) => `• ${s.name} (niveau ${s.level})`)
-      .join("<br>");
+    const errorList = invalidSportifs.map((s) => `• ${s.name}`).join("<br>");
 
     errorDiv.innerHTML = `
             <strong>Incompatibilité de niveau :</strong><br>
