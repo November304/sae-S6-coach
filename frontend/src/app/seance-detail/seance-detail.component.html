@@ -1,8 +1,15 @@
 <div class="card mb-3" *ngFor="let seance of seances">
-    <div class="card-body">
-        <h5 class="card-title">
-            {{ seance.type_seance | titlecase }} - {{ seance.theme_seance }}
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="m-0">
+            {{ seance.type_seance | titlecase }} - {{ seance.theme_seance }} 
+            ({{ seance.sportifs.length }}/{{ getPlacesMax(seance.type_seance) }})
         </h5>
+        <button class="btn btn-link" (click)="toggleDetails(seance.id)">
+            <span [class]="expandedSeances[seance.id] ? 'bi bi-chevron-up' : 'bi bi-chevron-down'"></span>
+        </button>
+    </div>
+
+    <div class="card-body" *ngIf="expandedSeances[seance.id]">
         <h6 class="card-subtitle mb-2 text-muted">
             Date: {{ seance.date_heure | date:'dd/MM/yyyy HH:mm' }}
         </h6>
@@ -30,7 +37,7 @@
             <strong>Statut:</strong> {{ seance.statut | titlecase }}
         </p>
 
-        <div class="d-flex justify-content-end">
+        <div class="d-flex justify-content-end" *ngIf="authService.currentAuthUserValue.isLogged()">
             <a class="btn btn-primary" routerLink="/reservation/{{ seance.id }}">
                 Réserver
             </a>
