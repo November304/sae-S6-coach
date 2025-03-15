@@ -39,6 +39,8 @@ class AppFixtures extends Fixture
         $mainCoach->setPassword($this->passwordHasher->hashPassword($mainCoach, 'coach'));
         $mainCoach->setSpecialites(['Yoga', 'Pilates']);
         $mainCoach->setTarifHoraire(50);
+        $mainCoach->setDescription('Coach sportif depuis sa naissance, lui il est coach.');
+        $mainCoach->setImageFilename('0.jpeg');
         $mainCoach->setRoles(['ROLE_COACH']);
         $manager->persist($mainCoach);
 
@@ -70,6 +72,8 @@ class AppFixtures extends Fixture
 
             $coach->setSpecialites([$faker->word, $faker->word]);
             $coach->setTarifHoraire($faker->randomFloat(2, 20, 100));
+            $coach->setDescription($faker->sentence);
+            $coach->setImageFilename(($i+1) . '.jpeg');
             $coach->setRoles(['ROLE_COACH']);
             $manager->persist($coach);
 
