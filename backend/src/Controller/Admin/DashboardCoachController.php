@@ -10,8 +10,10 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[AdminDashboard(routePath: '/coach', routeName: 'coach_admin')]
+#[IsGranted('ROLE_COACH')]
 class DashboardCoachController extends AbstractDashboardController
 {
     public function index(): Response
