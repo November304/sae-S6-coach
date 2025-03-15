@@ -33,7 +33,8 @@ class DashboardCoachController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Sportifs', 'fas fa-users', Sportif::class);
 
         yield MenuItem::section('Salle de sport');
-        yield MenuItem::linkToCrud('Séances', 'fas fa-calendar-alt', Seance::class);
+        yield MenuItem::linkToCrud('Séances', 'fas fa-calendar-alt', Seance::class)
+            ->setController(SeanceCoachCrudController::class);
         yield MenuItem::linkToCrud('Exercices', 'fas fa-dumbbell', Exercice::class);
 
     }
