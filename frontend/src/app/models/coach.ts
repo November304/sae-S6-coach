@@ -4,6 +4,8 @@ export class Coach extends Utilisateur {
     constructor(
         public specialites: string[],
         public tarif_horaire: number,
+        public imageFilename: string,
+        public description: string,
         data: Partial<Utilisateur>
     ) {
         super(
