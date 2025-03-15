@@ -1,2 +1,47 @@
+<h1 class="text-center">Planning des séances</h1>
 
-<app-seances-list></app-seances-list>
+<div class="container">
+  <div class="row">
+    <div class="col-md-3 d-flex flex-column align-items-start coach-selector h-100">
+      <label for="coach" class="fw-bold mb-2">Coachs :</label>
+      <select multiple id="coach" class="form-select form-select-sm w-100" (change)="onCoachChange($event)">
+        <option *ngFor="let coach of coaches" [value]="coach.id">{{ coach.prenom }} {{ coach.nom }}</option>
+      </select>
+
+      <label for="sessionType" class="fw-bold mt-3 mb-2">Type de séance :</label>
+      <select multiple id="sessionType" class="form-select form-select-sm w-100" (change)="onSessionTypeChange($event)">
+        <option *ngFor="let type of sessionTypes" [value]="type">{{ type }}</option>
+      </select>
+
+      <label for="niveauSession" class="fw-bold mt-3 mb-2">Niveau de la séance :</label>
+      <select multiple id="niveauSession" class="form-select form-select-sm w-100" (change)="onSessionLevelChange($event)">
+        <option *ngFor="let level of sessionLevels" [value]="level">{{ level }}</option>
+      </select>      
+    </div>
+
+    <div class="col-md-9">
+      <div class="navigation-container text-center">
+        <button class="btn btn-light" (click)="previousWeek()">
+          <i class="bi bi-chevron-left"></i> Semaine précédente
+        </button>
+        <span class="current-week">{{ viewDate | date:'dd/MM/yyyy' }}</span>
+        <button class="btn btn-light" (click)="nextWeek()">
+          Semaine suivante <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+
+      <div class="calendar-container">
+        <mwl-calendar-week-view
+          [viewDate]="viewDate"
+          [events]="events"
+          [hourSegments]="hourSegments"
+          [dayStartHour]="dayStartHour"
+          [dayEndHour]="dayEndHour"
+          [weekStartsOn]="weekStartsOn"
+          [hourSegmentHeight]="40"
+          locale="fr">
+        </mwl-calendar-week-view>
+      </div>
+    </div>
+  </div>
+</div>
