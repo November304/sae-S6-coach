@@ -2,8 +2,10 @@
     <div class="row">
         <div class="col-md-4 mb-3" *ngFor="let coach of coaches">
             <div class="card h-100">
+                <img *ngIf="coach.imageFilename" [src]="'https://localhost:8008/uploads/coach-photos/' + coach.imageFilename" class="card-img-top" alt="Photo de {{ coach.nom }} {{ coach.prenom }}">
                 <div class="card-body">
                     <h5 class="card-title text-center fw-bold text-uppercase">{{ coach.nom }} {{ coach.prenom }}</h5>
+                    <h6 class="card-subtitle text-center mb-3 text-muted">{{ coach.description }}</h6>
                     <p class="card-text mb-1"><strong>Email:</strong></p>
                     <p class="mb-2">{{ coach.email }}</p>
                     <p class="card-text mb-1"><strong>Spécialités:</strong></p>
