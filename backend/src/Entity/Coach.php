@@ -9,8 +9,11 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\HttpFoundation\File\File;
+use Vich\UploaderBundle\Mapping\Annotation as Vich;
 
 #[ORM\Entity(repositoryClass: CoachRepository::class)]
+#[Vich\Uploadable]
 class Coach extends Utilisateur
 {
     #[ORM\Column]
@@ -36,6 +39,17 @@ class Coach extends Utilisateur
      */
     #[ORM\OneToMany(targetEntity: FicheDePaie::class, mappedBy: 'coach')]
     private Collection $ficheDePaies;
+
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    #[Groups(['coach:read','coach:write'])]
+    private ?string $description = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['coach:read','coach:write'])]
+    private ?string $imageFilename = null;
+
+    #[Vich\UploadableField(mapping: 'coach', fileNameProperty: 'imageFilename')]
+    private ?File $imageFile = null;
 
     public function __construct()
     {
@@ -126,6 +140,40 @@ class Coach extends Utilisateur
         }
 
         return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getImageFilename(): ?string
+    {
+        return $this->imageFilename;
+    }
+
+    public function setImageFilename(?string $imageFilename): static
+    {
+        $this->imageFilename = $imageFilename;
+
+        return $this;
+    }
+
+    public function setImageFile(?File $imageFile = null): void
+    {
+        $this->imageFile = $imageFile;
+    }
+
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
     }
 
 }
