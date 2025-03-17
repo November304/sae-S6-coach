@@ -1,0 +1,16 @@
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fa fa-tags mr-2"></i> Spécialités</h5>
+    </div>
+    <div class="card-body">
+        {% if field.value is empty %}
+            <p class="text-muted">Aucune spécialité renseignée</p>
+        {% else %}
+            <div class="d-flex flex-wrap">
+                {% for specialite in field.value %}
+                    <span class="badge badge-info mr-2 mb-2 p-2">{{ specialite }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>

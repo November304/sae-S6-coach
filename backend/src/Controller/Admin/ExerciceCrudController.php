@@ -26,7 +26,9 @@ class ExerciceCrudController extends AbstractCrudController
                 return $action
                     ->setLabel('Créer un nouvel exercice')
                     ->setIcon('fa fa-plus');
-            });
+           })
+        ->add(Crud::PAGE_INDEX, Action::DETAIL)
+        ->add(Crud::PAGE_EDIT, Action::DETAIL);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -41,10 +43,13 @@ class ExerciceCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-        return [
+       $fields = [
             TextField::new('nom', 'Nom'),
             TextField::new('description', 'Description'),
-            IntegerField::new('duree_estimee', 'Durée estimée (en min)'),
+            IntegerField::new('duree_estimee', 'Durée estimée (en min)')
+                ->formatValue(function ($value, $entity) {
+                    return $this->formatDuration($value);
+                }),
             ChoiceField::new('difficulte', 'Difficulté')
                 ->setChoices([
                     'Facile' => 'facile',
@@ -52,5 +57,35 @@ class ExerciceCrudController extends AbstractCrudController
                     'Difficile' => 'difficile'
                 ])
         ];
+
+        if ($pageName === Crud::PAGE_DETAIL) {
+            $fields =  [
+                TextField::new('nom', 'Nom')
+                    ->setTemplatePath('admin/exercice/header_card.html.twig'),
+                TextField::new('description', 'Description')
+                    ->setTemplatePath('admin/exercice/description_card.html.twig'),
+                IntegerField::new('dureeEstimee', 'Durée estimée')
+                    ->formatValue(function ($value, $entity) {
+                        return $this->formatDuration($value);
+                    })
+                    ->setTemplatePath('admin/exercice/duree_card.html.twig'),
+                ChoiceField::new('difficulte', 'Difficulté')
+                    ->setTemplatePath('admin/exercice/difficulte_card.html.twig'),
+            ];
+        }
+
+        return $fields;
+    }
+
+    private function formatDuration(int $minutes): string
+    {
+        if ($minutes < 60) {
+            return $minutes . ' min';
+        }
+
+        $hours = floor($minutes / 60);
+        $remainingMinutes = $minutes % 60;
+        
+        return sprintf('%dh%02d', $hours, $remainingMinutes);
     }
 }

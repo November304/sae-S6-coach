@@ -1,0 +1,6 @@
+<div class="card-header">
+  {% set imageUrl = "https://localhost:8008/uploads/coach-photos/" ~ entity.instance.imageFilename %}
+  <img src="{{ imageUrl }}" alt="Photo du coach" 
+        class="rounded-circle img-thumbnail" 
+        style="width: 150px; height: 150px; object-fit: cover;">
+</div>

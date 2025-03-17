@@ -1,0 +1,21 @@
+<div class="card mb-3">
+  <div class="card-header bg-info text-white">
+    <h5 class="mb-0">Informations</h5>
+  </div>
+  <div class="card-body">
+    <div class="d-flex justify-content-between mb-2">
+      <span><i class="fas fa-clock mr-2"></i>Date et heure:</span>
+      <strong>{{ field.value|date('d/m/Y H:i') }}</strong>
+    </div>
+    <div class="d-flex justify-content-between mb-2">
+      <span><i class="fas fa-signal mr-2"></i>Niveau:</span>
+      <strong>{{ entity.instance.niveauSeance|capitalize }}</strong>
+    </div>
+    <div class="d-flex justify-content-between">
+      <span><i class="fas fa-tasks mr-2"></i>Statut:</span>
+      <span class="badge {% if entity.instance.statut == 'validée' %}badge-success{% elseif entity.instance.statut == 'annulée' %}badge-danger{% else %}badge-warning{% endif %}">
+        {{ entity.instance.statut|capitalize }}
+      </span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,12 @@
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fa fa-calendar mr-2"></i> Date d'inscription</h5>
+    </div>
+    <div class="card-body">
+        {% if field.value is empty %}
+            <p class="text-muted">Aucune date d'inscription renseignée</p>
+        {% else %}
+            <p class="badge badge-info p-2">{{ field.value|date('d/m/Y') }}</p>
+        {% endif %}
+    </div>
+</div>
