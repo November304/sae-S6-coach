@@ -16,6 +16,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -61,7 +62,7 @@ class SeanceCoachCrudController extends AbstractCrudController
         
         $entityInstance->setCoach($this->security->getUser());
         $entityInstance->setStatut('prévue');
-
+        
         $this->validateSeance($entityManager, $entityInstance);
         parent::persistEntity($entityManager, $entityInstance);
     }
@@ -177,6 +178,20 @@ class SeanceCoachCrudController extends AbstractCrudController
         parent::updateEntity($entityManager, $entityInstance);
     }
 
+     private function checkNiveauSportifs(Seance $seance): void
+    {
+        $sessionNiveau = $seance->getNiveauSeance();
+        foreach ($seance->getSportifs() as $sportif) {
+            // On vérifie que le niveau du sportif correspond exactement à celui de la séance
+            if ($sportif->getNiveauSportif() !== $sessionNiveau) {
+                throw new \Exception(
+                    "Le sportif " . $sportif->getNom() . " (niveau " . $sportif->getNiveauSportif() . 
+                    ") ne peut pas participer à une séance de niveau " . $sessionNiveau . "."
+                );
+            }
+        }
+    }
+
     private function validateSeance(EntityManagerInterface $entityManager, Seance $seance): void
     {
         $coach = $seance->getCoach();
@@ -218,6 +233,8 @@ class SeanceCoachCrudController extends AbstractCrudController
                 throw new \Exception("Le sportif " . $sportif->getNom() . " est déjà inscrit à une séance entre " . $dateHeure->format('H:i') . " et " . $dateHeureFin->format('H:i') . ".");
             }
         }
+
+         $this->checkNiveauSportifs($seance);
     }
 
     public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
@@ -234,5 +251,24 @@ class SeanceCoachCrudController extends AbstractCrudController
         //TODO : Créer une demande d'annulation de séance vers les managers
 
         parent::deleteEntity($entityManager, $entityInstance);
+    }
+
+    public function configureAssets(Assets $assets): Assets
+    {
+        return $assets
+            ->addJsFile('/js/seance-form.js')
+            ->addHtmlContentToBody('
+                <style>
+                    #seance-help-container div { margin-bottom: 0.5rem; }
+                    #sportifs-help, #niveau-help, #duree-preview {
+                        color:rgb(128, 128, 128);
+                        font-size: 0.9em;
+                    }
+                    #sportifs-help strong, #niveau-help strong, #duree-preview strong {
+                        color:rgb(128, 128, 128);
+                    }
+                    .invalid-feedback { color: red !important; }
+                </style>
+            ');
     }
 }
