@@ -13,6 +13,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class SeanceController extends AbstractController {
+    #[Route('/api/public/seances', name: 'api_pub_get_seances', methods: ['GET'])]
+    public function getPublicSeanceList(SeanceRepository $seanceRepo): JsonResponse
+    {
+        $seances = $seanceRepo->findAll();
+        return $this->json($seances, JsonResponse::HTTP_OK, [], ['groups' => 'seance:public:read']);
+    }
+
     #[Route('/api/seances', name: 'api_get_seances', methods: ['GET'])]
     public function getSeanceList(SeanceRepository $seanceRepo): JsonResponse
     {
@@ -29,4 +36,7 @@ final class SeanceController extends AbstractController {
         }
         return $this->json($seance, JsonResponse::HTTP_OK, [], ['groups' => 'seance:read']);
     }
+
+
+
 }

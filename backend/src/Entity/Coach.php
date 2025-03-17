@@ -18,7 +18,7 @@ class Coach extends Utilisateur
 {
     #[ORM\Column]
     #[Assert\NotBlank]
-    #[Groups(['coach:read','coach:write','seance:read'])]
+    #[Groups(['coach:read','coach:public:read','seance:read'])]
     private array $specialites = [];
 
     #[ORM\Column]
@@ -31,7 +31,7 @@ class Coach extends Utilisateur
      * @var Collection<int, Seance>
      */
     #[ORM\OneToMany(targetEntity: Seance::class, mappedBy: 'coach')]
-    #[Groups(['coach:read','coach:write'])]
+    #[Groups(['coach:read'])]
     private Collection $seances;
 
     /**
@@ -41,11 +41,11 @@ class Coach extends Utilisateur
     private Collection $ficheDePaies;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['coach:read','coach:write'])]
+    #[Groups(['coach:read','coach:public:read'])]
     private ?string $description = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['coach:read','coach:write'])]
+    #[Groups(['coach:read','coach:public:read'])]
     private ?string $imageFilename = null;
 
     #[Vich\UploadableField(mapping: 'coach', fileNameProperty: 'imageFilename')]

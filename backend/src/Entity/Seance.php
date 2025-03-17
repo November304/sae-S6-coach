@@ -17,31 +17,31 @@ class Seance
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['seance:read', 'seance:write','coach:read','sportif:read'])]
+    #[Groups(['seance:read','seance:public:read','coach:read','sportif:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Assert\NotNull]
-    #[Groups(['seance:read', 'seance:write','coach:read','sportif:read'])]
+    #[Groups(['seance:read','seance:public:read','coach:read','sportif:read'])]
     private ?\DateTimeInterface $date_heure = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["solo", "duo", "trio"], message: "Type de séance invalide. (solo, duo,trio)")]
-    #[Groups(['seance:read', 'seance:write','coach:read','sportif:read'])]
+    #[Groups(['seance:read','seance:public:read','coach:read','sportif:read'])]
     private ?string $type_seance = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['seance:read', 'seance:write','coach:read','sportif:read'])]
+    #[Groups(['seance:read','seance:public:read','coach:read','sportif:read'])]
     private ?string $theme_seance = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["débutant", "intermédiaire", "avancé"], message: "Niveau de séance invalide.")]
-    #[Groups(['seance:read', 'seance:write','coach:read','sportif:read'])]
+    #[Groups(['seance:read','seance:public:read','coach:read','sportif:read'])]
     private ?string $niveau_seance = null;
 
     #[ORM\ManyToOne(inversedBy: 'seances')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['seance:read', 'seance:write','sportif:read'])]
+    #[Groups(['seance:read','seance:public:read','sportif:read'])]
     private ?Coach $coach = null;
 
     /**
@@ -49,19 +49,19 @@ class Seance
      */
     #[ORM\ManyToMany(targetEntity: Sportif::class, inversedBy: 'seances')]
     #[Assert\Count(min: 0, max: 3, exactMessage: "Une séance peut avoir maximum 3 sportifs.")]
-    #[Groups(['seance:read', 'seance:write'])]
+    #[Groups(['seance:read'])]
     private Collection $sportifs;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["prévue", "validée", "annulée"], message: "Statut invalide.")]
-    #[Groups(['seance:read', 'seance:write','coach:read','sportif:read'])]
+    #[Groups(['seance:read','coach:read','sportif:read'])]
     private ?string $statut = null;
 
     /**
      * @var Collection<int, Exercice>
      */
     #[ORM\ManyToMany(targetEntity: Exercice::class, inversedBy: 'seances')]
-    #[Groups(['seance:read', 'seance:write'])]
+    #[Groups(['seance:read','seance:public:read'])]
     private Collection $exercices;
 
     public function __construct()

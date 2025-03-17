@@ -13,7 +13,9 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class ExerciceController extends AbstractController{
-    #[Route('/api/exercices', name: 'api_get_exercices', methods: ['GET'])]
+
+    //TODO : Voir si c'est nécessaire
+    #[Route('/api/public/exercices', name: 'api_get_exercices', methods: ['GET'])]
     public function getExoList(ExerciceRepository $exoRepo): JsonResponse
     {
         $exos = $exoRepo->findAll();
