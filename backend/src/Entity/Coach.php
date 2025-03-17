@@ -176,4 +176,8 @@ class Coach extends Utilisateur
         return $this->imageFile;
     }
 
+    public function getNomComplet(): string
+    {
+        return $this->getPrenom() . ' ' . strtoupper($this->getNom());
+    }
 }

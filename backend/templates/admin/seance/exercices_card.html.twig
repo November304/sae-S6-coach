@@ -1,0 +1,22 @@
+<div class="card mb-3">
+  <div class="card-header bg-warning text-dark">
+    <h5 class="mb-0">Exercices ({{ entity.instance.exercices|length }})</h5>
+  </div>
+  <div class="card-body">
+    {% if entity.instance.exercices|length > 0 %}
+      <ul class="list-group list-group-flush">
+        {% for exercice in entity.instance.exercices %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ exercice.nom }}
+            <span class="badge badge-info">{{ exercice.dureeEstimee }} min</span>
+          </li>
+        {% endfor %}
+      </ul>
+      <div class="mt-3 text-right">
+        <strong>Durée totale: {{ entity.instance.dureeEstimeeTotal }} min</strong>
+      </div>
+    {% else %}
+      <p class="text-muted mb-0">Aucun exercice programmé</p>
+    {% endif %}
+  </div>
+</div>

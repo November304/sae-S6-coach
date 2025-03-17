@@ -50,7 +50,11 @@ class UtilisateurCrudController extends AbstractCrudController
         return $crud
             ->setPageTitle('index', 'Responsables')
             ->setPageTitle('new', 'Créer un responsable')
-            ->setPageTitle('edit', 'Modifier un responsable');
+            ->setPageTitle('edit', 'Modifier un responsable')
+            ->setPageTitle('detail', 'Profil du responsable')
+            ->setEntityLabelInSingular('Responsable')
+            ->setEntityLabelInPlural('Responsables')
+            ->setDefaultSort(['nom' => 'ASC']);
     }
 
     public function configureActions(Actions $actions): Actions
@@ -60,7 +64,9 @@ class UtilisateurCrudController extends AbstractCrudController
                 return $action
                     ->setLabel('Créer un nouveau responsable')
                     ->setIcon('fa fa-plus');
-            });
+           })
+        ->add(Crud::PAGE_INDEX, Action::DETAIL)
+        ->add(Crud::PAGE_EDIT, Action::DETAIL);
     }
 
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
@@ -78,14 +84,38 @@ class UtilisateurCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         
-        return [
+        $fields = [
             TextField::new('nom')
                 ->setLabel("Nom"),
             TextField::new('prenom')
                 ->setLabel("Prénom"),
             EmailField::new('email')
                 ->setLabel("Email"),
-            TextField::new('password')
+            ChoiceField::new('roles')
+            ->setLabel('Rôles') 
+            ->setChoices([
+                'Responsable' => 'ROLE_RESPONSABLE', 
+            ])
+            ->allowMultipleChoices() 
+            ->setValue(['ROLE_RESPONSABLE'])
+            ->hideOnForm(), 
+            
+        ];
+        if ($pageName === Crud::PAGE_DETAIL) {
+            $fields = [
+                 TextField::new('nomComplet', 'Responsable')
+                    ->formatValue(function ($value, $entity) {
+                        return $entity->getPrenom() . ' ' . strtoupper($entity->getNom());
+                    })
+                    ->setTemplatePath('admin/responsable/header_card.html.twig'),
+                
+                EmailField::new('email')
+                    ->setLabel("Contact")
+                    ->setTemplatePath('admin/responsable/contact_card.html.twig'),
+            ];
+        }
+        if ($pageName == Crud::PAGE_NEW){
+            $fields[] =  [TextField::new('password')
                 ->setFormType(RepeatedType::class)
                 ->setFormTypeOptions([
                     'type' => PasswordType::class,
@@ -100,17 +130,10 @@ class UtilisateurCrudController extends AbstractCrudController
                     'invalid_message' => 'Les mots de passe ne correspondent pas.',
                 ])
                 ->onlyOnForms()
-                ->onlyWhenCreating(),
-            ChoiceField::new('roles')
-            ->setLabel('Rôles') 
-            ->setChoices([
-                'Responsable' => 'ROLE_RESPONSABLE', 
-            ])
-            ->allowMultipleChoices() 
-            ->setValue(['ROLE_RESPONSABLE'])
-            ->hideOnForm(), 
-            
-        ];
+                ->onlyWhenCreating()];
+        }
+
+        return $fields;
     }
 
     public function createNewFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface

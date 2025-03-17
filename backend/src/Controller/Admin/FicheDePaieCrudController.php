@@ -14,6 +14,8 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\HiddenField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
+use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 class FicheDePaieCrudController extends AbstractCrudController
 {
@@ -44,7 +46,9 @@ class FicheDePaieCrudController extends AbstractCrudController
                 return $action
                     ->setLabel('Créer une nouvelle fiche de paie')
                     ->setIcon('fa fa-plus');
-            });
+            })
+        ->add(Crud::PAGE_INDEX, Action::DETAIL)
+        ->add(Crud::PAGE_EDIT, Action::DETAIL);
     }
 
     public function configureAssets(Assets $assets): Assets
@@ -63,7 +67,7 @@ class FicheDePaieCrudController extends AbstractCrudController
         }
         $tarifsJson = json_encode($tarifs);
 
-        return [
+        $fields = [
             AssociationField::new('coach')
                 ->setLabel("Coach")
                 ->setFormTypeOption('choice_label', 'nom')
@@ -93,6 +97,28 @@ class FicheDePaieCrudController extends AbstractCrudController
                 ])
                 ->onlyOnForms()
         ];
+
+          if ($pageName === Crud::PAGE_DETAIL) {
+            // Templates personnalisés pour la page détail
+            $fields =  [
+                    IdField::new('id')
+                        ->setTemplatePath('admin/fiche_de_paie/header_card.html.twig')
+                        ->hideOnForm(),
+                    AssociationField::new('coach')
+                        ->setLabel("Coach")
+                        ->setTemplatePath('admin/fiche_de_paie/coach_card.html.twig'),
+                    ChoiceField::new('periode', 'Période')
+                        ->setTemplatePath('admin/fiche_de_paie/periode_card.html.twig'),
+                    IntegerField::new('totalHeures', 'Total heures')
+                        ->setTemplatePath('admin/fiche_de_paie/heures_card.html.twig'),
+                    MoneyField::new('montantTotal', 'Montant total')
+                        ->setCurrency('EUR')
+                        ->setStoredAsCents(false)
+                        ->setTemplatePath('admin/fiche_de_paie/montant_card.html.twig'),
+                ];
+            }
+        return $fields;
+
     }
 
     
