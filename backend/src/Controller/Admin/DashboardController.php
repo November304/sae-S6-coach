@@ -54,7 +54,11 @@ class DashboardController extends AbstractDashboardController
         yield MenuItem::linkToCrud('Exercices', 'fas fa-dumbbell', Exercice::class);
 
         yield MenuItem::section('Statistiques Responsables')->setPermission('ROLE_RESPONSABLE');
-        yield MenuItem::linkToRoute('Dashboard Stats', 'fas fa-tachometer-alt', 'admin_stats')->setPermission('ROLE_RESPONSABLE');
+        yield MenuItem::linkToRoute(
+            'Dashboard Stats',
+            'fas fa-tachometer-alt',
+            'admin_stats'
+        )->setPermission('ROLE_RESPONSABLE');
         yield MenuItem::linkToCrud('Fiche de paie', 'fa fa-file-invoice', FicheDePaie::class)->setPermission('ROLE_RESPONSABLE');
     }
 }
