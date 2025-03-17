@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Erreur{% endblock %}
+
+{% block body %}
+    <div class="error-container">
+        <h1>Oups, une erreur est survenue</h1>
+        <p>Une erreur inattendue s'est produite. Nous avons été informés et travaillons pour résoudre le problème. Merci de votre patience.</p>
+        
+        <div class="error-details">
+            <h2>Que faire maintenant ?</h2>
+            <ul>
+                <li>Essayez de recharger la page.</li>
+                <li>Si le problème persiste, veuillez revenir plus tard.</li>
+            </ul>
+        </div>
+        
+        <a href="{{ path('app_home') }}" class="btn btn-primary">Retour à l'accueil</a>
+    </div>
+{% endblock %}

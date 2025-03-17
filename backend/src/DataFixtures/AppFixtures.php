@@ -112,10 +112,6 @@ class AppFixtures extends Fixture
             $manager->persist($responsable);
         }
 
-
-        // Stocker les objets déjà créés
-        
-
         // Création de 20 exercices
         $exercices = [];
         for ($i = 0; $i < 20; $i++) {
@@ -128,28 +124,28 @@ class AppFixtures extends Fixture
             $exercices[] = $exercice;
         }
 
-        // Création de 15 séances
-        $seances = [];
-        for ($i = 0; $i < 15; $i++) {
-            $seance = new \App\Entity\Seance();
-            $seance->setDateHeure($faker->dateTimeBetween('-1 month', '+1 month'))
-                   ->setTypeSeance($faker->randomElement(['solo', 'duo', 'trio']))
-                   ->setThemeSeance($faker->word)
-                   ->setNiveauSeance($faker->randomElement(['débutant', 'intermédiaire', 'avancé']))
-                   ->setCoach($faker->randomElement($coaches))
-                   ->setStatut($faker->randomElement(['prévue', 'validée', 'annulée']));
-            // Associer 1 à 3 exercices
-            $selectedExercices = $faker->randomElements($exercices, $faker->numberBetween(1, 3));
-            foreach ($selectedExercices as $exercice) {
-                $seance->addExercice($exercice);
+        ///Création de 10 séances par coach
+        foreach ($coaches as $coach) {
+            for ($i = 0; $i < 10; $i++) {
+                $seance = new \App\Entity\Seance();
+                $nbPersonne = $faker->numberBetween(1, 3);
+                
+                $seance->setDateHeure($faker->dateTimeBetween('-1 month', '+1 month'))
+                       ->setTypeSeance($nbPersonne === 1 ? 'solo' : ($nbPersonne === 2 ? 'duo' : 'trio'))
+                       ->setThemeSeance($faker->word)
+                       ->setNiveauSeance($faker->randomElement(['débutant', 'intermédiaire', 'avancé']))
+                       ->setCoach($coach)
+                       ->setStatut($faker->randomElement(['prévue', 'validée', 'annulée']));
+                $selectedExercices = $faker->randomElements($exercices, $faker->numberBetween(1, 5));
+                foreach ($selectedExercices as $exercice) {
+                    $seance->addExercice($exercice);
+                }
+                $selectedSportifs = $faker->randomElements($sportifs, $faker->numberBetween(1, $nbPersonne));
+                foreach ($selectedSportifs as $sportif) {
+                    $seance->addSportif($sportif);
+                }
+                $manager->persist($seance);
             }
-            // Associer 1 à 3 sportifs
-            $selectedSportifs = $faker->randomElements($sportifs, $faker->numberBetween(1, 3));
-            foreach ($selectedSportifs as $sportif) {
-                $seance->addSportif($sportif);
-            }
-            $manager->persist($seance);
-            $seances[] = $seance;
         }
 
         // Création de 10 fiches de paie

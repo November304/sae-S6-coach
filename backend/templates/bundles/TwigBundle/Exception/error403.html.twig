@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Page interdite{% endblock %}
+
+{% block body %}
+    <h1>Oups ! Page interdite (403)</h1>
+    <p>Vous n'avez pas les droits pour pouvoir accéder à cette page </p>
+    <a href="{{ path('app_home') }}">Retour à l'accueil</a>
+{% endblock %}

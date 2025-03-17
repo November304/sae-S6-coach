@@ -23,11 +23,13 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Event\BeforeEntityPersistedEvent;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[IsGranted('ROLE_RESPONSABLE')]
 class UtilisateurCrudController extends AbstractCrudController
 {
+    //TODO : Faut pouvoir gérer les roles -> Mais en fait faut quand meme faire la création de coach/sportif pr les infos associés
     public static function getEntityFqcn(): string
     {
         return Utilisateur::class;
@@ -130,7 +132,19 @@ class UtilisateurCrudController extends AbstractCrudController
                     'invalid_message' => 'Les mots de passe ne correspondent pas.',
                 ])
                 ->onlyOnForms()
-                ->onlyWhenCreating()];
+                ->onlyWhenCreating(),
+            ChoiceField::new('roles')
+            ->setLabel('Rôles') 
+            ->setChoices([
+                'Responsable' => 'ROLE_RESPONSABLE', 
+            ])
+            ->allowMultipleChoices() 
+            ->setValue(['ROLE_RESPONSABLE'])
+            ->hideOnForm()
+            ->hideOnIndex()
+            ->hideOnDetail(), 
+            
+        ];
         }
 
         return $fields;
