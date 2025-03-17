@@ -39,8 +39,15 @@
           [dayEndHour]="dayEndHour"
           [weekStartsOn]="weekStartsOn"
           [hourSegmentHeight]="40"
-          locale="fr">
+          locale="fr"
+          (eventClicked)="onEventClick($event)">
         </mwl-calendar-week-view>
+
+        <app-seance-detail 
+          *ngIf="selectedSeance" 
+          [seance]="selectedSeance" 
+          (close)="selectedSeance = null">
+        </app-seance-detail>
       </div>
     </div>
   </div>

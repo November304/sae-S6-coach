@@ -45,6 +45,7 @@ export class PlanningComponent implements OnInit, AfterViewInit, OnDestroy {
   events: CalendarEvent[] = [];
   sessionTypes: string[] = [];
   sessionLevels: string[] = []
+  selectedSeance: Seance | null = null;
 
   selectedCoachIds: number[] = [];
   selectedSessionTypes: string[] = [];
@@ -168,6 +169,7 @@ export class PlanningComponent implements OnInit, AfterViewInit, OnDestroy {
         end: endDate,
         title: `${seance.theme_seance} - ${seance.type_seance} (${hours}h${minutes})`,
         color: { primary: '#d9230f', secondary: '#d9230f' },
+        meta: { id: seance.id }
       };
     });
   }
@@ -178,6 +180,17 @@ export class PlanningComponent implements OnInit, AfterViewInit, OnDestroy {
 
   nextWeek(): void {
     this.viewDate = addDays(this.viewDate, 7);
+  }
+
+  onEventClick({ event }: { event: CalendarEvent }): void {
+    const seance = this.seances.find(s => s.id === event.meta.id);
+  
+    if (seance) {
+      this.selectedSeance = seance;
+      console.log(seance);
+    } else {
+      console.error("Séance non trouvée !");
+    }
   }
 
   CalendarView = CalendarView;

@@ -1,46 +1,40 @@
-<div class="card mb-3" *ngFor="let seance of seances">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="m-0">
-            {{ seance.type_seance | titlecase }} - {{ seance.theme_seance }} 
-            ({{ seance.sportifs.length }}/{{ getPlacesMax(seance.type_seance) }})
-        </h5>
-        <button class="btn btn-link" (click)="toggleDetails(seance.id)">
-            <span [class]="expandedSeances[seance.id] ? 'bi bi-chevron-up' : 'bi bi-chevron-down'"></span>
-        </button>
-    </div>
-
-    <div class="card-body" *ngIf="expandedSeances[seance.id]">
-        <h6 class="card-subtitle mb-2 text-muted">
-            Date: {{ seance.date_heure | date:'dd/MM/yyyy HH:mm' }}
-        </h6>
-
-        <p class="card-text"><strong>Coach:</strong> {{ getCoachName(seance.coach.id) }}</p>
-        <p class="card-text">
-            <strong>Places:</strong> 
-            {{ seance.sportifs.length }}/{{ getPlacesMax(seance.type_seance) }}
-        </p>
-
-        <p class="card-text"><strong>Exercices:</strong></p>
-        <ul *ngIf="seance.exercices && seance.exercices.length > 0">
-            <li *ngFor="let exercice of seance.exercices">
-                <strong>{{ exercice.nom }}</strong> - {{ exercice.description }}  
-                <span class="badge bg-secondary ms-2">{{ exercice.duree_estimee }} min</span>
-                <span class="badge bg-primary text-light ms-2">{{ exercice.difficulte | titlecase }}</span>
-            </li>
-        </ul>
-        <p *ngIf="!seance.exercices || seance.exercices.length === 0" class="text-muted">Aucun exercice prévu</p>
-
-        <p class="card-text">
-            <strong>Niveau:</strong> {{ seance.niveau_seance | titlecase }}
-        </p>
-        <p class="card-text">
-            <strong>Statut:</strong> {{ seance.statut | titlecase }}
-        </p>
-
-        <div class="d-flex justify-content-end" *ngIf="authService.currentAuthUserValue.isLogged()">
-            <a class="btn btn-primary" routerLink="/reservation/{{ seance.id }}">
-                Réserver
-            </a>
+<div class="modal fade show d-block" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">{{ seance.type_seance | titlecase }} - {{ seance.theme_seance }}</h5>
+          <button type="button" class="btn-close" (click)="close.emit()"></button>
         </div>
+        <div class="modal-body">
+          <h6 class="card-subtitle mb-2 text-muted">
+            Date: {{ seance.date_heure | date:'dd/MM/yyyy HH:mm' }}
+          </h6>
+  
+          <p class="card-text"><strong>Coach:</strong> {{ seance.coach.prenom }} {{ seance.coach.nom }}</p>
+          <p class="card-text">
+            <strong>Places:</strong> {{ seance.sportifs.length }}/{{ getPlacesMax(seance.type_seance) }}
+          </p>
+  
+          <p class="card-text"><strong>Exercices:</strong></p>
+          <ul *ngIf="seance.exercices && seance.exercices.length > 0">
+            <li *ngFor="let exercice of seance.exercices">
+              <strong>{{ exercice.nom }}</strong> - {{ exercice.description }}  
+              <span class="badge rounded-pill bg-dark text-light ms-2">{{ exercice.duree_estimee }} min</span>
+              <span class="badge bg-primary text-light ms-2">{{ exercice.difficulte | titlecase }}</span>
+            </li>
+          </ul>
+          <p *ngIf="!seance.exercices || seance.exercices.length === 0" class="text-muted">Aucun exercice prévu</p>
+  
+          <p class="card-text"><strong>Niveau:</strong> {{ seance.niveau_seance | titlecase }}</p>
+          <p class="card-text"><strong>Statut:</strong> {{ seance.statut | titlecase }}</p>
+        </div>
+  
+        <div class="modal-footer">
+          <a *ngIf="authService.currentAuthUserValue.isLogged()" class="btn btn-primary" [routerLink]="['/reservation', seance.id]">Réserver</a>
+          <a *ngIf="!authService.currentAuthUserValue.isLogged()" class="btn btn-primary" [routerLink]="['/login']">Réserver</a>
+          <button class="btn btn-secondary" (click)="close.emit()">Fermer</button>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
+  
