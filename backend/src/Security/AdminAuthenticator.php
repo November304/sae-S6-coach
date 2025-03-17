@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
@@ -23,8 +24,7 @@ class AdminAuthenticator extends AbstractLoginFormAuthenticator
     public const LOGIN_ROUTE = 'app_login';
 
     public function __construct(private UrlGeneratorInterface $urlGenerator, private LoggerInterface $logger)
-    {
-    }
+    { }
 
     public function authenticate(Request $request): Passport
     {
@@ -44,17 +44,16 @@ class AdminAuthenticator extends AbstractLoginFormAuthenticator
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
-        $this->logger->warning("Authentication attempt for chose: " . $token->getUser());
+        
         if(in_array('ROLE_RESPONSABLE', $token->getUser()->getRoles())){
-            return new RedirectResponse("/admin");
+            return new RedirectResponse($this->urlGenerator->generate('admin'));
         }
-        else {
-            return new RedirectResponse("/");
+        else if(in_array('ROLE_COACH', $token->getUser()->getRoles())){
+            return new RedirectResponse($this->urlGenerator->generate('admin'));
         }
 
-        // For example:
-        // return new RedirectResponse($this->urlGenerator->generate('some_route'));
-        throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
+        //TODO : Page d'erreur qui dit t'as pas les droits
+        return new RedirectResponse($this->urlGenerator->generate('app_login'));
     }
 
     protected function getLoginUrl(Request $request): string
