@@ -52,8 +52,8 @@ class AdminAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($this->urlGenerator->generate('admin'));
         }
 
-        //TODO : Page d'erreur qui dit t'as pas les droits
-        return new RedirectResponse($this->urlGenerator->generate('app_login'));
+        //TODO : Si c'est un sportif on met un message
+        return new RedirectResponse($this->urlGenerator->generate('app_home'));
     }
 
     protected function getLoginUrl(Request $request): string

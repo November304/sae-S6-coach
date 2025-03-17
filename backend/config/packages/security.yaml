@@ -29,11 +29,10 @@ security:
             lazy: true
             provider: app_user_provider
             custom_authenticator: App\Security\AdminAuthenticator
-            entry_point: App\Security\CustomAuthenticationEntryPoint
             logout:
                 path: app_logout
                 # where to redirect after logout
-                # target: app_any_route
+                target: app_home
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
@@ -44,8 +43,7 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/admin, roles: ROLE_RESPONSABLE }
-        - { path: ^/coach, roles: ROLE_COACH }
+        - { path: ^/admin, roles: [ROLE_RESPONSABLE,ROLE_COACH] }
         - { path: ^/api/login, roles: PUBLIC_ACCESS }
         - { path: ^/api, roles: PUBLIC_ACCESS } 
 

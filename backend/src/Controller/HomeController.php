@@ -13,7 +13,7 @@ final class HomeController extends AbstractController
     public function index(AuthorizationCheckerInterface $authChecker): RedirectResponse
     {
         if (!$authChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
-            return $this->redirectToRoute('app_login');
+            return $this->render('security/custom_home.html.twig');
         }
 
         $user = $this->getUser();
@@ -25,9 +25,7 @@ final class HomeController extends AbstractController
             return $this->redirectToRoute('admin');
         }
 
-        //TODO : Dire au sportif de rentrer chez lui
-
-        //TODO : Page d'accueil simple
-        return $this->redirectToRoute('app_login');
+        //TODO : Si c'est un sportif on met un message
+        return $this->render('security/custom_home.html.twig');
     }
 }
