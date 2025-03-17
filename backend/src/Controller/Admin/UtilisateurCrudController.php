@@ -30,6 +30,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_RESPONSABLE')]
 class UtilisateurCrudController extends AbstractCrudController
 {
+    //TODO : Faut pouvoir gérer les roles -> Mais en fait faut quand meme faire la création de coach/sportif pr les infos associés
     public static function getEntityFqcn(): string
     {
         return Utilisateur::class;
