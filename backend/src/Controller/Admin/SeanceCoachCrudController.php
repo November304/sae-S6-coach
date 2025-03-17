@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Seance;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
@@ -128,7 +129,8 @@ class SeanceCoachCrudController extends AbstractCrudController
                     'Annulée' => 'annulée',
                 ])
                 ->setLabel("Statut")
-                ->setFormTypeOption('data', 'prévue'),
+                ->setFormTypeOption('data', 'prévue')
+                ->hideOnForm(),
         ];
 
         return $fields;
@@ -165,25 +167,37 @@ class SeanceCoachCrudController extends AbstractCrudController
     {
         $coach = $seance->getCoach();
         $dateHeure = $seance->getDateHeure();
-
+        $dateHeureFin = DateTime::createFromInterface($dateHeure)->add(new \DateInterval('PT' . $seance->getDureeEstimeeTotal() . 'M'));
         //Verif si coach a déjà une séance
-        //TODO : Faire un check avec la fonction pour la durée totale de la seance
-        $existingCoachSeance = $entityManager->getRepository(Seance::class)->findOneBy([
-            'coach' => $coach,
-            'date_heure' => $dateHeure,
-        ]);
+        $qb = $entityManager->createQueryBuilder();
+        $qb->select('s')
+            ->from(Seance::class, 's')
+            ->where('s.coach = :coach')
+            ->andWhere('s.date_heure BETWEEN :dateHeure AND :dateHeureFin')
+            ->setParameter('coach', $coach)
+            ->setParameter('dateHeure', $dateHeure)
+            ->setParameter('dateHeureFin', $dateHeureFin)
+            ->setMaxResults(1);
+        $existingCoachSeance = $qb->getQuery()->getOneOrNullResult();
+
         if ($existingCoachSeance) {
             throw new \Exception("Le coach a déjà une séance programmée à cette heure.");
         }
 
         //Verif si sportif a déja séance
         foreach ($seance->getSportifs() as $sportif) {
-            $existingSportifSeance = $entityManager->getRepository(Seance::class)->findOneBy([
-                'sportifs' => $sportif,
-                'date_heure' => $dateHeure,
-            ]);
+            $qb = $entityManager->createQueryBuilder();
+            $qb->select('s')
+                ->from(Seance::class, 's')
+                ->where(':sportif MEMBER OF s.sportifs')
+                ->andWhere('s.date_heure BETWEEN :dateHeure AND :dateHeureFin')
+                ->setParameter('sportif', $sportif)
+                ->setParameter('dateHeure', $dateHeure)
+                ->setParameter('dateHeureFin', $dateHeureFin)
+                ->setMaxResults(1);
+            $existingSportifSeance = $qb->getQuery()->getOneOrNullResult();
             if ($existingSportifSeance) {
-                throw new \Exception("Le sportif " . $sportif->getNom() . " est déjà inscrit à une séance à cette heure.");
+                throw new \Exception("Le sportif " . $sportif->getNom() . " est déjà inscrit à une séance entre " . $dateHeure->format('H:i') . " et " . $dateHeureFin->format('H:i') . ".");
             }
         }
     }
