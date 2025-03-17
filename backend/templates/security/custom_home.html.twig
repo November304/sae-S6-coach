@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès restreint{% endblock %}
+
+{% block body %}
+    <div style="text-align: center; margin-top: 50px;">
+        <h1 style="color:white;">Vous devez être connecté pour aller plus loin</h1>
+        <br/>
+        <a href="{{ path('app_login') }}" style="text-decoration: none;">
+            <button style="padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                Se connecter
+            </button>
+        </a>
+    </div>
+{% endblock %}
