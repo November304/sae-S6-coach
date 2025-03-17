@@ -3,20 +3,23 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Seance;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
-use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-class AdminStatsController extends AbstractDashboardController
+#[IsGranted('ROLE_RESPONSABLE')]
+class AdminStatsController extends AbstractController
 {
-    public function __construct(
-        private EntityManagerInterface $em
-    ) {}
-
+    private EntityManagerInterface $em;
+    
     #[Route('/admin/stats', name: 'admin_stats')]
-    public function index(): Response
+    public function index(EntityManagerInterface $emi): Response
     {
+        $this->em = $emi;
         // Statistiques de réservations
         $seanceRepository = $this->em->getRepository(Seance::class);
         

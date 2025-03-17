@@ -17,15 +17,17 @@ final class HomeController extends AbstractController
         }
 
         $user = $this->getUser();
-
+        //TODO : Une redirection bien si l'utilisateur est connecté en admin/coach
         if (in_array('ROLE_RESPONSABLE', $user->getRoles(), true)) {
             return $this->redirectToRoute('admin');
         }
         if (in_array('ROLE_COACH', $user->getRoles(), true)) {
-            return $this->redirectToRoute('coach_admin');
+            return $this->redirectToRoute('admin');
         }
 
-        //TODO : Pr tous les autres roles on les met sur une page d'erreur
+        //TODO : Dire au sportif de rentrer chez lui
+
+        //TODO : Page d'accueil simple
         return $this->redirectToRoute('app_login');
     }
 }

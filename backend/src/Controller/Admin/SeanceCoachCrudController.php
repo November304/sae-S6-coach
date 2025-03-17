@@ -4,7 +4,10 @@ namespace App\Controller\Admin;
 
 use App\Entity\Seance;
 use DateTime;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\EntityManagerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection;
+use EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\DateTimeField;
@@ -13,20 +16,19 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
+use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use Symfony\Bundle\SecurityBundle\Security as SecurityBundleSecurity;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Psr\Log\LoggerInterface;
 
 #[IsGranted('ROLE_COACH')]
 class SeanceCoachCrudController extends AbstractCrudController
 {
-    private SecurityBundleSecurity $security;
 
-    public function __construct(SecurityBundleSecurity $security)
-    {
-        $this->security = $security;
-    }
+    public function __construct(private SecurityBundleSecurity $security, private LoggerInterface $logger){}
 
     public static function getEntityFqcn(): string
     {
@@ -56,6 +58,9 @@ class SeanceCoachCrudController extends AbstractCrudController
             parent::persistEntity($entityManager, $entityInstance);
             return;
         }
+        
+        $entityInstance->setCoach($this->security->getUser());
+        $entityInstance->setStatut('prévue');
 
         $this->validateSeance($entityManager, $entityInstance);
         parent::persistEntity($entityManager, $entityInstance);
@@ -136,6 +141,15 @@ class SeanceCoachCrudController extends AbstractCrudController
         return $fields;
     }
 
+    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, FieldCollection $fields, FilterCollection $filters): QueryBuilder
+    {
+        $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
+        $qb->andWhere('entity.coach = :currentCoach')
+           ->setParameter('currentCoach', $this->security->getUser());
+
+        return $qb;
+    }
+
     private function formatDuration(int $minutes): string
     {
         if ($minutes < 60) {
@@ -168,6 +182,10 @@ class SeanceCoachCrudController extends AbstractCrudController
         $coach = $seance->getCoach();
         $dateHeure = $seance->getDateHeure();
         $dateHeureFin = DateTime::createFromInterface($dateHeure)->add(new \DateInterval('PT' . $seance->getDureeEstimeeTotal() . 'M'));
+        
+        $this->logger->info('dateHeure : ' . $dateHeure->format('Y-m-d H:i:s'));
+        $this->logger->info('dateHeureFin : '.$dateHeureFin->format('Y-m-d H:i:s'));
+        
         //Verif si coach a déjà une séance
         $qb = $entityManager->createQueryBuilder();
         $qb->select('s')

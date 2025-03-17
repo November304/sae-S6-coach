@@ -28,30 +28,6 @@ class DashboardController extends AbstractDashboardController
         return $this->render('admin/index.html.twig');
     }
 
-    private function getChartData(): array
-    {
-        // Données pour le graphique des 12 derniers mois
-        $data = [];
-        for ($i = 11; $i >= 0; $i--) {
-            $month = new \DateTime("first day of -$i months");
-            $end = new \DateTime("last day of -$i months");
-
-            $count = $this->em->getRepository(Seance::class)
-                ->createQueryBuilder('s')
-                ->select('COUNT(s.id)')
-                ->where('s.date_heure BETWEEN :start AND :end')
-                ->setParameter('start', $month->format('Y-m-d'))
-                ->setParameter('end', $end->format('Y-m-d'))
-                ->getQuery()
-                ->getSingleScalarResult();
-
-            $data['labels'][] = $month->format('M Y');
-            $data['values'][] = $count;
-        }
-
-        return $data;
-    }
-
     public function configureDashboard(): Dashboard
     {
         return Dashboard::new()
@@ -63,18 +39,22 @@ class DashboardController extends AbstractDashboardController
     {
         yield MenuItem::linkToDashboard('Accueil', 'fas fa-home');
         
-        yield MenuItem::section('Utilisateurs');
-        yield MenuItem::linkToCrud('Coachs', 'fas fa-users', Coach::class);
-        yield MenuItem::linkToCrud('Sportifs', 'fas fa-users', Sportif::class);
-        yield MenuItem::linkToCrud('Responsables', 'fas fa-users', Utilisateur::class);
+        yield MenuItem::section('Utilisateurs')->setPermission('ROLE_RESPONSABLE');
+        yield MenuItem::linkToCrud('Coachs', 'fas fa-users', Coach::class)->setPermission('ROLE_RESPONSABLE');
+        yield MenuItem::linkToCrud('Sportifs', 'fas fa-users', Sportif::class)->setPermission('ROLE_RESPONSABLE');
+        yield MenuItem::linkToCrud('Responsables', 'fas fa-users', Utilisateur::class)->setPermission('ROLE_RESPONSABLE');
         
         yield MenuItem::section('Salle de sport');
         yield MenuItem::linkToCrud('Séances', 'fas fa-calendar-alt', Seance::class)
-            ->setController(SeanceCrudController::class);
+            ->setController(SeanceCrudController::class)
+            ->setPermission('ROLE_RESPONSABLE');
+        yield MenuItem::linkToCrud('Vos séances', 'fas fa-calendar-alt', Seance::class)
+            ->setController(SeanceCoachCrudController::class)
+            ->setPermission('ROLE_COACH');
         yield MenuItem::linkToCrud('Exercices', 'fas fa-dumbbell', Exercice::class);
 
-        yield MenuItem::section('Statistiques Responsables');
-        yield MenuItem::linkToRoute('Dashboard Stats', 'fas fa-tachometer-alt', 'admin_stats');
-        yield MenuItem::linkToCrud('Fiche de paie', 'fa fa-file-invoice', FicheDePaie::class);
+        yield MenuItem::section('Statistiques Responsables')->setPermission('ROLE_RESPONSABLE');
+        yield MenuItem::linkToRoute('Dashboard Stats', 'fas fa-tachometer-alt', 'admin_stats')->setPermission('ROLE_RESPONSABLE');
+        yield MenuItem::linkToCrud('Fiche de paie', 'fa fa-file-invoice', FicheDePaie::class)->setPermission('ROLE_RESPONSABLE');
     }
 }

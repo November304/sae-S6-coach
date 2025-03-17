@@ -49,7 +49,7 @@ class AdminAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($this->urlGenerator->generate('admin'));
         }
         else if(in_array('ROLE_COACH', $token->getUser()->getRoles())){
-            return new RedirectResponse($this->urlGenerator->generate('coach_admin'));
+            return new RedirectResponse($this->urlGenerator->generate('admin'));
         }
 
         //TODO : Page d'erreur qui dit t'as pas les droits
