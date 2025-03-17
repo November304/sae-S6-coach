@@ -48,7 +48,9 @@ class SportifCrudController extends AbstractCrudController
                 return $action
                     ->setLabel('Créer un nouveau sportif')
                     ->setIcon('fa fa-plus');
-            });
+            })
+        ->add(Crud::PAGE_INDEX, Action::DETAIL)
+        ->add(Crud::PAGE_EDIT, Action::DETAIL);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -57,34 +59,20 @@ class SportifCrudController extends AbstractCrudController
         return $crud
             ->setPageTitle('index', 'Sportifs')
             ->setPageTitle('new', 'Créer un sportif')
-            ->setPageTitle('edit', 'Modifier un sportif');
+            ->setPageTitle('edit', 'Modifier un sportif')
+            ->setPageTitle('detail', 'Profil du sportif')
+            ->setEntityLabelInSingular('Sportif')
+            ->setEntityLabelInPlural('Sportifs')
+            ->setDefaultSort(['nom' => 'ASC']);
     }
 
     public function configureFields(string $pageName): iterable
     {
-        return [
-            TextField::new('nom')
-                ->setLabel("Nom"),
-            TextField::new('prenom')
-                ->setLabel("Prénom"),
-            EmailField::new('email')
-                ->setLabel("Email"),
-            TextField::new('password')
-                ->setFormType(RepeatedType::class)
-                ->setFormTypeOptions([
-                    'type' => PasswordType::class,
-                    'first_options' => [
-                        'label' => 'Mot de passe',
-                        'attr' => ['style' => 'max-width:40.5%;'] // Limite la largeur
-                    ],
-                    'second_options' => [
-                        'label' => 'Confirmer le mot de passe',
-                        'attr' => ['style' => 'max-width:40.5%;'] // Même largeur pour la confirmation
-                    ],
-                    'invalid_message' => 'Les mots de passe ne correspondent pas.',
-                ])
-                ->onlyOnForms()
-                ->onlyWhenCreating(),
+        $fields = [
+            // Champs communs pour toutes les pages
+            TextField::new('nom')->setLabel("Nom"),
+            TextField::new('prenom')->setLabel("Prénom"),
+            EmailField::new('email')->setLabel("Email"),
             DateField::new('date_inscription')
                 ->setLabel("Date inscription")
                 ->setFormTypeOption('data', new \DateTimeImmutable()),
@@ -96,6 +84,52 @@ class SportifCrudController extends AbstractCrudController
                 ])
                 ->setLabel("Niveau sportif"),
         ];
+
+        if ($pageName === Crud::PAGE_DETAIL) {
+            $fields = [
+                TextField::new('nomComplet', 'Sportif')
+                    ->formatValue(function ($value, $entity) {
+                        return $entity->getPrenom() . ' ' . strtoupper($entity->getNom());
+                    })
+                    ->setTemplatePath('admin/sportif/header_card.html.twig'),
+                
+                EmailField::new('email')
+                    ->setLabel("Contact")
+                    ->setTemplatePath('admin/sportif/contact_card.html.twig'),
+                
+                DateField::new('date_inscription')
+                    ->setLabel("Date inscription")
+                    ->setTemplatePath('admin/sportif/date_inscription_card.html.twig'),
+                
+                ChoiceField::new('niveau_sportif')
+                    ->setChoices([
+                        'Débutant' => 'débutant',
+                        'Intérmédiaire' => 'intermédiaire',
+                        'Avancée' => 'avancé',
+                    ])
+                    ->setLabel("Niveau sportif")
+                    ->setTemplatePath('admin/sportif/niveau_sportif_card.html.twig'),
+            ];
+        }
+
+        // Ajout des champs de mot de passe uniquement pour la création
+        if ($pageName === Crud::PAGE_NEW) {
+            $fields[] = TextField::new('password')
+                ->setFormType(RepeatedType::class)
+                ->setFormTypeOptions([
+                    'type' => PasswordType::class,
+                    'first_options' => [
+                        'label' => 'Mot de passe',
+                        'attr' => ['style' => 'max-width:40.5%;']
+                    ],
+                    'second_options' => [
+                        'label' => 'Confirmer le mot de passe',
+                        'attr' => ['style' => 'max-width:40.5%;']
+                    ],
+                    'invalid_message' => 'Les mots de passe ne correspondent pas.',
+                ]);
+        }
+        return $fields;
     }
 
     public function createNewFormBuilder(EntityDto $entityDto, KeyValueStore $formOptions, AdminContext $context): FormBuilderInterface

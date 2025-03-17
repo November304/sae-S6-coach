@@ -30,7 +30,9 @@ class SeanceCrudController extends AbstractCrudController
                 return $action
                     ->setLabel('Créer une nouvelle séance')
                     ->setIcon('fa fa-plus');
-            });
+            })
+        ->add(Crud::PAGE_INDEX, Action::DETAIL)
+        ->add(Crud::PAGE_EDIT, Action::DETAIL);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -104,11 +106,19 @@ class SeanceCrudController extends AbstractCrudController
                     return $this->formatDuration($value);
                 })
                 ->onlyOnIndex(),
+            IntegerField::new('dureeEstimeeTotal', 'Durée totale')
+                ->setFormTypeOption('disabled', true)
+                ->setFormTypeOption('attr', ['readonly' => true])
+                ->formatValue(function ($value, $entity) {
+                    return $this->formatDuration($value);
+                })
+                ->onlyOnDetail(),
             TextField::new('dureeEstimeeTotal', 'Durée totale')
                 ->setFormTypeOption('disabled', true)
                 ->setFormTypeOption('attr', ['readonly' => true])
-                ->onlyOnForms()
-                ->onlyOnDetail(),
+                ->hideOnForm()
+                ->hideOnDetail()
+                ->hideOnIndex(),
             ChoiceField::new('statut')
                 ->setChoices([
                     'Prévue' => 'prévue',
@@ -118,6 +128,22 @@ class SeanceCrudController extends AbstractCrudController
                 ->setLabel("Statut")
                 ->setFormTypeOption('data', 'prévue'),
         ];
+
+        if ($pageName === Crud::PAGE_DETAIL) {
+        // Remplacer les champs standards par des champs avec templates personnalisés
+        $fields = [
+            TextField::new('themeSeance', 'Séance')
+                ->setTemplatePath('admin/seance/header_card.html.twig'),
+            DateTimeField::new('dateHeure', 'Date et heure')
+                ->setTemplatePath('admin/seance/date_status_card.html.twig'),
+            AssociationField::new('coach', 'Coach')
+                ->setTemplatePath('admin/seance/coach_card.html.twig'),
+            AssociationField::new('sportifs', 'Sportifs')
+                ->setTemplatePath('admin/seance/sportifs_card.html.twig'),
+            AssociationField::new('exercices', 'Exercices')
+                ->setTemplatePath('admin/seance/exercices_card.html.twig'),
+        ];
+    }
 
         return $fields;
     }

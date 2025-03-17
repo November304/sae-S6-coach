@@ -1,0 +1,19 @@
+<div class="card mb-3">
+  <div class="card-header bg-success text-white">
+    <h5 class="mb-0">Sportifs ({{ entity.instance.sportifs|length }})</h5>
+  </div>
+  <div class="card-body">
+    {% if entity.instance.sportifs|length > 0 %}
+      <ul class="list-group list-group-flush">
+        {% for sportif in entity.instance.sportifs %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            {{ sportif.prenom }} {{ sportif.nom }}
+            <span class="badge badge-primary">{{ sportif.niveauSportif }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-muted mb-0">Aucun sportif inscrit</p>
+    {% endif %}
+  </div>
+</div>

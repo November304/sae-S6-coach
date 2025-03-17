@@ -1,0 +1,9 @@
+<div class="card mb-3">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="fa fa-trophy mr-2"></i> Niveau Sportif</h5>
+    </div>
+    <div class="card-body">
+        <p class="text-muted mb-0">Niveau actuel</p>
+        <h3 class="text-primary mb-0">{{ field.value|replace({'débutant': 'Débutant', 'intermédiaire': 'Intermédiare', 'avancé': 'Avancé'}) }}</h3>
+    </div>
+</div>

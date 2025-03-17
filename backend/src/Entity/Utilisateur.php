@@ -154,4 +154,10 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+
+    public function getNomComplet(): string
+    {
+        return $this->prenom . ' ' . strtoupper($this->nom);
+    }
+
 }
