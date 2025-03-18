@@ -12,19 +12,26 @@
         <li class="nav-item">
           <a class="nav-link" routerLink="/planning">Planning</a>
         </li>
-        <li class="nav-item" *ngIf="authService.currentAuthUserValue.isLogged()">
-          <a class="nav-link" routerLink="/espace-personnel">Espace personnel</a>
-        </li>
       </ul>
       <!-- Partie alignée à droite -->
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <li class="nav-item" *ngIf="authService.currentAuthUserValue.isLogged()">
-          <button class="nav-link btn btn-link" (click)="logout()">
-            Déconnexion
-            <i *ngIf="authService.currentAuthUserValue.isAdmin()">ADMIN</i>
-            <i *ngIf="!authService.currentAuthUserValue.isAdmin()">user</i>
-          </button>
+        <li class="nav-item dropdown" *ngIf="authService.currentAuthUserValue.isLogged()">
+          <a class="nav-link user-icon" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <fa-icon [icon]="faUserCircle" class="fs-3"></fa-icon>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+            <li>
+              <a class="dropdown-item" routerLink="/profile">Profil</a>
+            </li>
+            <li>
+              <a class="dropdown-item" routerLink="/espace-personnel">Espace personnel</a>
+            </li>
+            <li>
+              <button class="dropdown-item" (click)="logout()">Déconnexion</button>
+            </li>
+          </ul>
         </li>
+
         <li class="nav-item" *ngIf="!authService.currentAuthUserValue.isLogged()">
           <a class="nav-link" routerLink="/login">Connexion</a>
         </li>
@@ -32,6 +39,6 @@
     </div>
   </div>
 </nav>
-<div class="container mt-4">
+<div>
   <router-outlet></router-outlet>
 </div>
