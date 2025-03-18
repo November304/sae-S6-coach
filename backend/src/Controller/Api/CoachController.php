@@ -28,14 +28,4 @@ final class CoachController extends AbstractController
         $coaches = $coachRepo->findAll();
         return $this->json($coaches, JsonResponse::HTTP_OK, [], ['groups' => 'coach:read']);
     }
-
-    #[Route('/api/coaches/{id}', name: 'api_get_coach', methods: ['GET'])]
-    public function getCoach(int $id, CoachRepository $coachRepo): JsonResponse
-    {
-        $coach = $coachRepo->find($id);
-        if (!$coach) {
-            return $this->json(['error' => 'Coach non trouvé'], JsonResponse::HTTP_NOT_FOUND);
-        }
-        return $this->json($coach, JsonResponse::HTTP_OK, [], ['groups' => 'coach:read']);
-    }
 }

@@ -55,7 +55,12 @@ class Coach extends Utilisateur
     {
         $this->seances = new ArrayCollection();
         $this->ficheDePaies = new ArrayCollection();
-        $this->setRoles(["ROLE_COACH"]);
+
+        if ($this->getRoles() === null) {
+            $this->setRoles(['ROLE_COACH']);
+        } elseif (!in_array('ROLE_COACH', $this->getRoles())) {
+            $this->addRole("ROLE_COACH");
+        }
     }
 
     public function getSpecialites(): array

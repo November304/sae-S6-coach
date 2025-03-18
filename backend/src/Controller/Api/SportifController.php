@@ -8,29 +8,23 @@ use App\Entity\Sportif;
 use App\Repository\SportifRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class SportifController extends AbstractController{
-    #[Route('/api/sportifs', name: 'api_get_sportifs', methods: ['GET'])]
-    public function getSportifList(SportifRepository $sportifRepo): JsonResponse
+    #[Route('/api/sportifs/me', name: 'api_get_sportif', methods: ['GET'])]
+    public function getSportif(Security $security, SportifRepository $sportifRepo): JsonResponse
     {
-        $sportifs = $sportifRepo->findAll();
-        return $this->json($sportifs, JsonResponse::HTTP_OK, [], ['groups' => 'sportif:read']);
-    }
-
-    #[Route('/api/sportifs/{id}', name: 'api_get_sportif', methods: ['GET'])]
-    public function getSportif(int $id, SportifRepository $sportifRepo): JsonResponse
-    {
-        $sportif = $sportifRepo->find($id);
+        $sportif = $security->getUser();
         if (!$sportif) {
             return $this->json(['error' => 'Sportif non trouvé'], JsonResponse::HTTP_NOT_FOUND);
         }
         return $this->json($sportif, JsonResponse::HTTP_OK, [], ['groups' => 'sportif:read']);
     }
 
-    #[Route('/api/sportifs', name: 'api_add_sportif', methods: ['POST'])]
+    #[Route('/api/public/sportifs', name: 'api_add_sportif', methods: ['POST'])]
     public function addSportif(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -60,50 +54,55 @@ final class SportifController extends AbstractController{
         return $this->json($sportif, JsonResponse::HTTP_CREATED, [], ['groups' => 'sportif:write']);
     }
 
-    #[Route('/api/sportifs/{id}', name: 'api_update_sportif', methods: ['PUT', 'PATCH'])]
-    public function updatesportif(int $id, Request $request, SportifRepository $sportifRepo, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
+    #[Route('/api/sportifs', name: 'api_update_sportif', methods: ['PUT', 'PATCH'])]
+    public function updatesportif(Request $request,Security $security, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
     {
-        $sportif = $sportifRepo->find($id);
-        if (!$sportif) {
+        $user = $security->getUser();
+        
+        if(!$user)
+        {
+            //On est pas login
+            return $this->json(['error' => 'Vous devez être connecté pour effectuer cette action'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        if(!$user instanceof Sportif)
+        {
             return $this->json(['error' => 'Sportif non trouvé'], JsonResponse::HTTP_NOT_FOUND);
         }
 
         $data = json_decode($request->getContent(), true);
         if (isset($data['nom'])) {
-            $sportif->setNom($data['nom']);
+            $user->setNom($data['nom']);
         }
         if (isset($data['prenom'])) {
-            $sportif->setPrenom($data['prenom']);
+            $user->setPrenom($data['prenom']);
         }
         if (isset($data['email'])) {
-            $sportif->setEmail($data['email']);
+            $user->setEmail($data['email']);
         }
         if (isset($data['password'])) {
-            $sportif->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
+            $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
         }
         if (isset($data['niveau_sportif'])) {
-            $sportif->setNiveauSportif($data['niveau_sportif']);
-        }
-        if (isset($data['date_inscription'])) {
-            $sportif->setDateInscription(new \DateTime($data['date_inscription']));
+            $user->setNiveauSportif($data['niveau_sportif']);
         }
 
         try {
-            $validator->validate($sportif);
+            $validator->validate($user);
         } catch (ValidationException $e) {
             return $this->json(['error' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
         }
 
         $em->flush();
 
-        return $this->json($sportif, JsonResponse::HTTP_OK, [], ['groups' => 'sportif:write']);
+        return $this->json($user, JsonResponse::HTTP_OK, [], ['groups' => 'sportif:write']);
     }
 
-    #[Route('/api/sportifs/{id}', name: 'api_delete_sportif', methods: ['DELETE'])]
-    public function deletesportif(int $id, SportifRepository $sportifRepo, EntityManagerInterface $em): JsonResponse
+    #[Route('/api/sportifs', name: 'api_delete_sportif', methods: ['DELETE'])]
+    public function deletesportif(Security $security, EntityManagerInterface $em): JsonResponse
     {
-        $sportif = $sportifRepo->find($id);
-        if (!$sportif) {
+        $sportif = $security->getUser();
+        if (!$sportif instanceof Sportif) {
             return $this->json(['error' => 'Sportif non trouvé'], JsonResponse::HTTP_NOT_FOUND);
         }
 

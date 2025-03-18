@@ -26,13 +26,17 @@ class Sportif extends Utilisateur
     /**
      * @var Collection<int, Seance>
      */
-    #[ORM\ManyToMany(targetEntity: Seance::class, mappedBy: 'sportifs')]
+    #[ORM\ManyToMany(targetEntity: Seance::class, mappedBy: 'sportifs',cascade:["remove"])]
     private Collection $seances;
 
     public function __construct()
     {
         $this->seances = new ArrayCollection();
-        $this->setRoles(["ROLE_SPORTIF"]);
+        if ($this->getRoles() === null) {
+            $this->setRoles(['ROLE_SPORTIF']);
+        } elseif (!in_array('ROLE_SPORTIF', $this->getRoles())) {
+            $this->addRole("ROLE_SPORTIF");
+        }
     }
     
     public function getDateInscription(): ?\DateTimeInterface
