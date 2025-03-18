@@ -15,26 +15,26 @@ class Exercice
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['exercice:read', 'seance:read', 'seance:write'])]
+    #[Groups(['exercice:read', 'seance:read','seance:public:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\NotBlank]
-    #[Groups(['exercice:read', 'exercice:write', 'seance:read', 'seance:write'])]
+    #[Groups(['exercice:read', 'seance:read','seance:public:read'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['exercice:read', 'exercice:write', 'seance:read', 'seance:write'])]
+    #[Groups(['exercice:read', 'seance:read','seance:public:read'])]
     private ?string $description = null;
 
     #[ORM\Column]
     #[Assert\Positive(message: "La durée estimée doit être un nombre positif.")]
-    #[Groups(['exercice:read', 'exercice:write', 'seance:read', 'seance:write'])]
+    #[Groups(['exercice:read', 'seance:read','seance:public:read'])]
     private ?int $duree_estimee = 0;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["facile", "moyen", "difficile"], message: "Difficulté invalide.")]
-    #[Groups(['exercice:read', 'exercice:write', 'seance:read', 'seance:write'])]
+    #[Groups(['exercice:read', 'seance:read','seance:public:read'])]
     private ?string $difficulte = null;
 
     /**

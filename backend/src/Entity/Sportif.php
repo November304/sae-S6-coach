@@ -26,13 +26,17 @@ class Sportif extends Utilisateur
     /**
      * @var Collection<int, Seance>
      */
-    #[ORM\ManyToMany(targetEntity: Seance::class, mappedBy: 'sportifs')]
+    #[ORM\ManyToMany(targetEntity: Seance::class, mappedBy: 'sportifs',cascade:["remove"])]
     private Collection $seances;
 
     public function __construct()
     {
         $this->seances = new ArrayCollection();
-        $this->setRoles(["ROLE_SPORTIF"]);
+        if ($this->getRoles() === null) {
+            $this->setRoles(['ROLE_SPORTIF']);
+        } elseif (!in_array('ROLE_SPORTIF', $this->getRoles())) {
+            $this->addRole("ROLE_SPORTIF");
+        }
     }
     
     public function getDateInscription(): ?\DateTimeInterface
@@ -55,6 +59,12 @@ class Sportif extends Utilisateur
     public function setNiveauSportif(string $niveau_sportif): static
     {
         $this->niveau_sportif = $niveau_sportif;
+        
+        // On supprime les séances si le niveau du sportif change en retirant l'association dans chaque séance
+        foreach ($this->seances as $seance) {
+            $seance->removeSportif($this);
+        }
+        $this->seances->clear();
 
         return $this;
     }
