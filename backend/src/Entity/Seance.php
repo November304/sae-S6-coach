@@ -195,6 +195,22 @@ class Seance
         return $this;
     }
 
+    /**
+     * 
+     * @return int
+     */
+    public function getRemainingPlaces(): int
+    {
+        $maxPlaces = match($this->getTypeSeance()) {
+            'solo' => 1,
+            'duo' => 2,
+            'trio' => 3,
+            default => 0,
+        };
+
+        return $maxPlaces - $this->sportifs->count();
+    }
+
     #[Assert\Callback]
     public function validateSportifCount(ExecutionContextInterface $context): void
     {

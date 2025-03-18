@@ -59,6 +59,12 @@ class Sportif extends Utilisateur
     public function setNiveauSportif(string $niveau_sportif): static
     {
         $this->niveau_sportif = $niveau_sportif;
+        
+        // On supprime les séances si le niveau du sportif change en retirant l'association dans chaque séance
+        foreach ($this->seances as $seance) {
+            $seance->removeSportif($this);
+        }
+        $this->seances->clear();
 
         return $this;
     }

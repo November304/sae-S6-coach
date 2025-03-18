@@ -24,14 +24,12 @@ class Coach extends Utilisateur
     #[ORM\Column]
     #[Assert\NotNull]
     #[Assert\Positive]
-    #[Groups(['coach:write'])]
     private ?float $tarif_horaire = 0;
 
     /**
      * @var Collection<int, Seance>
      */
     #[ORM\OneToMany(targetEntity: Seance::class, mappedBy: 'coach')]
-    #[Groups(['coach:read'])]
     private Collection $seances;
 
     /**

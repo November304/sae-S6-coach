@@ -7,6 +7,7 @@ use ApiPlatform\Validator\ValidatorInterface;
 use App\Entity\Sportif;
 use App\Repository\SportifRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -15,13 +16,23 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class SportifController extends AbstractController{
     #[Route('/api/sportifs/me', name: 'api_get_sportif', methods: ['GET'])]
-    public function getSportif(Security $security, SportifRepository $sportifRepo): JsonResponse
+    public function getSportif(Security $security): JsonResponse
     {
         $sportif = $security->getUser();
         if (!$sportif) {
             return $this->json(['error' => 'Sportif non trouvé'], JsonResponse::HTTP_NOT_FOUND);
         }
         return $this->json($sportif, JsonResponse::HTTP_OK, [], ['groups' => 'sportif:read']);
+    }
+
+    #[Route('/api/sportifs/seances', name: 'api_get_sportifs_seances', methods: ['GET'])]
+    public function getMySeances(Security $security): JsonResponse
+    {
+        $sportif = $security->getUser();
+        if (!$sportif || !$sportif instanceof Sportif) {
+            return $this->json(['error' => 'Sportif non trouvé'], JsonResponse::HTTP_NOT_FOUND);
+        }
+        return $this->json($sportif->getSeances(), JsonResponse::HTTP_OK, [], ['groups' => 'seance:read']);
     }
 
     #[Route('/api/public/sportifs', name: 'api_add_sportif', methods: ['POST'])]
@@ -36,11 +47,7 @@ final class SportifController extends AbstractController{
         $sportif->setPassword(password_hash($data['password'] ?? '', PASSWORD_BCRYPT));
         $sportif->setRoles(['ROLE_SPORTIF']);
         $sportif->setNiveauSportif($data['niveau_sportif'] ?? null);
-        if (isset($data['date_inscription'])) {
-            $sportif->setDateInscription(new \DateTime($data['date_inscription']));
-        } else {
-            $sportif->setDateInscription(new \DateTime());
-        }
+        $sportif->setDateInscription(new \DateTime());
 
         try {
             $validator->validate($sportif);
@@ -51,25 +58,18 @@ final class SportifController extends AbstractController{
         $em->persist($sportif);
         $em->flush();
 
-        return $this->json($sportif, JsonResponse::HTTP_CREATED, [], ['groups' => 'sportif:write']);
+        return $this->json(["message"=>"L'utilisateur a bien été inscrit"], JsonResponse::HTTP_CREATED);
     }
 
     #[Route('/api/sportifs', name: 'api_update_sportif', methods: ['PUT', 'PATCH'])]
-    public function updatesportif(Request $request,Security $security, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
+    public function updatesportif(Request $request,Security $security, EntityManagerInterface $em, ValidatorInterface $validator,LoggerInterface $logger): JsonResponse
     {
         $user = $security->getUser();
         
-        if(!$user)
-        {
-            //On est pas login
-            return $this->json(['error' => 'Vous devez être connecté pour effectuer cette action'], JsonResponse::HTTP_UNAUTHORIZED);
-        }
-
-        if(!$user instanceof Sportif)
+        if(!$user || !$user instanceof Sportif)
         {
             return $this->json(['error' => 'Sportif non trouvé'], JsonResponse::HTTP_NOT_FOUND);
         }
-
         $data = json_decode($request->getContent(), true);
         if (isset($data['nom'])) {
             $user->setNom($data['nom']);
@@ -82,6 +82,10 @@ final class SportifController extends AbstractController{
         }
         if (isset($data['password'])) {
             $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
+            $user->setPasswordChangedAt(new \DateTimeImmutable());
+            $request->getSession()->invalidate();
+
+            //TODO : Faudrait rajouter des trucs JWT pr rendre les tokens invalides
         }
         if (isset($data['niveau_sportif'])) {
             $user->setNiveauSportif($data['niveau_sportif']);
@@ -95,7 +99,7 @@ final class SportifController extends AbstractController{
 
         $em->flush();
 
-        return $this->json($user, JsonResponse::HTTP_OK, [], ['groups' => 'sportif:write']);
+        return $this->json($user, JsonResponse::HTTP_OK, [], ['groups' => 'sportif:read']);
     }
 
     #[Route('/api/sportifs', name: 'api_delete_sportif', methods: ['DELETE'])]

@@ -2,8 +2,6 @@
 
 namespace App\Controller\Api;
 
-use ApiPlatform\Validator\Exception\ValidationException;
-use ApiPlatform\Validator\ValidatorInterface;
 use App\Entity\Seance;
 use App\Entity\Sportif;
 use App\Repository\SeanceRepository;
@@ -12,7 +10,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class SeanceController extends AbstractController {
@@ -31,7 +28,7 @@ final class SeanceController extends AbstractController {
     }
 
     #[Route('/api/seances/resa/{id}', name: 'api_resa_seance', methods: ['POST'])]
-    public function reserveSeance(int $id, Security $security,SeanceRepository $seanceRepo): JsonResponse
+    public function reserveSeance(int $id, Security $security,SeanceRepository $seanceRepo, EntityManagerInterface $em): JsonResponse
     {   
         $seance = $seanceRepo->find($id);
 
@@ -43,7 +40,6 @@ final class SeanceController extends AbstractController {
         if (!$user instanceof Sportif) {
             return $this->json(['error' => 'Sportif non trouvé'], JsonResponse::HTTP_NOT_FOUND);
         }
-
         //Check si la seance est reservable
         
         //Check si la seance est pleine
@@ -87,12 +83,13 @@ final class SeanceController extends AbstractController {
         //TODO : Le faire quand j'aurais le truc d'alexi
 
         $seance->addSportif($user);
+        $em->flush();
 
         return $this->json(['message'=>'Vous avez bien été enregistré à la séance'], JsonResponse::HTTP_OK);
     }
 
     #[Route('/api/seances/resa/{id}', name: 'api_unresa_seance', methods: ['DELETE'])]
-    public function annulerSeance(int $id, Security $security, SeanceRepository $seanceRepo) : JsonResponse
+    public function annulerSeance(int $id, Security $security, SeanceRepository $seanceRepo, EntityManagerInterface $em) : JsonResponse
     {
         $seance = $seanceRepo->find($id);
 
@@ -118,6 +115,7 @@ final class SeanceController extends AbstractController {
         if($dateLimit < new DateTime()){ //Si la séance est dans moins de 24h
             //TODO : Mettre la relation à absent
             $seance->removeSportif($user);
+            $em->flush();
             return $this->json(['message'=>'Vous avez marqué absent de la séance'], JsonResponse::HTTP_OK);
 
         }
@@ -125,6 +123,7 @@ final class SeanceController extends AbstractController {
         {
             //TODO : Mettre la relation à annulé
             $seance->removeSportif($user);
+            $em->flush();
             return $this->json(['message'=>'Vous avez bien été désinscrit de la séance'], JsonResponse::HTTP_OK);
 
         }
