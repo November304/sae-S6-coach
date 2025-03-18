@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -57,6 +59,17 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(min: 2, max: 50)]
     #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write','seance:read'])]
     private ?string $prenom = null;
+
+    /**
+     * @var Collection<int, DemandeAnnulation>
+     */
+    #[ORM\OneToMany(targetEntity: DemandeAnnulation::class, mappedBy: 'responsable')]
+    private Collection $demandeAnnulations;
+
+    public function __construct()
+    {
+        $this->demandeAnnulations = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -158,6 +171,36 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function getNomComplet(): string
     {
         return $this->prenom . ' ' . strtoupper($this->nom);
+    }
+
+    /**
+     * @return Collection<int, DemandeAnnulation>
+     */
+    public function getDemandeAnnulations(): Collection
+    {
+        return $this->demandeAnnulations;
+    }
+
+    public function addDemandeAnnulation(DemandeAnnulation $demandeAnnulation): static
+    {
+        if (!$this->demandeAnnulations->contains($demandeAnnulation)) {
+            $this->demandeAnnulations->add($demandeAnnulation);
+            $demandeAnnulation->setResponsable($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeAnnulation(DemandeAnnulation $demandeAnnulation): static
+    {
+        if ($this->demandeAnnulations->removeElement($demandeAnnulation)) {
+            // set the owning side to null (unless already changed)
+            if ($demandeAnnulation->getResponsable() === $this) {
+                $demandeAnnulation->setResponsable(null);
+            }
+        }
+
+        return $this;
     }
 
 }

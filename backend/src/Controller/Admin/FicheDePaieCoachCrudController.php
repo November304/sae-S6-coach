@@ -44,20 +44,16 @@ class FicheDePaieCoachCrudController extends AbstractCrudController
     {
         return $crud
             ->setPageTitle('index', 'Vos fiches de paie')
-            ->setPageTitle('new', 'Créer votre fiche de paie')
             ->setPageTitle('edit', 'Modifier votre fiche de paie');
     }
 
     public function configureActions(Actions $actions): Actions
     {
         return $actions
-            ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
-                return $action
-                    ->setLabel('Créer votre fiche de paie')
-                    ->setIcon('fa fa-plus');
-            })
-            ->add(Crud::PAGE_INDEX, Action::DETAIL)
-            ->add(Crud::PAGE_EDIT, Action::DETAIL);
+            ->disable(Action::NEW)
+            ->disable(Action::DELETE)
+            ->disable(Action::EDIT)
+            ->add(Crud::PAGE_INDEX, Action::DETAIL);
     }
 
     public function configureAssets(Assets $assets): Assets

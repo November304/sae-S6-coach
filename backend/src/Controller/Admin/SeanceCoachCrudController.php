@@ -17,6 +17,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Actions;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Assets;
+use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
@@ -24,25 +25,79 @@ use Symfony\Bundle\SecurityBundle\Security as SecurityBundleSecurity;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Psr\Log\LoggerInterface;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 
 #[IsGranted('ROLE_COACH')]
 class SeanceCoachCrudController extends AbstractCrudController
 {
-
-    public function __construct(private SecurityBundleSecurity $security, private LoggerInterface $logger){}
+    public function __construct(private SecurityBundleSecurity $security, private LoggerInterface $logger, private AdminUrlGenerator $adminUrlGenerator, private EntityManagerInterface $entityManager){}
 
     public static function getEntityFqcn(): string
     {
         return Seance::class;
     }
 
-    public function configureActions(Actions $actions): Actions
+   public function configureActions(Actions $actions): Actions
     {
+        $appel = Action::new('appel', 'Faire l\'appel', 'fa fa-clipboard-check')
+            ->linkToRoute('app_admin_seance_coach_appel', function (Seance $seance): array {
+                return ['id' => $seance->getId()];
+            })
+            ->displayIf(function ($seance) {
+                return ($seance instanceof Seance) && $seance->getStatut() === 'prévue';
+            })
+            ->setCssClass('btn btn-success btn-sm text-nowrap');
+        
+        $annuler = Action::new('annuler', 'Annuler', 'fa fa-times-circle')
+            ->linkToRoute('app_coach_demande_annulation', function (Seance $seance): array {
+                return ['id' => $seance->getId()];
+            })
+            ->displayIf(function ($seance) {
+                return ($seance instanceof Seance) && $seance->getStatut() === 'prévue';
+            })
+            ->setCssClass('btn btn-danger btn-sm text-nowrap');
+
         return $actions
             ->update(Crud::PAGE_INDEX, Action::NEW, function (Action $action) {
                 return $action->setLabel('Planifier une séance')->setIcon('fa fa-plus');
-            });
+            })
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_EDIT, Action::DETAIL)
+            ->add(Crud::PAGE_INDEX, $appel)
+            ->add(Crud::PAGE_DETAIL, $appel)
+            ->add(Crud::PAGE_INDEX, $annuler)
+            ->add(Crud::PAGE_DETAIL, $annuler)
+            ->remove(Crud::PAGE_INDEX, Action::DELETE)
+            ->remove(Crud::PAGE_DETAIL, Action::DELETE); 
     }
+
+  public function redirectToAppel(AdminContext $context)
+    {
+        // Récupération de l'EntityDto dans le contexte
+        $entityDto = $context->getEntity();
+        if (!$entityDto) {
+            $this->addFlash('error', 'Aucune séance sélectionnée');
+            return $this->redirect(
+                $context->getReferrer() ?? $this->adminUrlGenerator->setAction(Action::INDEX)->generateUrl()
+            );
+        }
+        
+        // Récupération de l'entité réelle
+        $seance = $entityDto->getInstance();
+        
+        // Vérification que la séance est bien de type Seance et a le statut attendu
+        if (!$seance instanceof Seance || $seance->getStatut() !== 'prévue') {
+            $this->addFlash('warning', 'Action impossible sur cette séance');
+            return $this->redirectToRoute('admin');
+        }
+        
+        // Redirection vers la route de l'appel en transmettant l'ID de la séance
+        return $this->redirect($this->generateUrl('app_admin_seance_coach_appel', [
+            'id' => $seance->getId()
+        ]));
+    }
+
+
 
     public function configureCrud(Crud $crud): Crud
     {
@@ -123,10 +178,12 @@ class SeanceCoachCrudController extends AbstractCrudController
                     return $this->formatDuration($value);
                 })
                 ->onlyOnIndex(),
-            TextField::new('dureeEstimeeTotal', 'Durée totale')
+            IntegerField::new('dureeEstimeeTotal', 'Durée totale')
                 ->setFormTypeOption('disabled', true)
                 ->setFormTypeOption('attr', ['readonly' => true])
-                ->onlyOnForms()
+                ->formatValue(function ($value, $entity) {
+                    return $this->formatDuration($value);
+                })
                 ->onlyOnDetail(),
             ChoiceField::new('statut')
                 ->setChoices([
@@ -138,6 +195,22 @@ class SeanceCoachCrudController extends AbstractCrudController
                 ->setFormTypeOption('data', 'prévue')
                 ->hideOnForm(),
         ];
+
+        if ($pageName === Crud::PAGE_DETAIL) {
+            // Remplacer les champs standards par des champs avec templates personnalisés
+            $fields = [
+                TextField::new('themeSeance', 'Séance')
+                    ->setTemplatePath('admin/seance/header_card.html.twig'),
+                DateTimeField::new('dateHeure', 'Date et heure')
+                    ->setTemplatePath('admin/seance/date_status_card.html.twig'),
+                AssociationField::new('coach', 'Coach')
+                    ->setTemplatePath('admin/seance/coach_card.html.twig'),
+                AssociationField::new('sportifs', 'Sportifs')
+                    ->setTemplatePath('admin/seance/sportifs_card.html.twig'),
+                AssociationField::new('exercices', 'Exercices')
+                    ->setTemplatePath('admin/seance/exercices_card.html.twig'),
+            ];
+        }
 
         return $fields;
     }
@@ -235,22 +308,6 @@ class SeanceCoachCrudController extends AbstractCrudController
         }
 
          $this->checkNiveauSportifs($seance);
-    }
-
-    public function deleteEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
-        if (!$entityInstance instanceof Seance) {
-            parent::deleteEntity($entityManager, $entityInstance);
-            return;
-        }
-
-        if ($entityInstance->getStatut() === 'validée') {
-            throw new AccessDeniedException('Une séance validée ne peut pas être annulée.');
-        }
-
-        //TODO : Créer une demande d'annulation de séance vers les managers
-
-        parent::deleteEntity($entityManager, $entityInstance);
     }
 
     public function configureAssets(Assets $assets): Assets

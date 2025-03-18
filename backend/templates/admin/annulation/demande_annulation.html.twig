@@ -1,0 +1,52 @@
+{# templates/admin/annulation/demande_annulation.html.twig #}
+{% extends 'admin/layout.html.twig' %}
+{% block title %}Demande d'annulation{% endblock %}
+{% block content %}
+    <div class="content">
+        <div class="datagrid">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Détails de la séance</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th style="width: 20%">Thème</th>
+                                <td>{{ seance.themeSeance }}</td>
+                            </tr>
+                            <tr>
+                                <th>Date et heure</th>
+                                <td>{{ seance.dateHeure|date('d/m/Y H:i') }}</td>
+                            </tr>
+                            <tr>
+                                <th>Type</th>
+                                <td>{{ seance.typeSeance }}</td>
+                            </tr>
+                            <tr>
+                                <th>Niveau</th>
+                                <td>{{ seance.niveauSeance }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{ form_start(form) }}
+                <div class="card">
+                    <div class="card-body">
+                        {{ form_errors(form) }}
+                        <div class="form-group">
+                            {{ form_label(form.motif) }}
+                            {{ form_widget(form.motif, {'attr': {'class': 'form-control', 'rows': 4}}) }}
+                            {{ form_errors(form.motif) }}
+                        </div>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between">
+                        <a href="{{ path('admin', {'crudAction': 'index', 'crudControllerFqcn': 'App\\Controller\\Admin\\SeanceCoachCrudController'}) }}" class="btn btn-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-primary action-save">Envoyer la demande</button>
+                    </div>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+{% endblock %}

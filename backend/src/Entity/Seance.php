@@ -64,10 +64,24 @@ class Seance
     #[Groups(['seance:read', 'seance:write'])]
     private Collection $exercices;
 
+    /**
+     * @var Collection<int, Presence>
+     */
+    #[ORM\OneToMany(targetEntity: Presence::class, mappedBy: 'seance')]
+    private Collection $presences;
+
+    /**
+     * @var Collection<int, DemandeAnnulation>
+     */
+    #[ORM\OneToMany(targetEntity: DemandeAnnulation::class, mappedBy: 'seance')]
+    private Collection $demandeAnnulations;
+
     public function __construct()
     {
         $this->sportifs = new ArrayCollection();
         $this->exercices = new ArrayCollection();
+        $this->presences = new ArrayCollection();
+        $this->demandeAnnulations = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -223,5 +237,65 @@ class Seance
         }
 
         return $duree;
+    }
+
+    /**
+     * @return Collection<int, Presence>
+     */
+    public function getPresences(): Collection
+    {
+        return $this->presences;
+    }
+
+    public function addPresence(Presence $presence): static
+    {
+        if (!$this->presences->contains($presence)) {
+            $this->presences->add($presence);
+            $presence->setSeance($this);
+        }
+
+        return $this;
+    }
+
+    public function removePresence(Presence $presence): static
+    {
+        if ($this->presences->removeElement($presence)) {
+            // set the owning side to null (unless already changed)
+            if ($presence->getSeance() === $this) {
+                $presence->setSeance(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DemandeAnnulation>
+     */
+    public function getDemandeAnnulations(): Collection
+    {
+        return $this->demandeAnnulations;
+    }
+
+    public function addDemandeAnnulation(DemandeAnnulation $demandeAnnulation): static
+    {
+        if (!$this->demandeAnnulations->contains($demandeAnnulation)) {
+            $this->demandeAnnulations->add($demandeAnnulation);
+            $demandeAnnulation->setSeance($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDemandeAnnulation(DemandeAnnulation $demandeAnnulation): static
+    {
+        if ($this->demandeAnnulations->removeElement($demandeAnnulation)) {
+            // set the owning side to null (unless already changed)
+            if ($demandeAnnulation->getSeance() === $this) {
+                $demandeAnnulation->setSeance(null);
+            }
+        }
+
+        return $this;
     }
 }
