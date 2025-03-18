@@ -36,14 +36,19 @@ final class SportifController extends AbstractController{
     }
 
     #[Route('/api/public/sportifs', name: 'api_add_sportif', methods: ['POST'])]
-    public function addSportif(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
+    public function addSportif(Request $request, EntityManagerInterface $em, ValidatorInterface $validator, SportifRepository $spRep): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
+
+        $email = $data['email'] ?? null;
+        if ($email !== null && $spRep->findOneBy(['email' => $email])) {
+            return $this->json(['error' => 'Cet email est déjà utilisé'], JsonResponse::HTTP_CONFLICT);
+        }
         
         $sportif = new Sportif();
         $sportif->setNom($data['nom'] ?? null);
         $sportif->setPrenom($data['prenom'] ?? null);
-        $sportif->setEmail($data['email'] ?? null);
+        $sportif->setEmail($email);
         $sportif->setPassword(password_hash($data['password'] ?? '', PASSWORD_BCRYPT));
         $sportif->setRoles(['ROLE_SPORTIF']);
         $sportif->setNiveauSportif($data['niveau_sportif'] ?? null);
