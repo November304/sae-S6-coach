@@ -16,6 +16,9 @@ import { LoginComponent } from './login/login.component';
 
 import { CalendarModule, DateAdapter } from 'angular-calendar';
 import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
+import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { RegisterComponent } from './register/register.component';
+
 registerLocaleData(localeFr);
 
 @NgModule({
@@ -26,6 +29,7 @@ registerLocaleData(localeFr);
     SeanceDetailComponent,
     PlanningComponent,
     LoginComponent,
+    RegisterComponent,
   ],
   imports: [
     BrowserModule,
@@ -36,6 +40,7 @@ registerLocaleData(localeFr);
       provide: DateAdapter,
       useFactory: adapterFactory,
     }),
+    FontAwesomeModule,
   ],
   providers: [
     provideHttpClient(withInterceptors([authInterceptor])),

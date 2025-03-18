@@ -2,7 +2,7 @@
     <div>
       <h1>Atteins tes objectifs sportifs</h1>
       <p>Rejoins une communauté motivée et profite d’un encadrement de qualité.</p>
-      <button class="btn btn-primary btn-lg mt-3">S'inscrire maintenant</button>
+      <button class="btn btn-primary btn-lg mt-3" routerLink="/register">S'inscrire maintenant</button>
     </div>
 </div>
 
@@ -10,17 +10,17 @@
   <h2 class="text-center">Nos services</h2>
   <div class="row text-center mt-4">
     <div class="col-md-4">
-      <i class="fas fa-dumbell fs-1 text-danger"></i>
+      <fa-icon [icon]="faDumbbell" class="fs-1 text-primary"></fa-icon>
       <h4>Musculation</h4>
       <p>Des machines de dernière génération et des coachs pour t'accompagner.</p>
     </div>
     <div class="col-md-4">
-      <i class="bi bi-heart-pulse fs-1 text-danger"></i>
+      <fa-icon [icon]="faHeartPulse" class="fs-1 text-primary"></fa-icon>
       <h4>Cardio-training</h4>
       <p>Des tapis de course, vélos, rameurs et bien plus encore !</p>
     </div>
     <div class="col-md-4">
-      <i class="bi bi-people fs-1 text-danger"></i>
+      <fa-icon [icon]="faUsers" class="fs-1 text-primary"></fa-icon>
       <h4>Cours collectifs</h4>
       <p>Zumba, Yoga, HIIT, et bien d'autres cours pour progresser ensemble.</p>
     </div>

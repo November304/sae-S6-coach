@@ -56,7 +56,6 @@
               "node_modules/bootswatch/dist/simplex/bootstrap.min.css",
               "node_modules/bootstrap-icons/font/bootstrap-icons.css",
               "node_modules/select2/dist/css/select2.min.css",
-              "node_modules/@fontawesome/fontawesome-free/css/all.min.css",
               "src/styles.css"
             ],
             "scripts": [

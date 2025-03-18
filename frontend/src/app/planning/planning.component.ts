@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { CalendarView, CalendarEvent, CalendarDateFormatter, DateFormatterParams } from 'angular-calendar';
-import { addHours, parseISO, addDays, subDays } from 'date-fns';
+import { addHours, addDays, subDays } from 'date-fns';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
 import { Seance } from '../models/seance';
