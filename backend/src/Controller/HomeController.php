@@ -3,21 +3,20 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 final class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
-    public function index(AuthorizationCheckerInterface $authChecker): RedirectResponse
+    public function index(AuthorizationCheckerInterface $authChecker): Response
     {
         if (!$authChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
             return $this->render('security/custom_home.html.twig');
         }
 
         $user = $this->getUser();
-        //TODO : Une redirection bien si l'utilisateur est connecté en admin/coach
         if (in_array('ROLE_RESPONSABLE', $user->getRoles(), true)) {
             return $this->redirectToRoute('admin');
         }
