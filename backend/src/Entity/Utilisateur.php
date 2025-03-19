@@ -200,6 +200,9 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $demandeAnnulation->setResponsable($this);
         }
 
+        return $this;
+    }
+    
     public function getPasswordChangedAt(): ?\DateTimeImmutable
     {
         return $this->passwordChangedAt;
