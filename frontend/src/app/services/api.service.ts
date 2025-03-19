@@ -15,86 +15,49 @@ export class ApiService {
   constructor(private http: HttpClient) { }
 
   // ------------------- COACH ------------------- //
+  getCoachsListPublic(): Observable<Coach[]> {
+    return this.http.get<Coach[]>(`${this.apiUrl}/public/coaches`);
+  }
+
   getCoachsList(): Observable<Coach[]> {
     return this.http.get<Coach[]>(`${this.apiUrl}/coaches`);
   }
 
-  getCoach(id: number): Observable<Coach> {
-    return this.http.get<Coach>(`${this.apiUrl}/coaches/${id}`);
-  }
-
-  createCoach(coach: Coach): Observable<Coach> {
-    return this.http.post<Coach>(`${this.apiUrl}/coaches`, coach);
-  }
-
-  updateCoach(coach: Coach): Observable<Coach> {
-    return this.http.put<Coach>(`${this.apiUrl}/coaches/${coach.id}`, coach);
-  }
-
-  deleteCoach(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/coaches/${id}`);
-  }
-
   // ------------------- SPORTIF ------------------- //
-  getSportifList(): Observable<Sportif[]> {
-    return this.http.get<Sportif[]>(`${this.apiUrl}/sports`);
+  getSportifMe(): Observable<Sportif[]> {
+    return this.http.get<Sportif[]>(`${this.apiUrl}//sportifs/me`);
   }
 
-  getSportif(id: number): Observable<Sportif> {
-    return this.http.get<Sportif>(`${this.apiUrl}/sports/${id}`);
+  getMySeances(): Observable<Sportif> {
+    return this.http.get<Sportif>(`${this.apiUrl}/sportifs/seances`);
   }
 
   createSportif(body: any): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/public/sportifs`, body);
   }
 
-  updateSportif(sport: Sportif): Observable<Sportif> {
-    return this.http.put<Sportif>(`${this.apiUrl}/sports/${sport.id}`, sport);
+  updateSelf(body: any): Observable<any> {
+    return this.http.put<Sportif>(`${this.apiUrl}/sportifs`, body);
   }
 
-  deleteSportif(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/sports/${id}`);
-  }
-
-  // ------------------- EXERCICE ------------------- //
-  getExerciceList(): Observable<Exercice[]> {
-    return this.http.get<Exercice[]>(`${this.apiUrl}/exercices`);
-  }
-
-  getExercice(id: number): Observable<Exercice> {
-    return this.http.get<Exercice>(`${this.apiUrl}/exercices/${id}`);
-  }
-
-  createExercice(exercice: Exercice): Observable<Exercice> {
-    return this.http.post<Exercice>(`${this.apiUrl}/exercices`, exercice);
-  }
-
-  updateExercice(exercice: Exercice): Observable<Exercice> {
-    return this.http.put<Exercice>(`${this.apiUrl}/exercices/${exercice.id}`, exercice);
-  }
-
-  deleteExercice(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/exercices/${id}`);
+  deleteAccount(): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/sportifs`);
   }
 
   // ------------------- SEANCE ------------------- //
+  getSeanceListPublic(): Observable<Seance[]> {
+    return this.http.get<Seance[]>(`${this.apiUrl}/public/seances`);
+  }
+
   getSeanceList(): Observable<Seance[]> {
     return this.http.get<Seance[]>(`${this.apiUrl}/seances`);
   }
 
-  getSeance(id: number): Observable<Seance> {
-    return this.http.get<Seance>(`${this.apiUrl}/seances/${id}`);
+  ReserveSeance(id: number): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/seances/resa/${id}`, {});
   }
 
-  createSeance(seance: Seance): Observable<Seance> {
-    return this.http.post<Seance>(`${this.apiUrl}/seances`, seance);
-  }
-
-  updateSeance(seance: Seance): Observable<Seance> {
-    return this.http.put<Seance>(`${this.apiUrl}/seances/${seance.id}`, seance);
-  }
-
-  deleteSeance(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/seances/${id}`);
+  UnreserveSeance(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/seances/resa/${id}`);
   }
 }

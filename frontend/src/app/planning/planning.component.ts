@@ -6,6 +6,7 @@ import localeFr from '@angular/common/locales/fr';
 import { Seance } from '../models/seance';
 import { ApiService } from '../services/api.service';
 import { Coach } from '../models/coach';
+import { AuthService } from '../services/auth.service';
 
 declare var $: any;
 
@@ -51,15 +52,30 @@ export class PlanningComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedSessionTypes: string[] = [];
   selectedSessionLevels: string[] = [];
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    public authService: AuthService,
+  ) {}
 
   ngOnInit(): void {
-    this.apiService.getSeanceList().subscribe((data: Seance[]) => {
-      this.seances = data;
-      this.extractSessionTypes();
-      this.extractSessionLevels();
-      this.updateEvents();
-    });
+    const isLogged = this.authService.currentAuthUserValue.isLogged();
+
+    if (!isLogged) {
+      this.apiService.getSeanceListPublic().subscribe((data: Seance[]) => {
+        this.seances = data;
+        this.extractSessionTypes();
+        this.extractSessionLevels();
+        this.updateEvents();
+      });
+    } else {
+      this.apiService.getSeanceList().subscribe((data: Seance[]) => {
+        this.seances = data;
+        this.extractSessionTypes();
+        this.extractSessionLevels();
+        this.updateEvents();
+      });
+    }
+
   
     this.apiService.getCoachsList().subscribe((data: Coach[]) => {
       this.coaches = data;
