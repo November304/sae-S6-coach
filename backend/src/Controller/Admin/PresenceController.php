@@ -61,14 +61,17 @@ class PresenceController extends AbstractController
         }
 
         // Récupérer les données du formulaire
-        $presences = $request->request->get('presence', []);
-        
+        $presences = $request->request->all('presence'); // Utilisez all() au lieu de get()
+
         // Enregistrer les présences
         foreach ($seance->getSportifs() as $sportif) {
             $sportifId = $sportif->getId();
-            $present = isset($presences[$sportifId]);
+            $estPresent = isset($presences[$sportifId]);
             
-            $this->enregistrerPresence($seance, $sportif, $present);
+            // Convertir le booléen en chaîne de caractères
+            $statutPresence = $estPresent ? 'Présent' : 'Absent';
+            
+            $this->enregistrerPresence($seance, $sportif, $statutPresence);
         }
 
         // Mettre à jour le statut de la séance
@@ -76,10 +79,10 @@ class PresenceController extends AbstractController
         $this->entityManager->flush();
 
         $this->addFlash('success', 'L\'appel a été enregistré avec succès');
-        return $this->redirectToRoute('app_admin_seance_coach');
+        return $this->redirectToRoute('admin_seance_coach_index');
     }
 
-    private function enregistrerPresence(Seance $seance, Sportif $sportif, bool $present): void
+    private function enregistrerPresence(Seance $seance, Sportif $sportif, string $statutPresence): void
     {
         // Vérifier si une présence existe déjà pour ce sportif dans cette séance
         $existingPresence = $this->entityManager->getRepository(Presence::class)->findOneBy([
@@ -88,12 +91,12 @@ class PresenceController extends AbstractController
         ]);
         
         if ($existingPresence) {
-            $existingPresence->setPresent($present);
+            $existingPresence->setPresent($statutPresence);
         } else {
             $presence = new Presence();
             $presence->setSeance($seance);
             $presence->setSportif($sportif);
-            $presence->setPresent($present);
+            $presence->setPresent($statutPresence);
             $this->entityManager->persist($presence);
         }
     }
