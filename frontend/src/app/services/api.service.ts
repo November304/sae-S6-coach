@@ -44,8 +44,8 @@ export class ApiService {
     return this.http.get<Sportif>(`${this.apiUrl}/sports/${id}`);
   }
 
-  createSportif(sport: Sportif): Observable<Sportif> {
-    return this.http.post<Sportif>(`${this.apiUrl}/sports`, sport);
+  createSportif(body: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/public/sportifs`, body);
   }
 
   updateSportif(sport: Sportif): Observable<Sportif> {
