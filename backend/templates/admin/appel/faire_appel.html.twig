@@ -1,0 +1,74 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block title %}Faire l'appel - {{ seance.themeSeance }}{% endblock %}
+
+{% block content_title %}Faire l'appel{% endblock %}
+
+{% block main %}
+<div class="content">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Informations de la séance</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Thème :</strong> {{ seance.themeSeance }}</p>
+                    <p><strong>Type :</strong> {{ seance.typeSeance }}</p>
+                    <p><strong>Niveau :</strong> {{ seance.niveauSeance }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Date :</strong> {{ seance.dateHeure|date('d/m/Y') }}</p>
+                    <p><strong>Heure :</strong> {{ seance.dateHeure|date('H:i') }}</p>
+                    <p><strong>Durée :</strong> {{ seance.dureeEstimeeTotal }} minutes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form action="{{ path('app_admin_seance_coach_valider_appel', {'id': seance.id}) }}" method="post">   
+         <div class="card">
+            <div class="card-header">
+                <h3>Liste des sportifs</h3>
+            </div>
+            <div class="card-body">
+                {% if sportifs|length > 0 %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Niveau</th>
+                                <th>Présent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for sportif in sportifs %}
+                                <tr>
+                                    <td>{{ sportif.nom }}</td>
+                                    <td>{{ sportif.niveauSportif }}</td>
+                                    <td>
+                                        <div class="form-check">
+                                            <input type="checkbox" class="form-check-input" name="presence[{{ sportif.id }}]" id="presence-{{ sportif.id }}" checked>
+                                            <label class="form-check-label" for="presence-{{ sportif.id }}">Présent</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>Aucun sportif n'est inscrit à cette séance.</p>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Valider l'appel
+                </button>
+                <a href="{{ app.request.headers.get('referer') ?? path('admin_seance_coach_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

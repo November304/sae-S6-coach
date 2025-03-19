@@ -64,6 +64,9 @@
             "config/routes/easyadmin.yaml"
         ]
     },
+    "knplabs/knp-paginator-bundle": {
+        "version": "v6.7.0"
+    },
     "lexik/jwt-authentication-bundle": {
         "version": "3.1",
         "recipe": {

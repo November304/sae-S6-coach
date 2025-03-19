@@ -29,14 +29,17 @@ class Sportif extends Utilisateur
     #[ORM\ManyToMany(targetEntity: Seance::class, mappedBy: 'sportifs',cascade:["remove"])]
     private Collection $seances;
 
+    /**
+     * @var Collection<int, Presence>
+     */
+    #[ORM\OneToMany(targetEntity: Presence::class, mappedBy: 'sportif')]
+    private Collection $presences;
+
     public function __construct()
     {
         $this->seances = new ArrayCollection();
-        if ($this->getRoles() === null) {
-            $this->setRoles(['ROLE_SPORTIF']);
-        } elseif (!in_array('ROLE_SPORTIF', $this->getRoles())) {
-            $this->addRole("ROLE_SPORTIF");
-        }
+        $this->setRoles(["ROLE_SPORTIF"]);
+        $this->presences = new ArrayCollection();
     }
     
     public function getDateInscription(): ?\DateTimeInterface
@@ -91,6 +94,36 @@ class Sportif extends Utilisateur
     {
         if ($this->seances->removeElement($seance)) {
             $seance->removeSportif($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Presence>
+     */
+    public function getPresences(): Collection
+    {
+        return $this->presences;
+    }
+
+    public function addPresence(Presence $presence): static
+    {
+        if (!$this->presences->contains($presence)) {
+            $this->presences->add($presence);
+            $presence->setSportif($this);
+        }
+
+        return $this;
+    }
+
+    public function removePresence(Presence $presence): static
+    {
+        if ($this->presences->removeElement($presence)) {
+            // set the owning side to null (unless already changed)
+            if ($presence->getSportif() === $this) {
+                $presence->setSportif(null);
+            }
         }
 
         return $this;

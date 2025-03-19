@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\UtilisateurRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -58,9 +60,21 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(min: 2, max: 50)]
     #[Groups(['coach:read','sportif:read','sportif:write','seance:read','seance:public:read','coach:public:read'])]
     private ?string $prenom = null;
+  
+    /**
+     * @var Collection<int, DemandeAnnulation>
+     */
+    #[ORM\OneToMany(targetEntity: DemandeAnnulation::class, mappedBy: 'responsable')]
+    private Collection $demandeAnnulations;
+
+    public function __construct()
+    {
+        $this->demandeAnnulations = new ArrayCollection();
+    }
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $passwordChangedAt = null;
+
 
     public function getId(): ?int
     {
@@ -171,6 +185,21 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->prenom . ' ' . strtoupper($this->nom);
     }
 
+    /**
+     * @return Collection<int, DemandeAnnulation>
+     */
+    public function getDemandeAnnulations(): Collection
+    {
+        return $this->demandeAnnulations;
+    }
+
+    public function addDemandeAnnulation(DemandeAnnulation $demandeAnnulation): static
+    {
+        if (!$this->demandeAnnulations->contains($demandeAnnulation)) {
+            $this->demandeAnnulations->add($demandeAnnulation);
+            $demandeAnnulation->setResponsable($this);
+        }
+
     public function getPasswordChangedAt(): ?\DateTimeImmutable
     {
         return $this->passwordChangedAt;
@@ -179,6 +208,19 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPasswordChangedAt(?\DateTimeImmutable $passwordChangedAt): static
     {
         $this->passwordChangedAt = $passwordChangedAt;
+
+
+        return $this;
+    }
+
+    public function removeDemandeAnnulation(DemandeAnnulation $demandeAnnulation): static
+    {
+        if ($this->demandeAnnulations->removeElement($demandeAnnulation)) {
+            // set the owning side to null (unless already changed)
+            if ($demandeAnnulation->getResponsable() === $this) {
+                $demandeAnnulation->setResponsable(null);
+            }
+        }
 
         return $this;
     }
