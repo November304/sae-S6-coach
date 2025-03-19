@@ -26,49 +26,80 @@
         </div>
     </div>
 
-    <form action="{{ path('app_admin_seance_coach_valider_appel', {'id': seance.id}) }}" method="post">   
-         <div class="card">
-            <div class="card-header">
-                <h3>Liste des sportifs</h3>
-            </div>
-            <div class="card-body">
-                {% if sportifs|length > 0 %}
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Nom</th>
-                                <th>Niveau</th>
-                                <th>Présent</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for sportif in sportifs %}
-                                <tr>
-                                    <td>{{ sportif.nom }}</td>
-                                    <td>{{ sportif.niveauSportif }}</td>
-                                    <td>
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" name="presence[{{ sportif.id }}]" id="presence-{{ sportif.id }}" checked>
-                                            <label class="form-check-label" for="presence-{{ sportif.id }}">Présent</label>
-                                        </div>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                {% else %}
-                    <p>Aucun sportif n'est inscrit à cette séance.</p>
-                {% endif %}
-            </div>
-            <div class="card-footer">
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-check"></i> Valider l'appel
-                </button>
-                <a href="{{ app.request.headers.get('referer') ?? path('admin_seance_coach_index') }}" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Retour
-                </a>
-            </div>
-        </div>
+    <form method="post" action="{{ path('app_admin_seance_coach_valider_appel', {'id': seance.id}) }}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sportif</th>
+                    <th>Niveau</th>
+                    <th>Présence</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sportif in sportifs %}
+                    {% set presence = null %}
+                    {% for p in sportif.presences %}
+                        {% if p.seance.id == seance.id %}
+                            {% set presence = p %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <tr>
+                        <td>{{ sportif.prenom }} {{ sportif.nom }}</td>
+                        <td>{{ sportif.niveauSportif }}</td>
+                        <td>
+                            {% if presence and presence.present == 'Annulé' %}
+                                <input type="checkbox" name="presence[{{ sportif.id }}]" disabled class="form-check-input" />
+                                <input type="hidden" name="presence_status[{{ sportif.id }}]" value="Annulé" />
+                                <span class="presence-text">Annulé</span>
+                            {% elseif presence and presence.present == 'Absent' %}
+                                <input type="checkbox" name="presence[{{ sportif.id }}]" disabled class="form-check-input" />
+                                <input type="hidden" name="presence_status[{{ sportif.id }}]" value="Absent" />
+                                <span class="presence-text">Absent</span>
+                            {% else %}
+                                <input type="checkbox" name="presence[{{ sportif.id }}]" class="form-check-input presence-checkbox" 
+                                    {% if presence and presence.present == 'Présent' %}checked{% endif %} />
+                                <span class="presence-text">
+                                    {% if presence and presence.present == 'Présent' %}Présent{% else %}Absent{% endif %}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if presence %}
+                                {% if presence.present == 'Annulé' %}
+                                    <span class="badge badge-warning">Annulé</span>
+                                {% elseif presence.present == 'Absent' %}
+                                    <span class="badge badge-danger">Absent</span>
+                                {% elseif presence.present == 'Présent' %}
+                                    <span class="badge badge-success">Présent</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge badge-secondary">Non défini</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <button type="submit" class="btn btn-primary">Valider l'appel</button>
     </form>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkboxes = document.querySelectorAll('.presence-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const presenceText = this.nextElementSibling;
+                if (this.checked) {
+                    presenceText.textContent = 'Présent';
+                } else {
+                    presenceText.textContent = 'Absent';
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}
