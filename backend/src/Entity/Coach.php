@@ -18,20 +18,18 @@ class Coach extends Utilisateur
 {
     #[ORM\Column]
     #[Assert\NotBlank]
-    #[Groups(['coach:read','coach:write','seance:read'])]
+    #[Groups(['coach:read','coach:public:read','seance:read'])]
     private array $specialites = [];
 
     #[ORM\Column]
     #[Assert\NotNull]
     #[Assert\Positive]
-    #[Groups(['coach:write'])]
     private ?float $tarif_horaire = 0;
 
     /**
      * @var Collection<int, Seance>
      */
     #[ORM\OneToMany(targetEntity: Seance::class, mappedBy: 'coach')]
-    #[Groups(['coach:read','coach:write'])]
     private Collection $seances;
 
     /**
@@ -41,11 +39,11 @@ class Coach extends Utilisateur
     private Collection $ficheDePaies;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['coach:read','coach:write'])]
+    #[Groups(['coach:read','coach:public:read'])]
     private ?string $description = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['coach:read','coach:write'])]
+    #[Groups(['coach:read','coach:public:read'])]
     private ?string $imageFilename = null;
 
     #[Vich\UploadableField(mapping: 'coach', fileNameProperty: 'imageFilename')]
@@ -55,7 +53,12 @@ class Coach extends Utilisateur
     {
         $this->seances = new ArrayCollection();
         $this->ficheDePaies = new ArrayCollection();
-        $this->setRoles(["ROLE_COACH"]);
+
+        if ($this->getRoles() === null) {
+            $this->setRoles(['ROLE_COACH']);
+        } elseif (!in_array('ROLE_COACH', $this->getRoles())) {
+            $this->addRole("ROLE_COACH");
+        }
     }
 
     public function getSpecialites(): array

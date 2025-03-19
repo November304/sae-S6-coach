@@ -14,19 +14,28 @@ use EasyCorp\Bundle\EasyAdminBundle\Attribute\AdminDashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
+use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
 class DashboardController extends AbstractDashboardController
 {
     public function __construct(
-        private EntityManagerInterface $em
+        private EntityManagerInterface $em,
+        private AdminUrlGenerator $adminUrlGenerator,
     ) {}
 
    public function index(): Response
     {
         // Page d'accueil simple qui redirige vers les différentes sections
-        return $this->render('admin/index.html.twig');
+        $adminUrl = $this->adminUrlGenerator
+            ->setRoute('admin_stats')
+            ->generateUrl();
+
+        return $this->render('admin/index.html.twig', [
+            'adminStatsRoute' => $adminUrl
+        ]);
     }
 
     public function configureDashboard(): Dashboard
