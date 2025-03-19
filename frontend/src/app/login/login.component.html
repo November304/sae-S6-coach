@@ -1,13 +1,23 @@
-<h2>Connexion</h2>
+<div class="d-flex justify-content-center align-items-center mt-4">
+  <div class="card p-4 shadow-lg rounded" style="width: 400px;">
+    <h2 class="text-center text-primary mb-4">Connexion</h2>
 
-<form (ngSubmit)="onSubmit()">
-  <div class="form-group">
-    <label for="email">Email :</label>
-    <input type="email" class="form-control" id="email" [(ngModel)]="model.email" name="email" required>
+    <form (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label for="email" class="form-label fw-bold">Email :</label>
+        <input type="email" class="form-control" id="email" [(ngModel)]="model.email" name="email" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label fw-bold">Mot de Passe :</label>
+        <input type="password" class="form-control" id="password" [(ngModel)]="model.password" name="password" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Connexion</button>
+    </form>
+
+    <div class="text-center mt-3">
+      <a routerLink="/register" class="text-muted">Créer un compte</a>
+    </div>
   </div>
-  <div class="form-group">
-    <label for="password">Mot de Passe :</label>
-    <input type="password" class="form-control" id="password" [(ngModel)]="model.password" name="password" required>
-  </div>
-  <button type="submit" class="btn btn-primary">Connexion</button>
-</form>
+</div>

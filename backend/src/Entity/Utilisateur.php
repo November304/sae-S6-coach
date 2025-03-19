@@ -6,6 +6,7 @@ use App\Repository\UtilisateurRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -22,13 +23,13 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write','seance:read'])]
+    #[Groups(['coach:read','sportif:read','sportif:write','seance:read','coach:public:read'])]
     private ?int $id = null;
 
     #[ORM\Column(length: 180)]
     #[Assert\NotBlank]
     #[Assert\Email]
-    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write','seance:read'])]
+    #[Groups(['coach:read','sportif:read','sportif:write','seance:read'])]
     private ?string $email = null;
 
     /**
@@ -38,28 +39,28 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\All([
         new Assert\Choice(choices: ["ROLE_SPORTIF", "ROLE_COACH", "ROLE_RESPONSABLE"], message: "Rôle invalide.")
     ])]    
-    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write'])]
+    #[Groups(['sportif:read','sportif:write'])]
     private array $roles = [];
 
     /**
      * @var string The hashed password
      */
     #[ORM\Column]
-    #[Groups(['utilisateur:write','coach:write','sportif:write'])]
+    #[Groups(['sportif:write'])]
     private ?string $password = null;
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 50)]
-    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write','seance:read'])]
+    #[Groups(['coach:read','sportif:read','sportif:write','seance:read','seance:public:read','coach:public:read'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 50)]
-    #[Groups(['utilisateur:read', 'utilisateur:write','coach:read','coach:write','sportif:read','sportif:write','seance:read'])]
+    #[Groups(['coach:read','sportif:read','sportif:write','seance:read','seance:public:read','coach:public:read'])]
     private ?string $prenom = null;
-
+  
     /**
      * @var Collection<int, DemandeAnnulation>
      */
@@ -70,6 +71,10 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $this->demandeAnnulations = new ArrayCollection();
     }
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $passwordChangedAt = null;
+
 
     public function getId(): ?int
     {
@@ -116,6 +121,13 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function setRoles(array $roles): static
     {
         $this->roles = $roles;
+
+        return $this;
+    }
+
+    public function addRole(string $role): static
+    {
+        $this->roles[] = $role;
 
         return $this;
     }
@@ -188,6 +200,16 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
             $demandeAnnulation->setResponsable($this);
         }
 
+    public function getPasswordChangedAt(): ?\DateTimeImmutable
+    {
+        return $this->passwordChangedAt;
+    }
+
+    public function setPasswordChangedAt(?\DateTimeImmutable $passwordChangedAt): static
+    {
+        $this->passwordChangedAt = $passwordChangedAt;
+
+
         return $this;
     }
 
@@ -203,4 +225,12 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getJWTCustomClaims(): array
+    {
+        return [
+            'password_changed_at' => $this->passwordChangedAt ? $this->passwordChangedAt->getTimestamp() : null,
+        ];
+    }
+
+    
 }

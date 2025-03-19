@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { Router } from '@angular/router';
+import { faUserCircle } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-root',
@@ -8,6 +9,8 @@ import { Router } from '@angular/router';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+  faUserCircle = faUserCircle;
+
   constructor(
     public authService: AuthService,
     private router: Router
@@ -15,6 +18,6 @@ export class AppComponent {
 
   logout() {
     this.authService.logout();
-    this.router.navigateByUrl('/login');
+    this.router.navigateByUrl('/');
   }
 }
