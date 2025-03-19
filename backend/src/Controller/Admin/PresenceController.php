@@ -61,15 +61,20 @@ class PresenceController extends AbstractController
         }
 
         // Récupérer les données du formulaire
-        $presences = $request->request->all('presence'); // Utilisez all() au lieu de get()
-
+        $presences = $request->request->all('presence');
+        $presenceStatuses = $request->request->all('presence_status');
+        
         // Enregistrer les présences
         foreach ($seance->getSportifs() as $sportif) {
             $sportifId = $sportif->getId();
-            $estPresent = isset($presences[$sportifId]);
             
-            // Convertir le booléen en chaîne de caractères
-            $statutPresence = $estPresent ? 'Présent' : 'Absent';
+            // Vérifier s'il y a un statut spécial pour ce sportif
+            if (isset($presenceStatuses[$sportifId])) {
+                $statutPresence = $presenceStatuses[$sportifId];
+            } else {
+                // Sinon, utiliser la case à cocher normale
+                $statutPresence = isset($presences[$sportifId]) ? 'Présent' : 'Absent';
+            }
             
             $this->enregistrerPresence($seance, $sportif, $statutPresence);
         }
