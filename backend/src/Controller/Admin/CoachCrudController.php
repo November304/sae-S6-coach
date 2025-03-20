@@ -158,7 +158,8 @@ class CoachCrudController extends AbstractCrudController
         $existingSportifs = $repository->findBy(['email' => $entityInstance->getEmail()]);
         
         if (count($existingSportifs) > 0) {
-            throw new \Exception("Un utilisateur avec cet email existe déjà.");
+            $this->addFlash('danger', "Un utilisateur avec cet email existe déjà.");
+            return;
         }
         
         parent::persistEntity($entityManager, $entityInstance);
@@ -175,7 +176,8 @@ class CoachCrudController extends AbstractCrudController
         $existingSportifs = $repository->findBy(['email' => $entityInstance->getEmail()]);
         foreach ($existingSportifs as $sportif) {
             if ($sportif->getId() !== $entityInstance->getId()) {
-                throw new \Exception("Un autre utilisateur avec cet email existe déjà.");
+                $this->addFlash('danger', "Un autre utilisateur avec cet email existe déjà.");
+                return;
             }
         }
         
