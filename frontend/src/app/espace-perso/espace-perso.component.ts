@@ -12,8 +12,11 @@ import { forkJoin } from 'rxjs';
 export class EspacePersoComponent implements OnInit {
   sportif: Sportif | null = null;
   seances: Seance[] = [];
+  seancesPrevues: Seance[] = [];
+  seancesPassees: Seance[] = [];
   loading: boolean = true;
   error: string | null = null;
+  cancellationLoading: { [id: number]: boolean } = {};
 
   // Pour les statistiques
   nombreTotalSeances: number = 0;
@@ -66,6 +69,40 @@ export class EspacePersoComponent implements OnInit {
     return Object.fromEntries(entries);
   }
 
+  successMessage: string | null = null;
+
+  annulerSeance(seanceId: number): void {
+    this.cancellationLoading[seanceId] = true;
+    this.successMessage = null; // Réinitialiser le message de succès
+
+    this.apiService.UnreserveSeance(seanceId).subscribe({
+      next: (response) => {
+        // Retirer la séance annulée de la liste des séances prévues
+        this.seancesPrevues = this.seancesPrevues.filter(
+          (seance) => seance.id !== seanceId
+        );
+        this.cancellationLoading[seanceId] = false;
+
+        // Récupérer et afficher le message de succès
+        if (response && response.message) {
+          this.successMessage = response.message;
+        } else {
+          this.successMessage = 'Vous avez bien été désinscrit de la séance';
+        }
+
+        // Faire disparaître le message après 5 secondes
+        setTimeout(() => {
+          this.successMessage = null;
+        }, 5000);
+      },
+      error: (err) => {
+        console.error("Erreur lors de l'annulation de la séance", err);
+        this.error = "Une erreur est survenue lors de l'annulation";
+        this.cancellationLoading[seanceId] = false;
+      },
+    });
+  }
+
   private loadUserData(): void {
     // Utiliser forkJoin pour faire les deux appels API en parallèle
     forkJoin({
@@ -100,6 +137,24 @@ export class EspacePersoComponent implements OnInit {
             results.seances
           );
         }
+
+        // Séparer les séances passées et prévues
+        const maintenant = new Date();
+        this.seancesPrevues = this.seances
+          .filter((seance) => new Date(seance.date_heure) > maintenant)
+          .sort(
+            (a, b) =>
+              new Date(a.date_heure).getTime() -
+              new Date(b.date_heure).getTime()
+          );
+
+        this.seancesPassees = this.seances
+          .filter((seance) => new Date(seance.date_heure) <= maintenant)
+          .sort(
+            (a, b) =>
+              new Date(b.date_heure).getTime() -
+              new Date(a.date_heure).getTime()
+          ); // Ordre décroissant
 
         // Initialiser le tableau d'états d'expansion des séances
         this.expandedSeances = new Array(this.seances.length).fill(false);

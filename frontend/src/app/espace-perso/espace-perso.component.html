@@ -98,13 +98,58 @@
             </p>
         </div>
 
+        <!-- Séances prévues -->
+        <div class="seances-prevues card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Mes séances à venir</h2>
+            </div>
+            <div class="card-body">
+                <div *ngIf="successMessage" class="success">
+                    <p>{{ successMessage }}</p>
+                </div>
+                <table *ngIf="seancesPrevues.length > 0" class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Thème</th>
+                            <th>Niveau</th>
+                            <th>Coach</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let seance of seancesPrevues">
+                            <td>{{ seance.date_heure | date: 'dd/MM/yyyy HH:mm' }}</td>
+                            <td>{{ seance.type_seance }}</td>
+                            <td>{{ seance.theme_seance }}</td>
+                            <td>{{ seance.niveau_seance }}</td>
+                            <td>{{ seance.coach.nom }} {{ seance.coach.prenom }}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" [disabled]="cancellationLoading[seance.id]"
+                                    (click)="annulerSeance(seance.id)">
+                                    <span *ngIf="cancellationLoading[seance.id]">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </span>
+                                    <span *ngIf="!cancellationLoading[seance.id]">Annuler</span>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p *ngIf="seancesPrevues.length === 0">
+                    Aucune séance prévue.
+                </p>
+            </div>
+        </div>
+
         <!-- Historique des séances -->
         <div class="historique card">
             <div class="card-header bg-primary text-white">
                 <h2 class="mb-0">Historique de mes séances</h2>
             </div>
             <div class="historique-container">
-                <table *ngIf="seances.length > 0">
+                <table *ngIf="seancesPassees.length > 0">
                     <thead>
                         <tr>
                             <th>Date</th>
@@ -116,7 +161,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let seance of seances">
+                        <tr *ngFor="let seance of seancesPassees">
                             <td>{{ seance.date_heure | date: 'dd/MM/yyyy HH:mm' }}</td>
                             <td>{{ seance.type_seance }}</td>
                             <td>{{ seance.theme_seance }}</td>
@@ -126,7 +171,7 @@
                         </tr>
                     </tbody>
                 </table>
-                <p *ngIf="seances.length === 0">
+                <p *ngIf="seancesPassees.length === 0">
                     Aucune séance enregistrée pour le moment.
                 </p>
             </div>
