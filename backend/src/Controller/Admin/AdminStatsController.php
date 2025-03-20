@@ -67,25 +67,25 @@ class AdminStatsController extends AbstractController
     }
 
     private function getEvolutionReservations(): array
-{
-    $result = $this->em->getRepository(Seance::class)
-        ->createQueryBuilder('s')
-        ->select("YEAR(s.date_heure) as annee, MONTH(s.date_heure) as mois, COUNT(s.id) as total")
-        ->groupBy('annee, mois')
-        ->orderBy('annee, mois', 'ASC')
-        ->getQuery()
-        ->getResult();
+    {
+        $result = $this->em->getRepository(Seance::class)
+            ->createQueryBuilder('s')
+            ->select("YEAR(s.date_heure) as annee, MONTH(s.date_heure) as mois, COUNT(s.id) as total")
+            ->groupBy('annee, mois')
+            ->orderBy('annee, mois', 'ASC')
+            ->getQuery()
+            ->getResult();
 
-    $labels = [];
-    $values = [];
+        $labels = [];
+        $values = [];
 
-    foreach ($result as $row) {
-        $labels[] = $row['mois'] . '/' . $row['annee']; // Format: MM/YYYY
-        $values[] = $row['total'];
+        foreach ($result as $row) {
+            $labels[] = $row['mois'] . '/' . $row['annee'];
+            $values[] = $row['total'];
+        }
+
+        return ['labels' => $labels, 'values' => $values];
     }
-
-    return ['labels' => $labels, 'values' => $values];
-}
 
 
     private function getReservationsMois(): int
