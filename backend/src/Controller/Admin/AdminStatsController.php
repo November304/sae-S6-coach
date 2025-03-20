@@ -24,8 +24,8 @@ class AdminStatsController extends AbstractController
     {
         // Récupération des statistiques globales
         $stats = [
-            'total_reservations' => $this->seanceRepo->count([]),
-            'reservations_mois' => $this->getReservationsMois(),
+            'total_seances' => $this->seanceRepo->count([]),
+            'seances_mois' => $this->getSeancesMois(),
             'utilisateurs_actifs' => $this->getUtilisateursActifs(),
             'tauxAbsenteisme' => $this->getTauxAbsenteisme(),
             'evolution_labels' => $this->getEvolutionReservations()['labels'],
@@ -61,14 +61,15 @@ class AdminStatsController extends AbstractController
     }
 
 
-    private function getReservationsMois(): int
+    private function getSeancesMois(): int
     {
         return $this->seanceRepo
             ->createQueryBuilder('s')
             ->select('COUNT(s.id)')
-            ->where('s.date_heure BETWEEN :start AND :end')
-            ->setParameter('start', new \DateTime('first day of this month'))
-            ->setParameter('end', new \DateTime('last day of this month'))
+            ->where('YEAR(s.date_heure) = :year')
+            ->andWhere('MONTH(s.date_heure) = :month')
+            ->setParameter('year', (new \DateTime())->format('Y'))
+            ->setParameter('month', (new \DateTime())->format('n'))
             ->getQuery()
             ->getSingleScalarResult();
     }

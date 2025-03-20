@@ -8,8 +8,8 @@
 
         <div class="row">
             {% set stats_cards = [
-                { 'title': 'Total réservations', 'value': stats.total_reservations, 'color': 'primary', 'icon': 'fa-calendar-check' },
-                { 'title': 'Réservations ce mois', 'value': stats.reservations_mois, 'color': 'success', 'icon': 'fa-calendar-alt' },
+                { 'title': 'Total séances', 'value': stats.total_seances, 'color': 'primary', 'icon': 'fa-calendar-check' },
+                { 'title': 'Séances ce mois', 'value': stats.seances_mois, 'color': 'success', 'icon': 'fa-calendar-alt' },
                 { 'title': 'Sportifs actifs', 'value': stats.utilisateurs_actifs, 'color': 'info', 'icon': 'fa-users' },
                 { 'title': 'Taux d\'absentéisme', 'value': stats.tauxAbsenteisme ~ '%', 'color': 'danger', 'icon': 'fa-exclamation-triangle' }
             ] %}
@@ -31,7 +31,7 @@
 
         <div class="row">
             <div class="col-md-6">
-                <h2 class="mb-3">Évolution des réservations</h2>
+                <h2 class="mb-3">Évolution des séances</h2>
                 <canvas id="reservationChart" style="max-width: 700px; max-height: 500px;"></canvas>
             </div>
             <div class="col-md-6">
