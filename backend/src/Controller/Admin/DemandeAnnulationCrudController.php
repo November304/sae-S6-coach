@@ -49,7 +49,10 @@ class DemandeAnnulationCrudController extends AbstractCrudController
         yield AssociationField::new('responsable')
             ->hideOnForm()
             ->hideOnIndex()
-            ->setFormTypeOption('disabled', true);
+            ->setFormTypeOption('disabled', true)
+            ->formatValue(static function ($value, $entity) {
+                return $entity->getResponsable() ? $entity->getResponsable()->getNomComplet() : '';
+            });
         yield DateTimeField::new('dateTraitement', 'Date de traitement')
             ->hideOnForm()
             ->hideOnIndex()
