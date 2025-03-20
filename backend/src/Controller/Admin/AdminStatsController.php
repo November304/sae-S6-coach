@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Seance;
+use App\Repository\SeanceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,15 +12,13 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
-#[Route('/admin')]
 #[IsGranted('ROLE_RESPONSABLE')]
 class AdminStatsController extends AbstractController
 {
-    private EntityManagerInterface $em;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(private EntityManagerInterface $em, private SeanceRepository $seanceRepo)
     {
-        $this->em = $em;
+
     }
 
     #[Route('/stats', name: 'admin_stats')]
@@ -29,7 +28,7 @@ class AdminStatsController extends AbstractController
 
         // Récupération des statistiques globales
         $stats = [
-            'total_reservations' => $this->em->getRepository(Seance::class)->count([]),
+            'total_reservations' => $this->seanceRepo->count([]),
             'reservations_mois' => $this->getReservationsMois(),
             'utilisateurs_actifs' => $this->getUtilisateursActifs(),
             'tauxAbsenteisme' => $this->getTauxAbsenteisme(),
@@ -40,7 +39,7 @@ class AdminStatsController extends AbstractController
 
 
         // Requête avec recherche
-        $queryBuilder = $this->em->getRepository(Seance::class)->createQueryBuilder('s')
+        $queryBuilder = $this->seanceRepo->createQueryBuilder('s')
             ->leftJoin('s.coach', 'c')
             ->addSelect('c')
             ->orderBy('s.date_heure', 'DESC');
@@ -68,7 +67,7 @@ class AdminStatsController extends AbstractController
 
     private function getEvolutionReservations(): array
     {
-        $result = $this->em->getRepository(Seance::class)
+        $result = $this->seanceRepo
             ->createQueryBuilder('s')
             ->select("YEAR(s.date_heure) as annee, MONTH(s.date_heure) as mois, COUNT(s.id) as total")
             ->groupBy('annee, mois')
@@ -90,7 +89,7 @@ class AdminStatsController extends AbstractController
 
     private function getReservationsMois(): int
     {
-        return $this->em->getRepository(Seance::class)
+        return $this->seanceRepo
             ->createQueryBuilder('s')
             ->select('COUNT(s.id)')
             ->where('s.date_heure BETWEEN :start AND :end')
@@ -102,7 +101,7 @@ class AdminStatsController extends AbstractController
 
     private function getUtilisateursActifs(): int
     {
-        return $this->em->getRepository(Seance::class)
+        return $this->seanceRepo
             ->createQueryBuilder('s')
             ->select('COUNT(DISTINCT sp.id)')
             ->join('s.sportifs', 'sp')
@@ -112,16 +111,19 @@ class AdminStatsController extends AbstractController
 
     private function getTauxAbsenteisme(): float
     {
-        $seanceRepository = $this->em->getRepository(Seance::class);
-        $totalSeances = $seanceRepository->count([]);
+        $seanceRepository = $this->seanceRepo;
+        //On recupère que les séances validées
+        $seances = $seanceRepository->findBy(['statut' => 'validée']);
         $totalAbsences = 0;
+        $totalReservations = 0;
 
-        if ($totalSeances > 0) {
-            $seances = $seanceRepository->findAll();
-            foreach ($seances as $seance) {
-                $totalAbsences += $seance->getSportifs()->count() - $seance->getPresences()->count();
-            }
-            return round(($totalAbsences / ($totalSeances * 3)) * 100, 2);
+        foreach ($seances as $seance) {
+            $totalAbsences += $seance->getPresences()->filter(fn($presence) => $presence->getPresent() === 'Absent')->count();
+            $totalReservations += $seance->getSportifs()->count();
+        }
+
+        if ($totalReservations > 0) {
+            return round(($totalAbsences / $totalReservations) * 100, 2);
         }
 
         return 0;
@@ -129,7 +131,7 @@ class AdminStatsController extends AbstractController
 
     private function getSeancesPopulaires(): array
     {
-        return $this->em->getRepository(Seance::class)
+        return $this->seanceRepo
             ->createQueryBuilder('s')
             ->select('s.theme_seance as theme, COUNT(s.id) as total_reservations')
             ->groupBy('s.theme_seance')
