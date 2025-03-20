@@ -6,7 +6,7 @@ use App\Repository\UtilisateurRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Lexik\Bundle\JWTAuthenticationBundle\Security\User\JWTUserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -18,6 +18,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\DiscriminatorColumn(name: "user_type", type: "string")]
 #[ORM\DiscriminatorMap(["utilisateur" => Utilisateur::class, "coach" => Coach::class, "sportif" => Sportif::class])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
+#[UniqueEntity(fields: ['email'],entityClass: Utilisateur::class, message: 'Cet email est déjà utilisé.')]
 class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -26,7 +27,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['coach:read','sportif:read','sportif:write','seance:read','coach:public:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180)]
+    #[ORM\Column(length: 180,unique: true)]
     #[Assert\NotBlank]
     #[Assert\Email]
     #[Groups(['coach:read','sportif:read','sportif:write','seance:read'])]
@@ -233,7 +234,5 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return [
             'password_changed_at' => $this->passwordChangedAt ? $this->passwordChangedAt->getTimestamp() : null,
         ];
-    }
-
-    
+    }    
 }

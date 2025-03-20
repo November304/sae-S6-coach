@@ -68,45 +68,6 @@ class SportifCrudController extends AbstractCrudController
             ->setDefaultSort(['nom' => 'ASC']);
     }
 
-    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
-        if (!$entityInstance instanceof Sportif) {
-            parent::persistEntity($entityManager, $entityInstance);
-            return;
-        }
-        
-        $repository = $entityManager->getRepository(Utilisateur::class);
-        $existingSportifs = $repository->findBy(['email' => $entityInstance->getEmail()]);
-        
-        if (count($existingSportifs) > 0) {
-            $this->addFlash('danger', "Un utilisateur avec cet email existe déjà.");
-            return;
-        }
-        
-        parent::persistEntity($entityManager, $entityInstance);
-    }
-
-    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
-        if (!$entityInstance instanceof Sportif) {
-            parent::updateEntity($entityManager, $entityInstance);
-            return;
-        }
-        
-        $repository = $entityManager->getRepository(Utilisateur::class);
-        $existingSportifs = $repository->findBy(['email' => $entityInstance->getEmail()]);
-        foreach ($existingSportifs as $sportif) {
-            if ($sportif->getId() !== $entityInstance->getId()) {
-                if ($sportif->getId() !== $entityInstance->getId()) {
-                    $this->addFlash('danger', "Un autre utilisateur avec cet email existe déjà.");
-                    return;
-                }
-            }
-        }
-        
-        parent::updateEntity($entityManager, $entityInstance);
-    }
-
 
     public function configureFields(string $pageName): iterable
     {

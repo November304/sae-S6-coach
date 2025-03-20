@@ -74,40 +74,14 @@ class UtilisateurCrudController extends AbstractCrudController
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         if (!$entityInstance instanceof Utilisateur) {
-            return;
-        }
-        $repository = $entityManager->getRepository(Utilisateur::class);
-        $existingSportifs = $repository->findBy(['email' => $entityInstance->getEmail()]);
-        
-        if (count($existingSportifs) > 0) {
-            $this->addFlash('danger', 'Un utilisateur avec cet email existe déjà.');
+            parent::persistEntity($entityManager, $entityInstance);
             return;
         }
         $entityInstance->setRoles(['ROLE_RESPONSABLE']);
 
         parent::persistEntity($entityManager, $entityInstance);
     }
-
-    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
-        if (!$entityInstance instanceof Utilisateur) {
-            parent::updateEntity($entityManager, $entityInstance);
-            return;
-        }
-        
-        $repository = $entityManager->getRepository(Utilisateur::class);
-        $existingSportifs = $repository->findBy(['email' => $entityInstance->getEmail()]);
-        foreach ($existingSportifs as $sportif) {
-            if ($sportif->getId() !== $entityInstance->getId()) {
-                $this->addFlash('danger', "Un autre utilisateur avec cet email existe déjà.");
-                return;
-            }
-        }
-        
-        parent::updateEntity($entityManager, $entityInstance);
-    }
-
-
+    
     public function configureFields(string $pageName): iterable
     {
         
