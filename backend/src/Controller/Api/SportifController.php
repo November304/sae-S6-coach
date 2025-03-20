@@ -5,6 +5,7 @@ namespace App\Controller\Api;
 use ApiPlatform\Validator\Exception\ValidationException;
 use ApiPlatform\Validator\ValidatorInterface;
 use App\Entity\Sportif;
+use App\Repository\SeanceRepository;
 use App\Repository\SportifRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -58,7 +59,10 @@ final class SportifController extends AbstractController{
         $em->persist($sportif);
         $em->flush();
 
-        return $this->json(["message"=>"L'utilisateur a bien été inscrit"], JsonResponse::HTTP_CREATED);
+        return $this->json([
+            "message" => "L'utilisateur a bien été inscrit",
+            "code" => JsonResponse::HTTP_CREATED
+        ], JsonResponse::HTTP_CREATED);
     }
 
     #[Route('/api/sportifs', name: 'api_update_sportif', methods: ['PUT', 'PATCH'])]
@@ -113,6 +117,83 @@ final class SportifController extends AbstractController{
         $em->remove($sportif);
         $em->flush();
 
-        return $this->json(['message' => 'Sportif supprimé avec succès'], JsonResponse::HTTP_OK);
+        return $this->json([
+            'message' => 'Sportif supprimé avec succès',
+            'code' => JsonResponse::HTTP_OK
+        ], JsonResponse::HTTP_OK);
+    }
+
+    #[Route('/api/sportifs/stats', name: 'api_stats_sportif', methods: ['GET'])]
+    public function getSportifStats(Request $request, Security $security,SeanceRepository $seanceRep,LoggerInterface $logger): JsonResponse
+    {
+        $sportif = $security->getUser();
+        if (!$sportif instanceof Sportif) {
+            return $this->json(['error' => 'Sportif non trouvé', 'code' => JsonResponse::HTTP_NOT_FOUND], JsonResponse::HTTP_NOT_FOUND);
+        }
+
+        $minDateParam = $request->query->get('min_date');
+        $maxDateParam = $request->query->get('max_date');
+
+        try {
+            $minDate = new \DateTime($minDateParam);
+            $maxDate = new \DateTime($maxDateParam);
+        } catch (\Exception $e) {
+            return $this->json(['error' => 'Dates invalides','code' => JsonResponse::HTTP_BAD_REQUEST], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $seances= $seanceRep->createQueryBuilder('s')
+            ->innerJoin('s.presences', 'p')
+            ->where('s.date_heure BETWEEN :minDate AND :maxDate')
+            ->andWhere('p.sportif = :sportif')
+            ->andWhere('p.present = :present')
+            ->setParameter('minDate', $minDate)
+            ->setParameter('maxDate', $maxDate)
+            ->setParameter('sportif', $sportif)
+            ->setParameter('present', 'Présent')
+            ->getQuery()
+            ->getResult();
+
+        $totalSeances = count($seances);
+        $repParType = [];
+        foreach ($seances as $seance) {
+            $type = $seance->getTypeSeance();
+            if (!isset($repParType[$type])) {
+                $repParType[$type] = 0;
+            }
+            $repParType[$type]++;
+        }
+
+        $exerciceCounts = [];
+        foreach ($seances as $seance) {
+            foreach ($seance->getExercices() as $exercice) {
+                $id = $exercice->getId();
+                if (!isset($exerciceCounts[$id])) {
+                    $exerciceCounts[$id] = [
+                        'id' => $id,
+                        'nom' => method_exists($exercice, 'getNom') ? $exercice->getNom() : 'Exercice ' . $id,
+                        'count' => 0,
+                    ];
+                }
+                $exerciceCounts[$id]['count']++;
+            }
+        }
+
+        usort($exerciceCounts, function ($a, $b) {
+            return $b['count'] <=> $a['count'];
+        });
+
+        $topExercices = array_slice($exerciceCounts, 0, 3);
+
+        $tempsTotal = 0;
+        foreach ($seances as $seance) {
+            $tempsTotal += $seance->getDureeEstimeeTotal();
+        }
+
+        return $this->json([
+            'total_seances' => $totalSeances,
+            'total_temps' => $tempsTotal,
+            'repartition_par_type' => $repParType,
+            'top_exercices' => array_values($topExercices)
+        ], JsonResponse::HTTP_OK);
     }
 }

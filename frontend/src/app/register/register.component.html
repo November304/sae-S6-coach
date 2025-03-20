@@ -1,52 +1,54 @@
 <div class="d-flex justify-content-center align-items-center mt-2">
-    <div class="card p-4 shadow-lg rounded" style="width: 400px;">
-      <h2 class="text-center text-primary mb-1">Inscription</h2>
-  
-      <form (ngSubmit)="onSubmit()">
-        <div class="mb-1">
-          <label for="nom" class="form-label fw-bold">Nom :</label>
-          <input type="text" class="form-control" id="nom" [(ngModel)]="model.nom" name="nom" required>
-        </div>
-  
-        <div class="mb-1">
-          <label for="prenom" class="form-label fw-bold">Prénom :</label>
-          <input type="text" class="form-control" id="prenom" [(ngModel)]="model.prenom" name="prenom" required>
-        </div>
-  
-        <div class="mb-1">
-          <label for="email" class="form-label fw-bold">Email :</label>
-          <input type="email" class="form-control" id="email" [(ngModel)]="model.email" name="email" required>
-        </div>
-  
-        <div class="mb-1">
-            <label for="password" class="form-label fw-bold">Mot de Passe :</label>
-            <input type="password" class="form-control" id="password" [(ngModel)]="model.password" name="password" required (input)="checkPasswordMatch()">
-        </div>
-    
-        <div class="mb-1">
-            <label for="confirmPassword" class="form-label fw-bold">Confirmer le Mot de Passe :</label>
-            <input type="password" class="form-control" id="confirmPassword" [(ngModel)]="model.confirmPassword" name="confirmPassword" required (input)="checkPasswordMatch()">
-            <small *ngIf="!passwordsMatch && model.confirmPassword" class="text-warning">
-              Les mots de passe ne correspondent pas.
-            </small>
-        </div>
-  
-        <div class="mb-1">
-          <label for="niveau" class="form-label fw-bold">Niveau sportif :</label>
-          <select class="form-select" id="niveau" [(ngModel)]="model.niveau" name="niveau" required>
-            <option value="">Sélectionnez un niveau</option>
-            <option value="debutant">Débutant</option>
-            <option value="intermediaire">Intermédiaire</option>
-            <option value="avance">Avancé</option>
-          </select>
-        </div>
-  
-        <button type="submit" class="btn btn-primary w-100 mt-2">S'inscrire</button>
-      </form>
-  
-      <div class="text-center mt-3">
-        <a routerLink="/login" class="text-muted">Déjà inscrit ? Connectez-vous</a>
+  <div class="card p-4 shadow-lg rounded" style="width: 400px;">
+    <h2 class="text-center text-primary mb-1">Inscription</h2>
+
+    <form (ngSubmit)="onSubmit()">
+      <div class="mb-1">
+        <label for="nom" class="form-label fw-bold">Nom :</label>
+        <input type="text" class="form-control" id="nom" [(ngModel)]="model.nom" name="nom" required>
       </div>
+
+      <div class="mb-1">
+        <label for="prenom" class="form-label fw-bold">Prénom :</label>
+        <input type="text" class="form-control" id="prenom" [(ngModel)]="model.prenom" name="prenom" required>
+      </div>
+
+      <div class="mb-1">
+        <label for="email" class="form-label fw-bold">Email :</label>
+        <input type="email" class="form-control" id="email" [(ngModel)]="model.email" name="email" required (input)="checkEmailFormat()">
+        <small *ngIf="!emailValid && model.email" class="text-danger">
+          Email invalide : exemple&#64;email.com
+        </small>
+      </div>
+
+      <div class="mb-1">
+          <label for="password" class="form-label fw-bold">Mot de Passe :</label>
+          <input type="password" class="form-control" id="password" [(ngModel)]="model.password" name="password" required (input)="checkPasswordMatch()">
+      </div>
+  
+      <div class="mb-1">
+          <label for="confirmPassword" class="form-label fw-bold">Confirmer le Mot de Passe :</label>
+          <input type="password" class="form-control" id="confirmPassword" [(ngModel)]="model.confirmPassword" name="confirmPassword" required (input)="checkPasswordMatch()">
+          <small *ngIf="!passwordsMatch && model.confirmPassword" class="text-warning">
+            Les mots de passe ne correspondent pas.
+          </small>
+      </div>
+
+      <div class="mb-1">
+        <label for="niveau" class="form-label fw-bold">Niveau sportif :</label>
+        <select class="form-select" id="niveau" [(ngModel)]="model.niveau" name="niveau" required>
+          <option value="">Sélectionnez un niveau</option>
+          <option value="débutant">Débutant</option>
+          <option value="intermédiaire">Intermédiaire</option>
+          <option value="avancé">Avancé</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100 mt-2" [disabled]="!emailValid || !passwordsMatch">S'inscrire</button>
+    </form>
+
+    <div class="text-center mt-3">
+      <a routerLink="/login" class="text-muted">Déjà inscrit ? Connectez-vous</a>
     </div>
   </div>
-  
+</div>

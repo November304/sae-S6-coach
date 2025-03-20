@@ -143,6 +143,11 @@ class AppFixtures extends Fixture
                 $selectedSportifs = $faker->randomElements($sportifs, $faker->numberBetween(1, $nbPersonne));
                 foreach ($selectedSportifs as $sportif) {
                     $seance->addSportif($sportif);
+                    $presence = new \App\Entity\Presence();
+                    $presence->setSeance($seance);
+                    $presence->setSportif($sportif);
+                    $presence->setPresent($faker->randomElement(['Présent', 'Absent', 'Annulé']));
+                    $manager->persist($presence);
                 }
                 $manager->persist($seance);
             }

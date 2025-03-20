@@ -6,7 +6,7 @@
                 <div class="card-body">
                     <h5 class="card-title text-center fw-bold text-uppercase">{{ coach.nom }} {{ coach.prenom }}</h5>
                     <h6 class="card-subtitle text-center mb-3 text-muted">{{ coach.description }}</h6>
-                    <p class="card-text mb-1"><strong>Email:</strong></p>
+                    <p class="card-text mb-1" *ngIf="authService.currentAuthUserValue.isLogged()"><strong>Email:</strong></p>
                     <p class="mb-2">{{ coach.email }}</p>
                     <p class="card-text mb-1"><strong>Spécialités:</strong></p>
                     <div class="specialites-container" *ngIf="coach.specialites && coach.specialites.length > 0">

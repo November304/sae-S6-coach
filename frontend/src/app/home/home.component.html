@@ -2,7 +2,7 @@
     <div>
       <h1>Atteins tes objectifs sportifs</h1>
       <p>Rejoins une communauté motivée et profite d’un encadrement de qualité.</p>
-      <button class="btn btn-primary btn-lg mt-3" routerLink="/register">S'inscrire maintenant</button>
+      <button class="btn btn-primary btn-lg mt-3" *ngIf="!authService.currentAuthUserValue.isLogged()" routerLink="/register">S'inscrire maintenant</button>
     </div>
 </div>
 

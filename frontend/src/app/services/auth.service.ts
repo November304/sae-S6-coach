@@ -21,7 +21,6 @@ export class AuthUser {
   providedIn: 'root'
 })
 export class AuthService {
-
   private apiUrlLogin    = 'https://127.0.0.1:8008/api/login';
   private apiUrlUserInfo = 'https://127.0.0.1:8008/api/user/me';
 
@@ -29,52 +28,73 @@ export class AuthService {
 
   private currentTokenSubject: BehaviorSubject<string | null>;
   public currentToken: Observable<string | null>;
-  public get currentTokenValue(): string | null { return this.currentTokenSubject.value; }
+  public get currentTokenValue(): string | null { 
+    return this.currentTokenSubject.value; 
+  }
 
   private currentAuthUserSubject: BehaviorSubject<AuthUser>;
   public currentAuthUser: Observable<AuthUser>;
-  public get currentAuthUserValue(): AuthUser { return this.currentAuthUserSubject.value; }
+  public get currentAuthUserValue(): AuthUser { 
+    return this.currentAuthUserSubject.value; 
+  }
 
   constructor(private http: HttpClient) {
-    this.currentTokenSubject = new BehaviorSubject<string | null>(null);
+    const storedToken: string | null = localStorage.getItem(this.localStorageToken);
+    this.currentTokenSubject = new BehaviorSubject<string | null>(storedToken);
     this.currentToken = this.currentTokenSubject.asObservable();
+
     this.currentAuthUserSubject = new BehaviorSubject(new AuthUser());
     this.currentAuthUser = this.currentAuthUserSubject.asObservable();
 
-    const storedToken: string | null = localStorage.getItem(this.localStorageToken);
-    this.updateUserInfo(storedToken);
-  }
-
-  private updateUserInfo(token: string | null) {
-    this.currentTokenSubject.next(null);
-    this.currentAuthUserSubject.next(new AuthUser());
-
-    if (token) {
-      const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
-      this.http.get<AuthUser>(this.apiUrlUserInfo, { headers }).subscribe({
-        next: data => {
-          if (data.email) {
-            this.currentTokenSubject.next(token);
-            this.currentAuthUserSubject.next(new AuthUser(data.email, data.roles));
-          }
-        }
-      });
+    if (storedToken) {
+      this.updateUserInfo(storedToken);
     }
   }
 
+  private updateUserInfo(token: string | null) {
+    if (!token) {
+      this.clearSession();
+      return;
+    }
+
+    const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
+
+    this.http.get<AuthUser>(this.apiUrlUserInfo, { headers }).subscribe({
+      next: data => {
+        if (data.email) {
+          localStorage.setItem(this.localStorageToken, token);
+          this.currentTokenSubject.next(token);
+          this.currentAuthUserSubject.next(new AuthUser(data.email, data.roles));
+        } else {
+          this.clearSession();
+        }
+      },
+      error: err => {
+        this.clearSession();
+      }
+    });
+  }
+
   public login(email: string, password: string): Observable<boolean> {
-    return this.http.post<any>(this.apiUrlLogin, { email, password })
-      .pipe(map(response => {
+    return this.http.post<any>(this.apiUrlLogin, { email, password }).pipe(
+      map(response => {
         if (response.token) {
+          localStorage.setItem(this.localStorageToken, response.token);
           this.updateUserInfo(response.token);
           return true;
-        } else {
-          return false;
         }
-      }));
+        return false;
+      })
+    );
   }
 
   public logout() {
-    this.updateUserInfo(null);
+    this.clearSession();
+  }
+
+  private clearSession() {
+    localStorage.removeItem(this.localStorageToken);
+    this.currentTokenSubject.next(null);
+    this.currentAuthUserSubject.next(new AuthUser());
   }
 }
