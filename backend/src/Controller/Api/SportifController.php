@@ -124,7 +124,7 @@ final class SportifController extends AbstractController{
     }
 
     #[Route('/api/sportifs/stats', name: 'api_stats_sportif', methods: ['GET'])]
-    public function getSportifStats(Request $request, Security $security,SeanceRepository $seanceRep,EntityManagerInterface $em): JsonResponse
+    public function getSportifStats(Request $request, Security $security,SeanceRepository $seanceRep,LoggerInterface $logger): JsonResponse
     {
         $sportif = $security->getUser();
         if (!$sportif instanceof Sportif) {
@@ -141,7 +141,7 @@ final class SportifController extends AbstractController{
             return $this->json(['error' => 'Dates invalides','code' => JsonResponse::HTTP_BAD_REQUEST], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $seances = $seanceRep->createQueryBuilder('s')
+        $seances= $seanceRep->createQueryBuilder('s')
             ->innerJoin('s.presences', 'p')
             ->where('s.date_heure BETWEEN :minDate AND :maxDate')
             ->andWhere('p.sportif = :sportif')
