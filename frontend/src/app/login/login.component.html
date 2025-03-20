@@ -2,6 +2,11 @@
   <div class="card p-4 shadow-lg rounded" style="width: 400px;">
     <h2 class="text-center text-primary mb-4">Connexion</h2>
 
+    <div *ngIf="errorMessage" class="alert alert-dismissible alert-primary">
+      <button type="button" class="btn-close" data-bs-dismiss="alert" (click)="errorMessage = null"></button>
+      <strong>Erreur :</strong> {{ errorMessage }}
+    </div>
+
     <form (ngSubmit)="onSubmit()">
       <div class="mb-3">
         <label for="email" class="form-label fw-bold">Email :</label>

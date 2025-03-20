@@ -16,7 +16,7 @@
       <div class="mb-1">
         <label for="email" class="form-label fw-bold">Email :</label>
         <input type="email" class="form-control" id="email" [(ngModel)]="model.email" name="email" required (input)="checkEmailFormat()">
-        <small *ngIf="!emailValid && model.email" class="text-danger">
+        <small *ngIf="!emailValid && model.email" class="text-primary">
           Email invalide : exemple&#64;email.com
         </small>
       </div>

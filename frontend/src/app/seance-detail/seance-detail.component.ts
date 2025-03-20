@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Seance } from '../models/seance';
 import { AuthService } from '../services/auth.service';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-seance-detail',
@@ -8,11 +9,15 @@ import { AuthService } from '../services/auth.service';
   styleUrls: ['./seance-detail.component.css'],
 })
 export class SeanceDetailComponent {
-    constructor(
-      public authService: AuthService,
-    ) {}
   @Input() seance!: Seance;
   @Output() close = new EventEmitter<void>();
+  reservationMessage: string | null = null;
+  reservationError: string | null = null;
+
+  constructor(
+    public authService: AuthService,
+    private apiService: ApiService
+  ) {}
 
   getPlacesMax(type_seance: string): number {
     switch (type_seance.toLowerCase()) {
@@ -25,5 +30,25 @@ export class SeanceDetailComponent {
       default:
         return 0;
     } 
+  }
+
+  reserveSeance() {
+    if (!this.authService.currentAuthUserValue.isLogged()) {
+      return;
+    }
+
+    this.reservationMessage = null;
+    this.reservationError = null;
+
+    this.apiService.ReserveSeance(this.seance.id).subscribe({
+      next: (response) => {
+        this.reservationMessage = response.message;
+      },
+      error: (err) => {
+        console.error("❌ Erreur lors de la réservation :", err);
+        
+        this.reservationError = err.error?.error;
+      }
+    });
   }
 }
