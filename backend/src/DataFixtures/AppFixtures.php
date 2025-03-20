@@ -128,16 +128,21 @@ class AppFixtures extends Fixture
         }
 
         foreach ($coaches as $coach) {
-            for ($i = 0; $i < 15; $i++) {
+            for ($i = 0; $i < 30; $i++) {
                 $seance = new \App\Entity\Seance();
                 $nbPersonne = $faker->numberBetween(1, 3);
-                
-                $seance->setDateHeure($faker->dateTimeBetween('-3 months', 'now'))
-                       ->setTypeSeance($nbPersonne === 1 ? 'solo' : ($nbPersonne === 2 ? 'duo' : 'trio'))
+                $dateHeure = $faker->dateTimeBetween('-3 months', '+1 month');
+                $seance->setDateHeure($dateHeure);
+                if ($dateHeure < new \DateTime()) {
+                    $statut = $faker->randomElement(['validée', 'annulée']);
+                } else {
+                    $statut = $faker->randomElement(['prévue', 'annulée']);
+                }
+                $seance->setStatut($statut);
+                $seance->setTypeSeance($nbPersonne === 1 ? 'solo' : ($nbPersonne === 2 ? 'duo' : 'trio'))
                        ->setThemeSeance($faker->randomElement(self::THEMES_SEANCES))
                        ->setNiveauSeance($faker->randomElement(['débutant', 'intermédiaire', 'avancé']))
-                       ->setCoach($coach)
-                       ->setStatut($faker->randomElement(['prévue', 'validée', 'annulée']));
+                       ->setCoach($coach);
                 $selectedExercices = $faker->randomElements($exercices, $faker->numberBetween(1, 5));
                 foreach ($selectedExercices as $exercice) {
                     $seance->addExercice($exercice);

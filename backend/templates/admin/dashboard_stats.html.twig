@@ -42,44 +42,28 @@
 
         <div class="row mt-4">
             <div class="col-md-12">
-                <h2 class="mb-3">Séances</h2>
-
-                <!-- Barre de recherche -->
-                <form method="get" class="mb-3">
-                    <div class="input-group">
-                        <input type="text" name="q" class="form-control" placeholder="Rechercher une séance..." value="{{ search }}">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search"></i> Rechercher
-                        </button>
-                    </div>
-                </form>
+                <h2 class="mb-3">Séances les plus populaires</h2>
 
                 <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>Thème</th>
-                            <th>Date</th>
-                            <th>Coach</th>
+                            <th>Nombre de participants</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for seance in seances %}
+                        {% for seance in seances_populaires %}
                             <tr>
-                                <td>{{ seance.themeSeance }}</td>
-                                <td>{{ seance.dateHeure|date('d/m/Y H:i') }}</td>
-                                <td>{{ seance.coach ? seance.coach.nom : 'Non assigné' }}</td>
+                                <td>{{ seance.theme }}</td>
+                                <td>{{ seance.total_presences }}</td>
                             </tr>
                         {% else %}
                             <tr>
-                                <td colspan="3">Aucune séance trouvée.</td>
+                                <td colspan="2">Aucune séance trouvée.</td>
                             </tr>
                         {% endfor %}
                     </tbody>
                 </table>
-
-                <div class="pagination">
-                    {{ knp_pagination_render(seances) }}
-                </div>
             </div>
         </div>
     </div>

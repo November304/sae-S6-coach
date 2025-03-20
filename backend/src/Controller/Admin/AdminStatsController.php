@@ -20,47 +20,22 @@ class AdminStatsController extends AbstractController
     {}
 
     #[Route('/stats', name: 'admin_stats')]
-    public function stats(Request $request, PaginatorInterface $paginator): Response
+    public function stats(): Response
     {
-        $search = $request->query->get('q', '');
-
         // Récupération des statistiques globales
         $stats = [
             'total_reservations' => $this->seanceRepo->count([]),
             'reservations_mois' => $this->getReservationsMois(),
             'utilisateurs_actifs' => $this->getUtilisateursActifs(),
             'tauxAbsenteisme' => $this->getTauxAbsenteisme(),
-            'seances_populaires' => $this->getSeancesPopulaires(),
             'evolution_labels' => $this->getEvolutionReservations()['labels'],
             'evolution_values' => $this->getEvolutionReservations()['values'],
             'taux_occupation' => $this->getTauxOccupationParCoachEtCreneau(),
         ];
 
-
-        // Requête avec recherche
-        $queryBuilder = $this->seanceRepo->createQueryBuilder('s')
-            ->leftJoin('s.coach', 'c')
-            ->addSelect('c')
-            ->orderBy('s.date_heure', 'DESC');
-
-        if (!empty($search)) {
-            $queryBuilder
-                ->andWhere('s.theme_seance LIKE :search OR c.nom LIKE :search')
-                ->setParameter('search', '%' . $search . '%');
-        }
-
-        $query = $queryBuilder->getQuery();
-
-        $seances = $paginator->paginate(
-            $query,
-            $request->query->getInt('page', 1),
-            10
-        );
-
         return $this->render('admin/dashboard_stats.html.twig', [
             'stats' => $stats,
-            'seances' => $seances,
-            'search' => $search,
+            'seances_populaires' => $this->getSeancesPopulaires()
         ]);
     }
 
@@ -196,9 +171,12 @@ class AdminStatsController extends AbstractController
     {
         return $this->seanceRepo
             ->createQueryBuilder('s')
-            ->select('s.theme_seance as theme, COUNT(s.id) as total_reservations')
+            ->select('s.theme_seance as theme, COUNT(p.id) as total_presences')
+            ->innerJoin('s.presences', 'p')
+            ->andWhere('p.present = :present')
+            ->setParameter('present', 'Présent')
             ->groupBy('s.theme_seance')
-            ->orderBy('total_reservations', 'DESC')
+            ->orderBy('total_presences', 'DESC')
             ->setMaxResults(5)
             ->getQuery()
             ->getResult();
