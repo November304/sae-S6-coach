@@ -203,7 +203,6 @@ export class PlanningComponent implements OnInit, AfterViewInit, OnDestroy {
   
     if (seance) {
       this.selectedSeance = seance;
-      console.log(seance);
     } else {
       console.error("Séance non trouvée !");
     }

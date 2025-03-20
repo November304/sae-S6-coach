@@ -44,7 +44,6 @@ export class RegisterComponent {
         "niveau_sportif": this.model.niveau
       };
       this.apiService.createSportif(body).subscribe(response => {
-        console.log(response.code);
         if (response.code == 201) {
           this.router.navigate(['/']);
         }
