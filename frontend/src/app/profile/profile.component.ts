@@ -10,9 +10,8 @@ export class ProfileComponent implements OnInit {
   public nom: string = "";
   public prenom: string = "";
   public email: string = "";
-  public password: string = "";
   public niveauSportif: string = "";
-  public message: string = "";
+  public dateInscription: Date = new Date();
 
   constructor(private apiService: ApiService) {}
 
@@ -23,33 +22,20 @@ export class ProfileComponent implements OnInit {
         this.prenom = data.prenom;
         this.email = data.email;
         this.niveauSportif = data.niveau_sportif;
+        this.dateInscription = data.date_inscription;
       },
       (error) => {
-        console.error("Erreur lors de la récupération du profil :", error);
+        console.error("❌ Erreur lors de la récupération du profil :", error);
       }
     );
   }
 
-  updateProfile() {
-    let updateData: any = {
-      nom: this.nom,
-      prenom: this.prenom,
-      email: this.email,
-      niveau_sportif: this.niveauSportif
-    };
-
-    if (this.password) {
-      updateData.password = this.password;
-    }
-
-    this.apiService.updateSelf(updateData).subscribe(
-      () => {
-        this.message = "Profil mis à jour avec succès !";
-        this.password = "";
-      },
-      (error) => {
-        console.error("Erreur lors de la mise à jour du profil :", error);
-      }
-    );
+  formatDate(dateString: Date): string {
+    const date = new Date(dateString);
+    return `${date.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    })}`;
   }
 }
