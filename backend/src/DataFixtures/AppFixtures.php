@@ -60,7 +60,6 @@ class AppFixtures extends Fixture
         $coaches = [$mainCoach];
         $sportifs = [$mainSportif];
 
-        // Création de 10 coachs
         for ($i = 0; $i < 10; $i++) {
             $coach = new Coach();
             $coach->setEmail($faker->unique()->email);
@@ -80,8 +79,7 @@ class AppFixtures extends Fixture
             $coaches[] = $coach;
         }
 
-        // Création de 10 sportifs
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < 50; $i++) {
             $sportif = new Sportif();
             $sportif->setEmail($faker->unique()->email);
             $sportif->setNom($faker->lastName);
@@ -98,7 +96,6 @@ class AppFixtures extends Fixture
             $sportifs[] = $sportif;
         }
 
-        // Création de 10 responsables
         for ($i = 0; $i < 10; $i++) {
             $responsable = new Utilisateur();
             $responsable->setEmail($faker->unique()->email);
@@ -112,9 +109,8 @@ class AppFixtures extends Fixture
             $manager->persist($responsable);
         }
 
-        // Création de 20 exercices
         $exercices = [];
-        for ($i = 0; $i < 20; $i++) {
+        for ($i = 0; $i < 50; $i++) {
             $exercice = new \App\Entity\Exercice();
             $exercice->setNom($faker->word)
                      ->setDescription($faker->sentence)
@@ -124,13 +120,12 @@ class AppFixtures extends Fixture
             $exercices[] = $exercice;
         }
 
-        ///Création de 10 séances par coach
         foreach ($coaches as $coach) {
-            for ($i = 0; $i < 10; $i++) {
+            for ($i = 0; $i < 15; $i++) {
                 $seance = new \App\Entity\Seance();
                 $nbPersonne = $faker->numberBetween(1, 3);
                 
-                $seance->setDateHeure($faker->dateTimeBetween('-1 month', '+1 month'))
+                $seance->setDateHeure($faker->dateTimeBetween('-3 months', 'now'))
                        ->setTypeSeance($nbPersonne === 1 ? 'solo' : ($nbPersonne === 2 ? 'duo' : 'trio'))
                        ->setThemeSeance($faker->word)
                        ->setNiveauSeance($faker->randomElement(['débutant', 'intermédiaire', 'avancé']))
@@ -151,21 +146,18 @@ class AppFixtures extends Fixture
                 }
                 $manager->persist($seance);
             }
+
+            //Creation de 3 fiches de paie pour chaque coach
+            for ($i = 0; $i < 3; $i++) {
+                $fiche = new \App\Entity\FicheDePaie();
+                $totalHeures = $faker->numberBetween(10, 40);
+                $fiche->setCoach($coach)
+                      ->setPeriode($faker->randomElement(['mois', 'semaine']))
+                      ->setTotalHeures($totalHeures)
+                      ->setMontantTotal(round($coach->getTarifHoraire() * $totalHeures, 2));
+                $manager->persist($fiche);
+            }
         }
-
-        // Création de 10 fiches de paie
-        for ($i = 0; $i < 10; $i++) {
-            $fiche = new \App\Entity\FicheDePaie();
-            $totalHeures = $faker->numberBetween(10, 40);
-            $coach = $faker->randomElement($coaches);
-            $fiche->setCoach($coach)
-                  ->setPeriode($faker->randomElement(['mois', 'semaine']))
-                  ->setTotalHeures($totalHeures)
-                  ->setMontantTotal(round($coach->getTarifHoraire() * $totalHeures, 2));
-            $manager->persist($fiche);
-        }
-
-
         $manager->flush();
     }
 }

@@ -17,9 +17,7 @@ class AdminStatsController extends AbstractController
 {
 
     public function __construct(private EntityManagerInterface $em, private SeanceRepository $seanceRepo)
-    {
-
-    }
+    {}
 
     #[Route('/stats', name: 'admin_stats')]
     public function stats(Request $request, PaginatorInterface $paginator): Response

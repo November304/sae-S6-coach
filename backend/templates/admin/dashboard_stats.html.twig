@@ -117,7 +117,7 @@
                     datasets: [
                         {% for donnee in stats.taux_occupation.donnees %}
                         {
-                            label: '{{ donnee.coach }}',
+                            label: {{ donnee.coach|json_encode|raw }},
                             data: [
                                 {% for heure in stats.taux_occupation.heures %}
                                 {{ donnee.data[heure] }},
