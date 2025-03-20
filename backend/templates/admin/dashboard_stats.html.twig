@@ -29,61 +29,67 @@
             {% endfor %}
         </div>
 
-       
+        <div class="row">
+            <div class="col-md-6">
+                <h2 class="mb-3">Évolution des réservations</h2>
+                <canvas id="reservationChart" style="max-width: 700px; max-height: 500px;"></canvas>
+            </div>
+            <div class="col-md-6">
+                <h2 class="mb-3">Taux d'occupation par coach et créneau horaire</h2>
+                <canvas id="occupationChart" style="max-width: 700px; max-height: 500px;"></canvas>
+            </div>
+        </div>
 
-		<div class="row">
-			<div class="col-md-6">
-			 	<h2 class="mb-3">Évolution des réservations</h2>
-				<canvas id="reservationChart" style="max-width: 700px; max-height: 500px;"></canvas>
-			</div>
-			<div class="col-md-6 h-100">
-				<h2 class="mb-3">Séances</h2>
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <h2 class="mb-3">Séances</h2>
 
-				<!-- Barre de recherche -->
-				<form method="get" class="mb-3">
-					<div class="input-group">
-						<input type="text" name="q" class="form-control" placeholder="Rechercher une séance..." value="{{ search }}">
-						<button type="submit" class="btn btn-primary">
-							<i class="fas fa-search"></i> Rechercher
-						</button>
-					</div>
-				</form>
+                <!-- Barre de recherche -->
+                <form method="get" class="mb-3">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control" placeholder="Rechercher une séance..." value="{{ search }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Rechercher
+                        </button>
+                    </div>
+                </form>
 
-				<table class="table table-striped">
-					<thead>
-						<tr>
-							<th>Thème</th>
-							<th>Date</th>
-							<th>Coach</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for seance in seances %}
-							<tr>
-								<td>{{ seance.themeSeance }}</td>
-								<td>{{ seance.dateHeure|date('d/m/Y H:i') }}</td>
-								<td>{{ seance.coach ? seance.coach.nom : 'Non assigné' }}</td>
-							</tr>
-						{% else %}
-							<tr>
-								<td colspan="3">Aucune séance trouvée.</td>
-							</tr>
-						{% endfor %}
-					</tbody>
-				</table>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Thème</th>
+                            <th>Date</th>
+                            <th>Coach</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for seance in seances %}
+                            <tr>
+                                <td>{{ seance.themeSeance }}</td>
+                                <td>{{ seance.dateHeure|date('d/m/Y H:i') }}</td>
+                                <td>{{ seance.coach ? seance.coach.nom : 'Non assigné' }}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="3">Aucune séance trouvée.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
 
-				<div class="pagination">
-					{{ knp_pagination_render(seances) }}
-				</div>
-			</div>
-		</div>
+                <div class="pagination">
+                    {{ knp_pagination_render(seances) }}
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            var ctx = document.getElementById('reservationChart').getContext('2d');
-            var chart = new Chart(ctx, {
+            // Graphique d'évolution des réservations
+            var ctxReservation = document.getElementById('reservationChart').getContext('2d');
+            var reservationChart = new Chart(ctxReservation, {
                 type: 'line',
                 data: {
                     labels: {{ stats.evolution_labels|json_encode|raw }},
@@ -98,6 +104,60 @@
                     responsive: true,
                     scales: {
                         y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Graphique du taux d'occupation par coach et créneau horaire
+            var ctxOccupation = document.getElementById('occupationChart').getContext('2d');
+            var occupationChart = new Chart(ctxOccupation, {
+                type: 'bar',
+                data: {
+                    labels: {{ stats.taux_occupation.heures|json_encode|raw }},
+                    datasets: [
+                        {% for donnee in stats.taux_occupation.donnees %}
+                        {
+                            label: '{{ donnee.coach }}',
+                            data: [
+                                {% for heure in stats.taux_occupation.heures %}
+                                {{ donnee.data[heure] }},
+                                {% endfor %}
+                            ],
+                            backgroundColor: 'rgba({{ (loop.index0 * 50) % 255 }}, {{ (loop.index0 * 80) % 255 }}, {{ (loop.index0 * 120) % 255 }}, 0.7)'
+                        }{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Taux d\'occupation (%)'
+                            },
+                            max: 100
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Heure de la journée'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Taux d\'occupation par coach et créneau horaire'
+                        }
                     }
                 }
             });

@@ -314,4 +314,16 @@ class Seance
 
         return $this;
     }
+
+    public function getTauxOccupation(): float
+    {
+        $maxPlaces = match($this->getTypeSeance()) {
+            'solo' => 1,
+            'duo' => 2,
+            'trio' => 3,
+            default => 1,
+        };
+
+        return $this->sportifs->count() / $maxPlaces*100;
+    }
 }

@@ -35,6 +35,7 @@ class AdminStatsController extends AbstractController
             'seances_populaires' => $this->getSeancesPopulaires(),
             'evolution_labels' => $this->getEvolutionReservations()['labels'],
             'evolution_values' => $this->getEvolutionReservations()['values'],
+            'taux_occupation' => $this->getTauxOccupationParCoachEtCreneau(),
         ];
 
 
@@ -127,6 +128,70 @@ class AdminStatsController extends AbstractController
         }
 
         return 0;
+    }
+
+    private function getTauxOccupationParCoachEtCreneau(): array
+    {
+        $seances = $this->seanceRepo
+            ->createQueryBuilder('s')
+            ->select('s, c.nom as coach, HOUR(s.date_heure) as heure')
+            ->join('s.coach', 'c')
+            ->where('s.statut = :statut')
+            ->setParameter('statut', 'validée')
+            ->getQuery()
+            ->getResult();
+        
+        $coaches = [];
+        $heures = [];
+        $tauxParCoachEtHeure = [];
+        
+        foreach ($seances as $row) {
+            $coach = $row['coach'];
+            $heure = $row['heure'];
+            
+            if (!in_array($coach, $coaches)) {
+                $coaches[] = $coach;
+            }
+            if (!in_array($heure, $heures)) {
+                $heures[] = $heure;
+            }
+            
+            // Initialiser le tableau pour ce coach et cette heure
+            if (!isset($tauxParCoachEtHeure[$coach][$heure])) {
+                $tauxParCoachEtHeure[$coach][$heure] = [
+                    'somme' => 0,
+                    'nombre' => 0
+                ];
+            }
+            
+            $seance = $row[0];
+            $tauxOccupation = $seance->getTauxOccupation();
+            
+            $tauxParCoachEtHeure[$coach][$heure]['somme'] += $tauxOccupation;
+            $tauxParCoachEtHeure[$coach][$heure]['nombre']++;
+        }
+        
+        sort($heures);
+        
+        $donnees = [];
+        foreach ($coaches as $coach) {
+            $donneeCoach = ['coach' => $coach, 'data' => []];
+            foreach ($heures as $heure) {
+                if (isset($tauxParCoachEtHeure[$coach][$heure]) && $tauxParCoachEtHeure[$coach][$heure]['nombre'] > 0) {
+                    $moyenne = $tauxParCoachEtHeure[$coach][$heure]['somme'] / $tauxParCoachEtHeure[$coach][$heure]['nombre'];
+                    $donneeCoach['data'][$heure] = round($moyenne, 2);
+                } else {
+                    $donneeCoach['data'][$heure] = 0;
+                }
+            }
+            $donnees[] = $donneeCoach;
+        }
+        
+        return [
+            'coaches' => $coaches,
+            'heures' => $heures,
+            'donnees' => $donnees
+        ];
     }
 
     private function getSeancesPopulaires(): array
