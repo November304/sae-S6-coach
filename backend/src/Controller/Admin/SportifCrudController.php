@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Sportif;
+use App\Entity\Utilisateur;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -20,6 +21,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Doctrine\ORM\EntityManagerInterface;
 
 
 
@@ -65,6 +67,42 @@ class SportifCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('Sportifs')
             ->setDefaultSort(['nom' => 'ASC']);
     }
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof Sportif) {
+            parent::persistEntity($entityManager, $entityInstance);
+            return;
+        }
+        
+        $repository = $entityManager->getRepository(Utilisateur::class);
+        $existingSportifs = $repository->findBy(['email' => $entityInstance->getEmail()]);
+        
+        if (count($existingSportifs) > 0) {
+            throw new \Exception("Un utilisateur avec cet email existe déjà.");
+        }
+        
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof Sportif) {
+            parent::updateEntity($entityManager, $entityInstance);
+            return;
+        }
+        
+        $repository = $entityManager->getRepository(Utilisateur::class);
+        $existingSportifs = $repository->findBy(['email' => $entityInstance->getEmail()]);
+        foreach ($existingSportifs as $sportif) {
+            if ($sportif->getId() !== $entityInstance->getId()) {
+                throw new \Exception("Un autre utilisateur avec cet email existe déjà.");
+            }
+        }
+        
+        parent::updateEntity($entityManager, $entityInstance);
+    }
+
 
     public function configureFields(string $pageName): iterable
     {

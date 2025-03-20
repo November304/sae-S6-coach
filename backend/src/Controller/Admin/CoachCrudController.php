@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Coach;
+use App\Entity\Utilisateur;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -143,6 +145,41 @@ class CoachCrudController extends AbstractCrudController
     private function addPasswordEventListener(FormBuilderInterface $formBuilder): FormBuilderInterface
     {
         return $formBuilder->addEventListener(FormEvents::POST_SUBMIT, $this->hashPassword());
+    }
+
+    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof Coach) {
+            parent::persistEntity($entityManager, $entityInstance);
+            return;
+        }
+        
+        $repository = $entityManager->getRepository(Utilisateur::class);
+        $existingSportifs = $repository->findBy(['email' => $entityInstance->getEmail()]);
+        
+        if (count($existingSportifs) > 0) {
+            throw new \Exception("Un utilisateur avec cet email existe déjà.");
+        }
+        
+        parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof Coach) {
+            parent::updateEntity($entityManager, $entityInstance);
+            return;
+        }
+        
+        $repository = $entityManager->getRepository(Utilisateur::class);
+        $existingSportifs = $repository->findBy(['email' => $entityInstance->getEmail()]);
+        foreach ($existingSportifs as $sportif) {
+            if ($sportif->getId() !== $entityInstance->getId()) {
+                throw new \Exception("Un autre utilisateur avec cet email existe déjà.");
+            }
+        }
+        
+        parent::updateEntity($entityManager, $entityInstance);
     }
 
     private function hashPassword() {

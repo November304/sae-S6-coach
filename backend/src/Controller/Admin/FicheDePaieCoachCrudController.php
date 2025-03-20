@@ -62,17 +62,6 @@ class FicheDePaieCoachCrudController extends AbstractCrudController
             ->addJsFile('js/fiche_de_paie-form.js');
     }
 
-    public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
-        if (!$entityInstance instanceof FicheDePaie) {
-            parent::persistEntity($entityManager, $entityInstance);
-            return;
-        }
-        // Affecter le coach connecté automatiquement
-        $entityInstance->setCoach($this->security->getUser());
-        parent::persistEntity($entityManager, $entityInstance);
-    }
-
     public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, 
                                               \EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection $fields, 
                                               \EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection $filters): QueryBuilder

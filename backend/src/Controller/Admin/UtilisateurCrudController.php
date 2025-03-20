@@ -76,10 +76,33 @@ class UtilisateurCrudController extends AbstractCrudController
         if (!$entityInstance instanceof Utilisateur) {
             return;
         }
-
+        $repository = $entityManager->getRepository(Utilisateur::class);
+        $existingSportifs = $repository->findBy(['email' => $entityInstance->getEmail()]);
+        
+        if (count($existingSportifs) > 0) {
+            throw new \Exception("Un utilisateur avec cet email existe déjà.");
+        }
         $entityInstance->setRoles(['ROLE_RESPONSABLE']);
 
         parent::persistEntity($entityManager, $entityInstance);
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof Utilisateur) {
+            parent::updateEntity($entityManager, $entityInstance);
+            return;
+        }
+        
+        $repository = $entityManager->getRepository(Utilisateur::class);
+        $existingSportifs = $repository->findBy(['email' => $entityInstance->getEmail()]);
+        foreach ($existingSportifs as $sportif) {
+            if ($sportif->getId() !== $entityInstance->getId()) {
+                throw new \Exception("Un autre utilisateur avec cet email existe déjà.");
+            }
+        }
+        
+        parent::updateEntity($entityManager, $entityInstance);
     }
 
 
