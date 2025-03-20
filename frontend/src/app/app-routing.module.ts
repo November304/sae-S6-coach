@@ -6,6 +6,7 @@ import { LoginComponent } from './login/login.component';
 import { PlanningComponent } from './planning/planning.component';
 import { RegisterComponent } from './register/register.component';
 import { ProfileComponent } from './profile/profile.component';
+import { EspacePersoComponent } from './espace-perso/espace-perso.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -13,11 +14,12 @@ const routes: Routes = [
   { path: 'planning', component: PlanningComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'profile', component: ProfileComponent }
+  { path: 'profile', component: ProfileComponent },
+  { path: 'espace-perso', component: EspacePersoComponent },
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}

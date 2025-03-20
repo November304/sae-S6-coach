@@ -1,0 +1,210 @@
+.espace-perso-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: #333;
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 20px;
+}
+
+.error {
+  color: #d9534f;
+  background-color: #f8d7da;
+  border-radius: 4px;
+  padding: 15px;
+}
+
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 768px) {
+  .dashboard {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sportif-info {
+    grid-column: 1;
+  }
+
+  .statistiques {
+    grid-column: 2;
+  }
+
+  .historique,
+  .exercices {
+    grid-column: 1 / span 2;
+  }
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.card {
+  background: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+h2 {
+  color: white;
+  padding-bottom: 10px;
+  margin-top: 0;
+}
+
+h3 {
+  color: #555;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+/* Styles pour les barres de progression */
+.types-exercices,
+.types-seances {
+  margin-top: 15px;
+}
+
+.exercice-type,
+.seance-type {
+  margin-bottom: 12px;
+}
+
+.exercice-label,
+.seance-label {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.exercice-progress,
+.seance-progress {
+  background-color: #e9ecef;
+  border-radius: 4px;
+  height: 24px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: #d9230f;
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 12px;
+  min-width: 30px;
+  transition: width 0.3s ease;
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.5); /* Ajoute un contour noir pour le texte */
+  font-weight: bold; /* Texte en gras */
+}
+
+/* Si la barre est très courte, afficher le texte à l'extérieur */
+.progress-bar.short-bar {
+  overflow: visible;
+  position: relative;
+  color: #333;
+  justify-content: flex-start;
+}
+
+.progress-bar.short-bar span {
+  position: absolute;
+  left: 110%; /* Positionne le texte juste après la barre */
+  white-space: nowrap;
+}
+
+/* Styles pour le tableau d'historique */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+th,
+td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+tr:hover {
+  background-color: #f5f5f5;
+}
+
+/* Styles pour la liste des exercices */
+.seance-exercices {
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.seance-exercices:last-child {
+  border-bottom: none;
+}
+
+.exercices-list ul {
+  padding-left: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  list-style-type: none;
+}
+
+.exercices-list li {
+  margin-bottom: 5px;
+  background: #f5f5f5;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  flex: 0 0 calc(50% - 10px); /* 2 colonnes */
+}
+
+/* Style pour le volet d'exercices qui affiche maximum 5 exercices */
+.exercices-collapsed .exercices-list ul {
+  max-height: 150px;
+  overflow: hidden;
+}
+
+.show-more-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+/* Style pour limiter les types d'exercices affichés */
+.types-exercices-limited {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.historique-container {
+  max-height: 300px; /* Ajustez selon vos besoins */
+  overflow-y: auto;
+}
+
+.exercices.list {
+  max-height: 400px; /* Ajustez cette valeur selon vos besoins */
+  overflow-y: auto;
+}

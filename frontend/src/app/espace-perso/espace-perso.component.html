@@ -1,0 +1,169 @@
+<div class="espace-perso-container">
+    <h1>Mon Espace Personnel</h1>
+
+    <div *ngIf="loading" class="loading">
+        <p>Chargement de vos données...</p>
+    </div>
+
+    <div *ngIf="error" class="error">
+        <p>{{ error }}</p>
+    </div>
+
+    <div *ngIf="!loading && !error" class="dashboard">
+        <!-- Informations du sportif -->
+        <app-profile></app-profile>
+
+        <!-- Statistiques -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Ma progression</h2>
+            </div>
+            <div class="card-body">
+                <p>
+                    <strong>Nombre total de séances suivies:</strong>
+                    {{ nombreTotalSeances }}
+                </p>
+
+                <h3>Types de séances suivies</h3>
+                <div *ngIf="nombreTotalSeances > 0" class="types-seances">
+                    <div *ngFor="let type of getTopItems(typesSeances, 5) | keyvalue" class="seance-type">
+                        <div class="seance-label">{{ type.key }}</div>
+                        <div class="seance-progress">
+                            <div class="progress-bar" [class.short-bar]="(type.value / nombreTotalSeances) * 100 < 15"
+                                [style.width.%]="(type.value / nombreTotalSeances) * 100">
+                                <span>
+                                    {{ type.value }} séances ({{ ((type.value / nombreTotalSeances) * 100).toFixed(1)
+                                    }}%)
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div *ngIf="getObjectKeys(typesSeances).length > 5">
+                        <button class="show-more-btn" (click)="showAllSeanceTypes = !showAllSeanceTypes">
+                            {{ showAllSeanceTypes ? "Voir moins" : "Voir plus" }}
+                        </button>
+                        <div *ngIf="showAllSeanceTypes">
+                            <div *ngFor="let type of getRestItems(typesSeances, 5) | keyvalue" class="seance-type">
+                                <div class="seance-label">{{ type.key }}</div>
+                                <div class="seance-progress">
+                                    <div class="progress-bar"
+                                        [class.short-bar]="(type.value / nombreTotalSeances) * 100 < 15"
+                                        [style.width.%]="(type.value / nombreTotalSeances) * 100">
+                                        <span>
+                                            {{ type.value }} séances ({{ ((type.value / nombreTotalSeances) *
+                                            100).toFixed(1) }}%)
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Types d'exercices réalisés</h3>
+                <div *ngIf="hasExerciceTypes()" class="types-exercices">
+                    <div class="types-exercices-limited">
+                        <div *ngFor="let type of getTopItems(typesExercices, 7) | keyvalue" class="exercice-type">
+                            <div class="exercice-label">{{ type.key }}</div>
+                            <div class="exercice-progress">
+                                <div class="progress-bar"
+                                    [class.short-bar]="(type.value / getTotalExercices()) * 100 < 15"
+                                    [style.width.%]="(type.value / getTotalExercices()) * 100">
+                                    <span>{{ type.value }} exercices</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="getObjectKeys(typesSeances).length > 5">
+                    <button class="show-more-btn" (click)="showAllExerciceTypes = !showAllExerciceTypes">
+                        {{ showAllExerciceTypes ? "Voir moins" : "Voir plus" }}
+                    </button>
+                    <div *ngIf="showAllExerciceTypes">
+                        <div *ngFor="let type of getRestItems(typesExercices, 7) | keyvalue" class="exercice-type">
+                            <div class="exercice-label">{{ type.key }}</div>
+                            <div class="exercice-progress">
+                                <div class="progress-bar"
+                                    [class.short-bar]="(type.value / getTotalExercices()) * 100 < 15"
+                                    [style.width.%]="(type.value / getTotalExercices()) * 100">
+                                    <span>{{ type.value }} exercices</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p *ngIf="nombreTotalSeances === 0">
+                Vous n'avez pas encore participé à des séances.
+            </p>
+        </div>
+
+        <!-- Historique des séances -->
+        <div class="historique card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Historique de mes séances</h2>
+            </div>
+            <div class="historique-container">
+                <table *ngIf="seances.length > 0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Type</th>
+                            <th>Thème</th>
+                            <th>Niveau</th>
+                            <th>Coach</th>
+                            <th>Statut</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let seance of seances">
+                            <td>{{ seance.date_heure | date: 'dd/MM/yyyy HH:mm' }}</td>
+                            <td>{{ seance.type_seance }}</td>
+                            <td>{{ seance.theme_seance }}</td>
+                            <td>{{ seance.niveau_seance }}</td>
+                            <td>{{ seance.coach.nom }} {{ seance.coach.prenom }}</td>
+                            <td>{{ seance.statut }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p *ngIf="seances.length === 0">
+                    Aucune séance enregistrée pour le moment.
+                </p>
+            </div>
+        </div>
+
+        <!-- Détail des exercices -->
+        <div class="exercices card">
+            <div class="card-header bg-primary text-white">
+                <h2>Détail des exercices par séance</h2>
+            </div>
+            <div *ngIf="seances.length > 0" class="exercices list">
+                <div *ngFor="let seance of seances; let i = index" class="seance-exercices"
+                    [class.exercices-collapsed]="!expandedSeances[i]">
+                    <h3>
+                        {{ seance.theme_seance }} ({{ seance.date_heure | date: 'dd/MM/yyyy' }})
+                    </h3>
+                    <div *ngIf="seance.exercices && seance.exercices.length > 0">
+                        <!-- Conteneur pour limiter la hauteur -->
+                        <div class="exercices-container">
+                            <ul>
+                                <li *ngFor="let exercice of seance.exercices">
+                                    <strong>{{ exercice.nom }}</strong> -
+                                    {{ exercice.description | slice: 0:40 }}{{ exercice.description.length > 40 ? '...'
+                                    : '' }}
+                                </li>
+                            </ul>
+                        </div>
+                        <button *ngIf="seance.exercices.length > 5" class="show-more-btn"
+                            (click)="toggleSeanceExpand(i)">
+                            {{ expandedSeances[i] ? 'Voir moins' : 'Voir tous les exercices' }}
+                        </button>
+                    </div>
+                    <p *ngIf="!seance.exercices || seance.exercices.length === 0">
+                        Aucun exercice associé à cette séance.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -19,6 +19,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { RegisterComponent } from './register/register.component';
 import { ProfileComponent } from './profile/profile.component';
 import { AuthInterceptor } from './services/auth.interceptor';
+import { EspacePersoComponent } from './espace-perso/espace-perso.component';
 
 registerLocaleData(localeFr);
 
@@ -32,6 +33,7 @@ registerLocaleData(localeFr);
     LoginComponent,
     RegisterComponent,
     ProfileComponent,
+    EspacePersoComponent,
   ],
   imports: [
     BrowserModule,
@@ -46,8 +48,8 @@ registerLocaleData(localeFr);
     HttpClientModule,
   ],
   providers: [
-    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
