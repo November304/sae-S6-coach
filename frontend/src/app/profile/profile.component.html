@@ -1,37 +1,56 @@
-<div class="container mt-5">
-    <div class="card shadow-sm">
-      <div class="card-header bg-primary text-white">
-        <h2 class="mb-0 text-center">Modifier mon profil</h2>
-      </div>
-      <div class="card-body">
-        <form (ngSubmit)="updateProfile()">
-          <div class="mb-3">
-            <label for="nom" class="form-label">Nom :</label>
-            <input type="text" id="nom" [(ngModel)]="nom" name="nom" class="form-control">
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card border-0 shadow">
+        <!-- Header simplifié avec gradient uniquement -->
+        <div class="card-img-top position-relative" style="height: 160px; overflow: hidden;">
+          <div class="position-absolute top-0 start-0 w-100 h-100 card text-white bg-primary"></div>
+          <div class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center">
+            <h3 class="text-white mb-0 fw-bold">PROFIL</h3>
           </div>
-
-          <div class="mb-3">
-            <label for="prenom" class="form-label">Prénom :</label>
-            <input type="text" id="prenom" [(ngModel)]="prenom" name="prenom" class="form-control">
+        </div>
+        
+        <div class="card-body pt-4">
+          <div class="text-center mb-4">
+            <h4 class="mb-0 fw-bold">{{ prenom }} {{ nom }}</h4>
+            <p class="text-muted small">Membre depuis {{ formatDate(dateInscription) }}</p>
           </div>
-
-          <div class="mb-3">
-            <label for="email" class="form-label">Email :</label>
-            <input type="email" id="email" [(ngModel)]="email" name="email" class="form-control">
+          <div class="d-flex align-items-center mb-4">
+            <hr class="flex-grow-1 m-0">
+            <span class="badge bg-primary mx-2">INFORMATIONS PERSONNELLES</span>
+            <hr class="flex-grow-1 m-0">
           </div>
-
-          <div class="mb-3">
-            <label for="password" class="form-label">Nouveau mot de passe :</label>
-            <input type="password" id="password" [(ngModel)]="password" name="password" class="form-control">
+ 
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="d-flex align-items-center p-3 rounded bg-light">
+                <i class="fas fa-envelope text-primary me-3"></i>
+                <div>
+                  <div class="text-uppercase small fw-bold text-muted">Email</div>
+                  <div>{{ email }}</div>
+                </div>
+              </div>
+            </div>
+           
+            <div class="col-12">
+              <div class="d-flex align-items-center p-3 rounded bg-light">
+                <i class="fas fa-dumbbell text-primary me-3"></i>
+                <div>
+                  <div class="text-uppercase small fw-bold text-muted">Niveau Sportif</div>
+                  <div>{{ niveauSportif }}</div>
+                </div>
+              </div>
+            </div>
           </div>
-  
-          <button type="submit" class="btn btn-primary text-center">Enregistrer</button>
-        </form>
-  
-        <div *ngIf="message" class="alert alert-success mt-3 text-center">
-          {{ message }}
+        </div>
+       
+        <div class="card-footer border-0 bg-white pb-4">
+          <div class="d-grid gap-2">
+            <a routerLink="/edit-profile" class="btn btn-primary">Modifier mon profil</a>
+            <a routerLink="/edit-password" class="btn btn-secondary">Modifier mot de passe</a>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  
+</div>

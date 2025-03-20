@@ -39,6 +39,10 @@ export class ApiService {
     return this.http.put<Sportif>(`${this.apiUrl}/sportifs`, body);
   }
 
+  updateSelfPwd(body: any): Observable<any> {
+    return this.http.put<Sportif>(`${this.apiUrl}/sportifs/pwd`, body);
+  }
+
   deleteAccount(): Observable<any> {
     return this.http.delete(`${this.apiUrl}/sportifs`);
   }

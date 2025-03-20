@@ -41,8 +41,6 @@ export class AuthService {
   constructor(private http: HttpClient) {
     const storedToken: string | null = localStorage.getItem(this.localStorageToken);
 
-    console.log("🔍 Token récupéré depuis localStorage :", storedToken);
-
     this.currentTokenSubject = new BehaviorSubject<string | null>(storedToken);
     this.currentToken = this.currentTokenSubject.asObservable();
 
@@ -50,7 +48,7 @@ export class AuthService {
     this.currentAuthUser = this.currentAuthUserSubject.asObservable();
 
     if (storedToken) {
-      this.currentTokenSubject.next(storedToken); // ✅ Force la mise à jour immédiate du token
+      this.currentTokenSubject.next(storedToken);
       this.updateUserInfo(storedToken);
     }
   }
@@ -61,17 +59,14 @@ export class AuthService {
       return;
     }
 
-    console.log("🔄 Mise à jour des infos utilisateur avec token :", token);
-
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${token}` });
 
     this.http.get<AuthUser>(this.apiUrlUserInfo, { headers }).subscribe({
       next: data => {
         if (data.email) {
-          localStorage.setItem(this.localStorageToken, token); // ✅ Stocke immédiatement le token
+          localStorage.setItem(this.localStorageToken, token);
           this.currentTokenSubject.next(token);
           this.currentAuthUserSubject.next(new AuthUser(data.email, data.roles));
-          console.log("✅ Utilisateur rechargé :", data);
         } else {
           this.clearSession();
         }
@@ -87,7 +82,7 @@ export class AuthService {
     return this.http.post<any>(this.apiUrlLogin, { email, password }).pipe(
       map(response => {
         if (response.token) {
-          localStorage.setItem(this.localStorageToken, response.token); // ✅ Sauvegarde immédiate du token
+          localStorage.setItem(this.localStorageToken, response.token);
           this.updateUserInfo(response.token);
           return true;
         }

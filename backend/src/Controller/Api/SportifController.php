@@ -95,13 +95,6 @@ final class SportifController extends AbstractController{
         if (isset($data['email'])) {
             $user->setEmail($data['email']);
         }
-        if (isset($data['password'])) {
-            $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
-            $user->setPasswordChangedAt(new \DateTimeImmutable());
-            $request->getSession()->invalidate();
-
-            //TODO : Faudrait rajouter des trucs JWT pr rendre les tokens invalides
-        }
         if (isset($data['niveau_sportif'])) {
             $user->setNiveauSportif($data['niveau_sportif']);
         }
@@ -117,12 +110,43 @@ final class SportifController extends AbstractController{
         return $this->json($user, JsonResponse::HTTP_OK, [], ['groups' => 'sportif:read']);
     }
 
+    #[Route('/api/sportifs/pwd', name: 'api_update_sportif_password', methods: ['PUT', 'PATCH'])]
+    public function updateSportifPassword(Request $request,Security $security, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
+    {
+        $user = $security->getUser();
+        
+        if(!$user || !$user instanceof Sportif)
+        {
+            return $this->json(['error' => 'Sportif non trouvé','code'=>JsonResponse::HTTP_NOT_FOUND], JsonResponse::HTTP_NOT_FOUND);
+        }
+        $data = json_decode($request->getContent(), true);
+
+        if (isset($data['password'])) {
+            $user->setPassword(password_hash($data['password'], PASSWORD_BCRYPT));
+            $user->setPasswordChangedAt(new \DateTimeImmutable());
+            $request->getSession()->invalidate();
+
+            //TODO : Faudrait rajouter des trucs JWT pr rendre les tokens invalides
+        }
+
+        try {
+            $validator->validate($user);
+        } catch (ValidationException $e) {
+            return $this->json(['error' => $e->getMessage()], JsonResponse::HTTP_BAD_REQUEST);
+        }
+
+        $em->flush();
+
+        return $this->json(['message'=>'Le mot de passe a bien été modifié','code'=>JsonResponse::HTTP_OK], JsonResponse::HTTP_OK);
+    }
+
+
     #[Route('/api/sportifs', name: 'api_delete_sportif', methods: ['DELETE'])]
     public function deletesportif(Security $security, EntityManagerInterface $em): JsonResponse
     {
         $sportif = $security->getUser();
         if (!$sportif instanceof Sportif) {
-            return $this->json(['error' => 'Sportif non trouvé'], JsonResponse::HTTP_NOT_FOUND);
+            return $this->json(['error' => 'Sportif non trouvé','code'=>JsonResponse::HTTP_NOT_FOUND], JsonResponse::HTTP_NOT_FOUND);
         }
 
         $em->remove($sportif);
