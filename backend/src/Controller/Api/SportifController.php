@@ -170,7 +170,7 @@ final class SportifController extends AbstractController{
                 if (!isset($exerciceCounts[$id])) {
                     $exerciceCounts[$id] = [
                         'id' => $id,
-                        'nom' => method_exists($exercice, 'getNom') ? $exercice->getNom() : 'Exercice ' . $id,
+                        'nom' => $exercice->getNom(),
                         'count' => 0,
                     ];
                 }
