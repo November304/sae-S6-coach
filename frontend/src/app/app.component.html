@@ -15,23 +15,24 @@
       </ul>
       <!-- Partie alignée à droite -->
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item mt-4 mr-2" *ngIf="authService.currentAuthUserValue.isLogged()">
+          <span class="navbar-text">
+            Bienvenue, {{ prenom }} {{ nom }}
+          </span>
+        </li>
         <li class="nav-item dropdown" *ngIf="authService.currentAuthUserValue.isLogged()">
           <a class="nav-link user-icon" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <fa-icon [icon]="faUserCircle" class="fs-3"></fa-icon>
           </a>
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
             <li>
-              <a class="dropdown-item" routerLink="/profile">Profil</a>
-            </li>
-            <li>
-              <a class="dropdown-item" routerLink="/espace-personnel">Espace personnel</a>
+              <a class="dropdown-item" routerLink="/espace-perso">Espace personnel</a>
             </li>
             <li>
               <button class="dropdown-item" (click)="logout()">Déconnexion</button>
             </li>
           </ul>
         </li>
-
         <li class="nav-item" *ngIf="!authService.currentAuthUserValue.isLogged()">
           <a class="nav-link" routerLink="/login">Connexion</a>
         </li>

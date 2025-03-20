@@ -6,6 +6,7 @@ import { LoginComponent } from './login/login.component';
 import { PlanningComponent } from './planning/planning.component';
 import { RegisterComponent } from './register/register.component';
 import { ProfileComponent } from './profile/profile.component';
+import { EspacePersoComponent } from './espace-perso/espace-perso.component';
 import { EditProfileComponent } from './edit-profile/edit-profile.component';
 import { EditPasswordComponent } from './edit-password/edit-password.component';
 
@@ -16,12 +17,13 @@ const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'profile', component: ProfileComponent },
+  { path: 'espace-perso', component: EspacePersoComponent },
   { path: 'edit-profile', component: EditProfileComponent },
   { path: 'edit-password', component: EditPasswordComponent }
 ];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
