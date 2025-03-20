@@ -29,7 +29,7 @@ export class EditPasswordComponent {
 
       this.apiService.updateSelfPwd(body).subscribe(
         () => {
-          this.router.navigate(['/profile']);
+          this.router.navigate(['/espace-perso']);
         },
         (error) => {
           console.error("❌ Erreur lors de la mise à jour du mot de passe :", error);

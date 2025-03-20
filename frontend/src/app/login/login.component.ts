@@ -9,6 +9,7 @@ import { AuthService } from '../services/auth.service';
 })
 export class LoginComponent {
   model: any = {};
+  errorMessage: string | null = null;
 
   constructor(
     private authService: AuthService,
@@ -16,9 +17,26 @@ export class LoginComponent {
   ) {}
 
   onSubmit() {
+    this.errorMessage = null;
+
     this.authService.login(this.model.email, this.model.password).subscribe({
-      next: () => this.router.navigate(['/']),
-      error: err => console.error('Erreur lors de la connexion', err)
+      next: (response) => {
+        this.authService.currentAuthUser.subscribe(user => {
+          console.log(user);
+          if (user.roles.includes("ROLE_SPORTIF")) {
+            this.router.navigate(['/']);
+          } else {
+            this.errorMessage = "Identifiants incorrects";
+          }
+        });
+      },
+      error: err => {
+        if (err.status === 401) {
+          this.errorMessage = err.error.message || "Identifiants incorrects";
+        } else {
+          this.errorMessage = "Une erreur inattendue s'est produite";
+        }
+      }
     });
   }
 }

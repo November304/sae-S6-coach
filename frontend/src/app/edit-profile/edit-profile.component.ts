@@ -42,7 +42,7 @@ export class EditProfileComponent implements OnInit {
 
     this.apiService.updateSelf(updatedData).subscribe(
       () => {
-        this.router.navigate(['/profile']);
+        this.router.navigate(['/espace-perso']);
       },
       (error) => {
         console.error("❌ Erreur lors de la mise à jour :", error);
