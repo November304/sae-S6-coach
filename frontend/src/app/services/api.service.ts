@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core';
 import { Coach } from '../models/coach';
 import { Observable } from 'rxjs';
 import { Sportif } from '../models/sportif';
-import { Exercice } from '../models/exercice';
 import { Seance } from '../models/seance';
 
 @Injectable({
@@ -24,8 +23,8 @@ export class ApiService {
   }
 
   // ------------------- SPORTIF ------------------- //
-  getSportifMe(): Observable<Sportif[]> {
-    return this.http.get<Sportif[]>(`${this.apiUrl}//sportifs/me`);
+  getSportifMe(): Observable<Sportif> {
+    return this.http.get<Sportif>(`${this.apiUrl}/sportifs/me`);
   }
 
   getMySeances(): Observable<Sportif> {
