@@ -11,8 +11,11 @@
           </h6>
   
           <p class="card-text"><strong>Coach:</strong> {{ seance.coach.prenom }} {{ seance.coach.nom }}</p>
-          <p class="card-text">
+          <p class="card-text" *ngIf="authService.currentAuthUserValue.isLogged()">
             <strong>Places:</strong> {{ seance.sportifs.length }}/{{ getPlacesMax(seance.type_seance) }}
+          </p>
+          <p class="card-text" *ngIf="!authService.currentAuthUserValue.isLogged()">
+            <strong>Places:</strong> {{ getPlacesMax(seance.type_seance) }}
           </p>
   
           <p class="card-text"><strong>Exercices:</strong></p>

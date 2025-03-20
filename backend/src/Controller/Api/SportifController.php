@@ -59,7 +59,10 @@ final class SportifController extends AbstractController{
         $em->persist($sportif);
         $em->flush();
 
-        return $this->json(["message"=>"L'utilisateur a bien été inscrit"], JsonResponse::HTTP_CREATED);
+        return $this->json([
+            "message" => "L'utilisateur a bien été inscrit",
+            "code" => JsonResponse::HTTP_CREATED
+        ], JsonResponse::HTTP_CREATED);
     }
 
     #[Route('/api/sportifs', name: 'api_update_sportif', methods: ['PUT', 'PATCH'])]
@@ -114,7 +117,10 @@ final class SportifController extends AbstractController{
         $em->remove($sportif);
         $em->flush();
 
-        return $this->json(['message' => 'Sportif supprimé avec succès'], JsonResponse::HTTP_OK);
+        return $this->json([
+            'message' => 'Sportif supprimé avec succès',
+            'code' => JsonResponse::HTTP_OK
+        ], JsonResponse::HTTP_OK);
     }
 
     #[Route('/api/sportifs/stats', name: 'api_stats_sportif', methods: ['GET'])]

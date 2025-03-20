@@ -1,12 +1,13 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { HttpInterceptor, HttpRequest, HttpHandler } from '@angular/common/http';
 import { AuthService } from './auth.service';
 
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+  constructor(private authService: AuthService) {}
 
-  if (!req.headers.has('skip-token')) {
-    const currentToken = authService.currentTokenValue;
+  intercept(req: HttpRequest<any>, next: HttpHandler) {
+    const currentToken = this.authService.currentTokenValue;
     if (currentToken) {
       req = req.clone({
         setHeaders: {
@@ -14,11 +15,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         }
       });
     }
-  } else {
-    req = req.clone({
-      headers: req.headers.delete('skip-token')
-    });
+    return next.handle(req);
   }
-
-  return next(req);
-};
+}
