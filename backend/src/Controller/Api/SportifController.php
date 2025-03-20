@@ -7,6 +7,7 @@ use ApiPlatform\Validator\ValidatorInterface;
 use App\Entity\Sportif;
 use App\Repository\SeanceRepository;
 use App\Repository\SportifRepository;
+use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -66,7 +67,7 @@ final class SportifController extends AbstractController{
     }
 
     #[Route('/api/sportifs', name: 'api_update_sportif', methods: ['PUT', 'PATCH'])]
-    public function updatesportif(Request $request,Security $security, EntityManagerInterface $em, ValidatorInterface $validator,LoggerInterface $logger): JsonResponse
+    public function updatesportif(Request $request,Security $security, EntityManagerInterface $em, ValidatorInterface $validator,UtilisateurRepository $userRepo): JsonResponse
     {
         $user = $security->getUser();
         
@@ -75,6 +76,16 @@ final class SportifController extends AbstractController{
             return $this->json(['error' => 'Sportif non trouvé'], JsonResponse::HTTP_NOT_FOUND);
         }
         $data = json_decode($request->getContent(), true);
+
+        //Check sur l'email
+        if (isset($data['email'])) {
+            $email = $data['email'];
+            $userWithSameEmail = $userRepo->findOneBy(['email' => $email]);
+            if ($userWithSameEmail && $userWithSameEmail->getId() !== $user->getId()) {
+                return $this->json(['error' => 'Cet email est déjà utilisé','code'=>JsonResponse::HTTP_BAD_REQUEST], JsonResponse::HTTP_BAD_REQUEST);
+            }
+        }
+
         if (isset($data['nom'])) {
             $user->setNom($data['nom']);
         }
@@ -170,7 +181,7 @@ final class SportifController extends AbstractController{
                 if (!isset($exerciceCounts[$id])) {
                     $exerciceCounts[$id] = [
                         'id' => $id,
-                        'nom' => method_exists($exercice, 'getNom') ? $exercice->getNom() : 'Exercice ' . $id,
+                        'nom' => $exercice->getNom(),
                         'count' => 0,
                     ];
                 }

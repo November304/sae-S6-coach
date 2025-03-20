@@ -29,7 +29,7 @@
           <p *ngIf="!seance.exercices || seance.exercices.length === 0" class="text-muted">Aucun exercice prévu</p>
   
           <p class="card-text"><strong>Niveau:</strong> {{ seance.niveau_seance | titlecase }}</p>
-          <p class="card-text"><strong>Statut:</strong> {{ seance.statut | titlecase }}</p>
+          <p class="card-text" *ngIf="authService.currentAuthUserValue.isLogged()"><strong>Statut:</strong> {{ seance.statut | titlecase }}</p>
         </div>
   
         <div class="modal-footer">

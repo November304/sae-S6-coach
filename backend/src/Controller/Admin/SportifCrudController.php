@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Sportif;
+use App\Entity\Utilisateur;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -20,6 +21,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
+use Doctrine\ORM\EntityManagerInterface;
 
 
 
@@ -65,6 +67,7 @@ class SportifCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('Sportifs')
             ->setDefaultSort(['nom' => 'ASC']);
     }
+
 
     public function configureFields(string $pageName): iterable
     {

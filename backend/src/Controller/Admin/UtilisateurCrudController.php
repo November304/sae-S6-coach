@@ -74,15 +74,14 @@ class UtilisateurCrudController extends AbstractCrudController
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
     {
         if (!$entityInstance instanceof Utilisateur) {
+            parent::persistEntity($entityManager, $entityInstance);
             return;
         }
-
         $entityInstance->setRoles(['ROLE_RESPONSABLE']);
 
         parent::persistEntity($entityManager, $entityInstance);
     }
-
-
+    
     public function configureFields(string $pageName): iterable
     {
         

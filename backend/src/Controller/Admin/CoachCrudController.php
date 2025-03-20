@@ -3,6 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Coach;
+use App\Entity\Utilisateur;
+use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;

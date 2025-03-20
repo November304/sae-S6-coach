@@ -47,6 +47,7 @@ export class PlanningComponent implements OnInit, AfterViewInit, OnDestroy {
   sessionTypes: string[] = [];
   sessionLevels: string[] = []
   selectedSeance: Seance | null = null;
+  isLogged = false;
 
   selectedCoachIds: number[] = [];
   selectedSessionTypes: string[] = [];
@@ -58,27 +59,32 @@ export class PlanningComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const isLogged = this.authService.currentAuthUserValue.isLogged();
+    this.authService.currentAuthUser.subscribe(user => {
+      this.isLogged = user.isLogged();
 
-    if (!isLogged) {
-      this.apiService.getSeanceListPublic().subscribe((data: Seance[]) => {
-        this.seances = data;
-        this.extractSessionTypes();
-        this.extractSessionLevels();
-        this.updateEvents();
-      });
-    } else {
-      this.apiService.getSeanceList().subscribe((data: Seance[]) => {
-        this.seances = data;
-        this.extractSessionTypes();
-        this.extractSessionLevels();
-        this.updateEvents();
-      });
-    }
+      if (!this.isLogged) {
+        this.apiService.getSeanceListPublic().subscribe((data: Seance[]) => {
+          this.seances = data;
+          this.extractSessionTypes();
+          this.extractSessionLevels();
+          this.updateEvents();
+        });
 
-  
-    this.apiService.getCoachsList().subscribe((data: Coach[]) => {
-      this.coaches = data;
+        this.apiService.getCoachsListPublic().subscribe((data: Coach[]) => {
+          this.coaches = data;
+        });
+      } else {
+        this.apiService.getSeanceList().subscribe((data: Seance[]) => {
+          this.seances = data;
+          this.extractSessionTypes();
+          this.extractSessionLevels();
+          this.updateEvents();
+        });
+
+        this.apiService.getCoachsList().subscribe((data: Coach[]) => {
+          this.coaches = data;
+        });
+      }
     });
   }
   
