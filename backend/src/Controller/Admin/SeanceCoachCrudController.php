@@ -30,14 +30,14 @@ use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
 #[IsGranted('ROLE_COACH')]
 class SeanceCoachCrudController extends AbstractCrudController
 {
-    public function __construct(private SecurityBundleSecurity $security, private LoggerInterface $logger, private AdminUrlGenerator $adminUrlGenerator, private EntityManagerInterface $entityManager){}
+    public function __construct(private SecurityBundleSecurity $security, private LoggerInterface $logger, private AdminUrlGenerator $adminUrlGenerator, private EntityManagerInterface $entityManager) {}
 
     public static function getEntityFqcn(): string
     {
         return Seance::class;
     }
 
-   public function configureActions(Actions $actions): Actions
+    public function configureActions(Actions $actions): Actions
     {
         $appel = Action::new('appel', 'Faire l\'appel', 'fa fa-clipboard-check')
             ->linkToRoute('app_admin_seance_coach_appel', function (Seance $seance): array {
@@ -47,7 +47,7 @@ class SeanceCoachCrudController extends AbstractCrudController
                 return ($seance instanceof Seance) && $seance->getStatut() === 'prévue';
             })
             ->setCssClass('btn btn-success btn-sm text-nowrap');
-        
+
         $annuler = Action::new('annuler', 'Annuler', 'fa fa-times-circle')
             ->linkToRoute('app_coach_demande_annulation', function (Seance $seance): array {
                 return ['id' => $seance->getId()];
@@ -67,11 +67,55 @@ class SeanceCoachCrudController extends AbstractCrudController
             ->add(Crud::PAGE_DETAIL, $appel)
             ->add(Crud::PAGE_INDEX, $annuler)
             ->add(Crud::PAGE_DETAIL, $annuler)
+            // Modification ici pour la gestion de l'action EDIT
+            ->setPermission(Action::EDIT, 'ROLE_COACH')
+            ->update(Crud::PAGE_INDEX, Action::EDIT, function (Action $action) {
+                return $action
+                    ->displayIf(static function (Seance $seance) {
+                        return $seance->getStatut() === 'prévue';
+                    });
+            })
+            ->update(Crud::PAGE_DETAIL, Action::EDIT, function (Action $action) {
+                return $action
+                    ->displayIf(static function (Seance $seance) {
+                        return $seance->getStatut() === 'prévue';
+                    });
+            })
             ->remove(Crud::PAGE_INDEX, Action::DELETE)
-            ->remove(Crud::PAGE_DETAIL, Action::DELETE); 
+            ->remove(Crud::PAGE_DETAIL, Action::DELETE);
     }
 
-  public function redirectToAppel(AdminContext $context)
+    public function edit(AdminContext $context)
+    {
+        $seance = $context->getEntity()->getInstance();
+
+        if (!in_array($seance->getStatut(), ['prévue'])) {
+            $this->addFlash('error', 'Les séances annulées ou validées ne peuvent pas être modifiées.');
+            return $this->redirectToRoute('admin', [
+                'crudAction' => 'index',
+                'crudControllerFqcn' => self::class,
+            ]);
+        }
+
+        return parent::edit($context);
+    }
+
+    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
+    {
+        if (!$entityInstance instanceof Seance) {
+            parent::updateEntity($entityManager, $entityInstance);
+            return;
+        }
+
+        if (in_array($entityInstance->getStatut(), ['validée', 'annulée'])) {
+            throw new AccessDeniedException('Une séance validée ou annulée ne peut plus être modifiée.');
+        }
+
+        $this->validateSeance($entityManager, $entityInstance);
+        parent::updateEntity($entityManager, $entityInstance);
+    }
+
+    public function redirectToAppel(AdminContext $context)
     {
         // Récupération de l'EntityDto dans le contexte
         $entityDto = $context->getEntity();
@@ -81,16 +125,16 @@ class SeanceCoachCrudController extends AbstractCrudController
                 $context->getReferrer() ?? $this->adminUrlGenerator->setAction(Action::INDEX)->generateUrl()
             );
         }
-        
+
         // Récupération de l'entité réelle
         $seance = $entityDto->getInstance();
-        
+
         // Vérification que la séance est bien de type Seance et a le statut attendu
         if (!$seance instanceof Seance || $seance->getStatut() !== 'prévue') {
             $this->addFlash('warning', 'Action impossible sur cette séance');
             return $this->redirectToRoute('admin');
         }
-        
+
         // Redirection vers la route de l'appel en transmettant l'ID de la séance
         return $this->redirect($this->generateUrl('app_admin_seance_coach_appel', [
             'id' => $seance->getId()
@@ -114,10 +158,10 @@ class SeanceCoachCrudController extends AbstractCrudController
             parent::persistEntity($entityManager, $entityInstance);
             return;
         }
-        
+
         $entityInstance->setCoach($this->security->getUser());
         $entityInstance->setStatut('prévue');
-        
+
         $this->validateSeance($entityManager, $entityInstance);
         parent::persistEntity($entityManager, $entityInstance);
     }
@@ -150,10 +194,10 @@ class SeanceCoachCrudController extends AbstractCrudController
                 ]),
             AssociationField::new('sportifs')
                 ->setLabel("Sportifs")
-                ->setFormTypeOption('choice_label', function($sportif) {
+                ->setFormTypeOption('choice_label', function ($sportif) {
                     return $sportif->getNom() . ' (niveau ' . $sportif->getNiveauSportif() . ')';
                 })
-                ->setFormTypeOption('choice_attr', function($sportif, $key, $value) {
+                ->setFormTypeOption('choice_attr', function ($sportif, $key, $value) {
                     return ['data-level' => $sportif->getNiveauSportif()];
                 })
                 ->setFormTypeOption('attr', [
@@ -219,7 +263,7 @@ class SeanceCoachCrudController extends AbstractCrudController
     {
         $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
         $qb->andWhere('entity.coach = :currentCoach')
-           ->setParameter('currentCoach', $this->security->getUser());
+            ->setParameter('currentCoach', $this->security->getUser());
 
         return $qb;
     }
@@ -232,34 +276,20 @@ class SeanceCoachCrudController extends AbstractCrudController
 
         $hours = floor($minutes / 60);
         $remainingMinutes = $minutes % 60;
-        
+
         return sprintf('%dh%02d', $hours, $remainingMinutes);
     }
 
-    public function updateEntity(EntityManagerInterface $entityManager, $entityInstance): void
-    {
-        if (!$entityInstance instanceof Seance) {
-            parent::updateEntity($entityManager, $entityInstance);
-            return;
-        }
 
-        if ($entityInstance->getStatut() === 'validée') {
-            throw new AccessDeniedException('Une séance validée ne peut plus être modifiée.');
-        }
-
-        $this->validateSeance($entityManager, $entityInstance);
-        parent::updateEntity($entityManager, $entityInstance);
-    }
-
-     private function checkNiveauSportifs(Seance $seance): void
+    private function checkNiveauSportifs(Seance $seance): void
     {
         $sessionNiveau = $seance->getNiveauSeance();
         foreach ($seance->getSportifs() as $sportif) {
             // On vérifie que le niveau du sportif correspond exactement à celui de la séance
             if ($sportif->getNiveauSportif() !== $sessionNiveau) {
                 throw new \Exception(
-                    "Le sportif " . $sportif->getNom() . " (niveau " . $sportif->getNiveauSportif() . 
-                    ") ne peut pas participer à une séance de niveau " . $sessionNiveau . "."
+                    "Le sportif " . $sportif->getNom() . " (niveau " . $sportif->getNiveauSportif() .
+                        ") ne peut pas participer à une séance de niveau " . $sessionNiveau . "."
                 );
             }
         }
@@ -270,10 +300,10 @@ class SeanceCoachCrudController extends AbstractCrudController
         $coach = $seance->getCoach();
         $dateHeure = $seance->getDateHeure();
         $dateHeureFin = DateTime::createFromInterface($dateHeure)->add(new \DateInterval('PT' . $seance->getDureeEstimeeTotal() . 'M'));
-        
+
         $this->logger->info('dateHeure : ' . $dateHeure->format('Y-m-d H:i:s'));
-        $this->logger->info('dateHeureFin : '.$dateHeureFin->format('Y-m-d H:i:s'));
-        
+        $this->logger->info('dateHeureFin : ' . $dateHeureFin->format('Y-m-d H:i:s'));
+
         //Verif si coach a déjà une séance
         $qb = $entityManager->createQueryBuilder();
         $qb->select('s')
@@ -307,7 +337,7 @@ class SeanceCoachCrudController extends AbstractCrudController
             }
         }
 
-         $this->checkNiveauSportifs($seance);
+        $this->checkNiveauSportifs($seance);
     }
 
     public function configureAssets(Assets $assets): Assets
