@@ -1,115 +1,158 @@
 {% extends '@!EasyAdmin/layout.html.twig' %}
 
 {% block content %}
-    <div class="container-fluid">
-        <h1 class="mb-4">Statistiques de fréquentation</h1>
-        
-        <div class="row">
-            <!-- Cartes de statistiques -->
-            <div class="col-md-3">
-                <div class="card text-white bg-primary mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Total réservations</h5>
-                        <p class="card-text display-4">{{ stats.total_reservations }}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-3">
-                <div class="card text-white bg-success mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Réservations ce mois</h5>
-                        <p class="card-text display-4">{{ stats.reservations_mois }}</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-3">
-                <div class="card text-white bg-info mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Sportifs actifs</h5>
-                        <p class="card-text display-4">{{ stats.utilisateurs_actifs }}</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="card text-white bg-warning mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">Répartition par coach</h5>
-                        {% if stats.reservations_par_coach|length > 0 %}
-                            {% for stat in stats.reservations_par_coach %}
-                                <div>{{ stat.coach_nom }}: {{ stat.total }}</div>
-                            {% endfor %}
-                        {% else %}
-                            <p class="card-text display-4">0</p>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
+	<div class="container-fluid">
+		<h1 class="mb-4">Statistiques de fréquentation</h1>
 
-        <!-- Graphique -->
-        <div class="row mt-4">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        Réservations sur les 12 derniers mois
-                    </div>
-                    <div class="card-body">
-                        <canvas id="reservationsChart"></canvas>
-                    </div>
-                </div>
-            </div>
+		<div
+			class="row">
+			<!-- Statistiques principales -->
+			{% set stats_cards = [
+                { 'title': 'Total réservations', 'value': stats.total_reservations, 'color': 'primary', 'icon': 'fa-calendar-check' },
+                { 'title': 'Réservations ce mois', 'value': stats.reservations_mois, 'color': 'success', 'icon': 'fa-calendar-alt' },
+                { 'title': 'Sportifs actifs', 'value': stats.utilisateurs_actifs, 'color': 'info', 'icon': 'fa-users' }
+            ] %}
 
-            <!-- Prochaines séances -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        Prochaines séances
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        {% for seance in stats.prochaines_seances %}
-                            <li class="list-group-item">
-                                {{ seance.dateheure|date('d/m/Y H:i') }} - {{ seance.themeseance }}
-                                <div class="text-muted small">
-                                    Coach: {{ seance.coach.nom }}
-                                    {% if seance.sportifs|length > 0 %}
-                                        - Sportifs: {{ seance.sportifs|map(s => s.nom)|join(', ') }}
-                                    {% endif %}
-                                </div>
-                            </li>
-                        {% else %}
-                            <li class="list-group-item">Aucune séance à venir</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+			{% for card in stats_cards %}
+				<div class="col-md-4">
+					<div class="card text-white bg-{{ card.color }} shadow-sm">
+						<div class="card-body d-flex align-items-center">
+							<i class="fas {{ card.icon }} fa-3x me-3"></i>
+							<div>
+								<h5 class="card-title">{{ card.title }}</h5>
+								<p class="display-4">{{ card.value }}</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
 
-    <!-- Inclusion de Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const ctx = document.getElementById('reservationsChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {{ chart_data.labels|json_encode|raw }},
-                datasets: [{
-                    label: 'Nombre de réservations',
-                    data: {{ chart_data.values|json_encode|raw }},
-                    borderColor: '#3e95cd',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                }
-            }
-        });
-    </script>
+		<!-- Graphiques et Prochaines séances -->
+		<div class="row mt-4">
+			<div class="col-md-8">
+				<div class="card shadow-sm">
+					<div class="card-header bg-dark text-white">Réservations sur les 12 derniers mois</div>
+					<div class="card-body">
+						<canvas id="reservationsChart"></canvas>
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-4">
+				<div class="card shadow-sm">
+					<div class="card-header bg-secondary text-white">Prochaines séances</div>
+					<ul class="list-group list-group-flush">
+						{% for seance in stats.prochaines_seances %}
+							<li class="list-group-item">
+								<strong>{{ seance.dateheure|date('d/m/Y H:i') }}</strong>
+								-
+								{{ seance.themeseance }}
+								<div class="text-muted small">Coach:
+									{{ seance.coach ? seance.coach.nom : 'Non assigné' }}
+								</div>
+							</li>
+						{% else %}
+							<li class="list-group-item">Aucune séance à venir</li>
+						{% endfor %}
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<!-- Taux d’occupation et absentéisme -->
+		<div class="row mt-4">
+			<div class="col-md-6">
+				<div class="card shadow-sm">
+					<div class="card-header bg-warning text-dark">Taux d’occupation par séance</div>
+					<div
+						class="card-body">
+						{# Formulaire de recherche #}
+						<form method="get" action="{{ path('admin_stats') }}">
+							<div class="input-group mb-3">
+								<input type="text" class="form-control" placeholder="Rechercher une séance" name="search" value="{{ pagination.search }}">
+								<button class="btn btn-outline-secondary" type="submit">Rechercher</button>
+							</div>
+						</form>
+
+						{% if stats.tauxOccupationParSeance is defined and stats.tauxOccupationParSeance|length > 0 %}
+							<table class="table table-striped">
+								<thead>
+									<tr>
+										<th>Séance</th>
+										<th>Date</th>
+										<th>Coach</th>
+										<th>Taux d'occupation</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for item in stats.tauxOccupationParSeance %}
+										<tr>
+											<td>{{ item.seance.themeSeance }}</td>
+											<td>{{ item.seance.dateHeure|date('d/m/Y H:i') }}</td>
+											<td>{{ item.seance.coach ? item.seance.coach.nomComplet : 'Non assigné' }}</td>
+											<td>{{ item.taux }}%</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						{% else %}
+							<p>Aucune donnée disponible</p>
+						{% endif %}
+
+						{# Barre de pagination #}
+						{% if pagination.total_pages > 1 %}
+							<nav aria-label="Pagination">
+								<ul class="pagination">
+									{% for p in 1..pagination.total_pages %}
+										<li class="page-item {% if p == pagination.current_page %}active{% endif %}">
+											<a class="page-link" href="{{ path('admin_stats', {'page': p, 'search': pagination.search}) }}">{{ p }}</a>
+										</li>
+									{% endfor %}
+								</ul>
+							</nav>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+
+			<div class="col-md-6">
+				<div class="card shadow-sm">
+					<div class="card-header bg-danger text-white">Taux d’absentéisme des sportifs</div>
+					<div class="card-body text-center">
+						<p class="display-4">{{ stats.tauxAbsenteisme|default('Aucune donnée') }}%</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Inclusion de Chart.js -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script>
+		const ctx = document.getElementById('reservationsChart').getContext('2d');
+new Chart(ctx, {
+type: 'line',
+data: {
+labels: {{ chart_data.labels|json_encode|raw }},
+datasets: [
+{
+label: 'Nombre de réservations',
+data: {{ chart_data.values|json_encode|raw }},
+borderColor: '#3e95cd',
+backgroundColor: 'rgba(62,149,205,0.2)',
+tension: 0.1
+}
+]
+},
+options: {
+responsive: true,
+plugins: {
+legend: {
+position: 'top'
+}
+}
+}
+});
+	</script>
 {% endblock %}

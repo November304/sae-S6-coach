@@ -39,7 +39,10 @@ class HistoriqueDemandeAnnulationCrudController extends AbstractCrudController
         yield DateTimeField::new('dateDemande', 'Date de la demande')
             ->setFormat('dd/MM/yyyy HH:mm');
         yield TextField::new('statut');
-        yield AssociationField::new('responsable');
+        yield AssociationField::new('responsable')
+            ->formatValue(static function ($value, $entity) {
+                return $entity->getResponsable() ? $entity->getResponsable()->getNomComplet() : '';
+            });
         yield DateTimeField::new('dateTraitement', 'Date de traitement')
             ->setFormat('dd/MM/yyyy HH:mm');
     }
