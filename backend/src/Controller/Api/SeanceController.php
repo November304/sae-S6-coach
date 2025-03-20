@@ -2,6 +2,7 @@
 
 namespace App\Controller\Api;
 
+use App\Entity\Presence;
 use App\Entity\Seance;
 use App\Entity\Sportif;
 use App\Repository\SeanceRepository;
@@ -59,7 +60,7 @@ final class SeanceController extends AbstractController {
         //Check si le sportif est deja inscrit dans la seance
         if($seance->getSportifs()->contains($user)){
             return $this->json([
-            'error' => 'Sportif déjà inscrit à la séance',
+            'error' => 'Vous êtes déjà inscrit à la séance',
             'code' => JsonResponse::HTTP_BAD_REQUEST
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
@@ -73,7 +74,7 @@ final class SeanceController extends AbstractController {
             $cptSeances++;
             if($cptSeances >= 3){
                 return $this->json([
-                'error' => 'Sportif a déjà 3 séances à venir',
+                'error' => 'Vous êtes déjà inscrit sur 3 séances à venir',
                 'code' => JsonResponse::HTTP_BAD_REQUEST
                 ], JsonResponse::HTTP_BAD_REQUEST);
             }
@@ -81,7 +82,7 @@ final class SeanceController extends AbstractController {
             $dateFin = DateTime::createFromInterface($dateDebut)->add(new \DateInterval('PT' . $seance->getDureeEstimeeTotal() . 'M'));
             if($seance->getDateHeure() >= $dateDebut && $seance->getDateHeure() <= $dateFin){
             return $this->json([
-                'error' => 'Sportif déjà inscrit à une séance à cette heure',
+                'error' => 'Vous êtes déjà inscrit à une séance à cette heure',
                 'code' => JsonResponse::HTTP_BAD_REQUEST
             ], JsonResponse::HTTP_BAD_REQUEST);
             }
@@ -104,7 +105,16 @@ final class SeanceController extends AbstractController {
         }
 
         //Check si le sportif a annulé cette séance plus de 2 fois auparavant.
-        //TODO : Le faire quand j'aurais le truc d'alexi
+        $presences = $user->getPresences();
+        $cptAnnulation = 0;
+        foreach($presences as $presence){
+            if($presence->getSeance() == $seance && $presence->getPresent() == 'Annulé'){
+                $cptAnnulation++;
+                if($cptAnnulation >= 2){
+                    return $this->json(['error' => 'Vous avez déjà annulé cette séance 2 fois','code'=>JsonResponse::HTTP_BAD_REQUEST], JsonResponse::HTTP_BAD_REQUEST);
+                }
+            }
+        }
 
         $seance->addSportif($user);
         $em->flush();
@@ -150,10 +160,14 @@ final class SeanceController extends AbstractController {
         }
 
         $dateLimit = DateTime::createFromInterface($seance->getDateHeure())->sub(new \DateInterval('PT24H'));
-
+        $presence = new Presence();
+        $presence->setSportif($user);
+        $presence->setSeance($seance);
         if($dateLimit < new DateTime()){ //Si la séance est dans moins de 24h
-            //TODO : Mettre la relation à absent
-            $seance->removeSportif($user);
+            
+            
+            $presence->setPresent('Absent');
+            $em->persist($presence);
             $em->flush();
             return $this->json([
             'message' => 'Vous avez marqué absent de la séance',
@@ -162,7 +176,8 @@ final class SeanceController extends AbstractController {
         }
         else 
         {
-            //TODO : Mettre la relation à annulé
+            $presence->setPresent('Annulé');
+            $em->persist($presence);
             $seance->removeSportif($user);
             $em->flush();
             return $this->json([

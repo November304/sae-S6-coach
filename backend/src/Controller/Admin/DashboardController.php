@@ -3,6 +3,7 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Coach;
+use App\Entity\DemandeAnnulation;
 use App\Entity\Exercice;
 use App\Entity\FicheDePaie;
 use App\Entity\Seance;
@@ -61,6 +62,12 @@ class DashboardController extends AbstractDashboardController
             ->setController(SeanceCoachCrudController::class)
             ->setPermission('ROLE_COACH');
         yield MenuItem::linkToCrud('Exercices', 'fas fa-dumbbell', Exercice::class);
+        yield MenuItem::linkToCrud('Demandes d\'annulation', 'fas fa-calendar-times', DemandeAnnulation::class)
+            ->setPermission('ROLE_RESPONSABLE')
+            ->setController(DemandeAnnulationCrudController::class);
+        yield MenuItem::linkToCrud('Historique annulations', 'fas fa-history', DemandeAnnulation::class)
+            ->setPermission('ROLE_RESPONSABLE')
+            ->setController(HistoriqueDemandeAnnulationCrudController::class);
 
         yield MenuItem::section('Statistiques Coach')->setPermission('ROLE_COACH');
         yield MenuItem::linkToCrud('Vos fiches de paies', 'fa fa-file-invoice', FicheDePaie::class)

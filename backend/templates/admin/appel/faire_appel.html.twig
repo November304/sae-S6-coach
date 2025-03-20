@@ -1,0 +1,105 @@
+{% extends '@EasyAdmin/layout.html.twig' %}
+
+{% block title %}Faire l'appel - {{ seance.themeSeance }}{% endblock %}
+
+{% block content_title %}Faire l'appel{% endblock %}
+
+{% block main %}
+<div class="content">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Informations de la séance</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Thème :</strong> {{ seance.themeSeance }}</p>
+                    <p><strong>Type :</strong> {{ seance.typeSeance }}</p>
+                    <p><strong>Niveau :</strong> {{ seance.niveauSeance }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Date :</strong> {{ seance.dateHeure|date('d/m/Y') }}</p>
+                    <p><strong>Heure :</strong> {{ seance.dateHeure|date('H:i') }}</p>
+                    <p><strong>Durée :</strong> {{ seance.dureeEstimeeTotal }} minutes</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" action="{{ path('app_admin_seance_coach_valider_appel', {'id': seance.id}) }}">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sportif</th>
+                    <th>Niveau</th>
+                    <th>Présence</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sportif in sportifs %}
+                    {% set presence = null %}
+                    {% for p in sportif.presences %}
+                        {% if p.seance.id == seance.id %}
+                            {% set presence = p %}
+                        {% endif %}
+                    {% endfor %}
+
+                    <tr>
+                        <td>{{ sportif.prenom }} {{ sportif.nom }}</td>
+                        <td>{{ sportif.niveauSportif }}</td>
+                        <td>
+                            {% if presence and presence.present == 'Annulé' %}
+                                <input type="checkbox" name="presence[{{ sportif.id }}]" disabled class="form-check-input" />
+                                <input type="hidden" name="presence_status[{{ sportif.id }}]" value="Annulé" />
+                                <span class="presence-text">Annulé</span>
+                            {% elseif presence and presence.present == 'Absent' %}
+                                <input type="checkbox" name="presence[{{ sportif.id }}]" disabled class="form-check-input" />
+                                <input type="hidden" name="presence_status[{{ sportif.id }}]" value="Absent" />
+                                <span class="presence-text">Absent</span>
+                            {% else %}
+                                <input type="checkbox" name="presence[{{ sportif.id }}]" class="form-check-input presence-checkbox" 
+                                    {% if presence and presence.present == 'Présent' %}checked{% endif %} />
+                                <span class="presence-text">
+                                    {% if presence and presence.present == 'Présent' %}Présent{% else %}Absent{% endif %}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if presence %}
+                                {% if presence.present == 'Annulé' %}
+                                    <span class="badge badge-warning">Annulé</span>
+                                {% elseif presence.present == 'Absent' %}
+                                    <span class="badge badge-danger">Absent</span>
+                                {% elseif presence.present == 'Présent' %}
+                                    <span class="badge badge-success">Présent</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge badge-secondary">Non défini</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <button type="submit" class="btn btn-primary">Valider l'appel</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const checkboxes = document.querySelectorAll('.presence-checkbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const presenceText = this.nextElementSibling;
+                if (this.checked) {
+                    presenceText.textContent = 'Présent';
+                } else {
+                    presenceText.textContent = 'Absent';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

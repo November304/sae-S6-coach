@@ -1,0 +1,9 @@
+{# templates/admin/action/appel_button.html.twig #}
+{% set url = ea.app.adminUrlGenerator
+    .setAction(action.name)
+    .setEntityId(entity.id)
+    .generateUrl() %}
+<a href="{{ url }}" class="{{ action.cssClass }}">
+  <i class="action-icon {{ action.icon }}"></i>
+  {{ action.label }}
+</a>
