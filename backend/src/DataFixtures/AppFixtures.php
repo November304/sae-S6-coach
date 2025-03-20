@@ -14,10 +14,17 @@ class AppFixtures extends Fixture
 {
     private UserPasswordHasherInterface $passwordHasher;
 
+    private const THEMES_SEANCES = [
+        'fitness', 'cardio', 'muscu', 'crossfit', 'yoga', 'pilates', 'zumba', 'hiit', 'aerobic',
+        'boxing', 'spinning', 'piloxing', 'step', 'aquagym', 'tai-chi', 'circuit training', 'kickboxing', 'bootcamp', 'running'
+    ];
+    
     public function __construct(UserPasswordHasherInterface $passwordHasher)
     {
         $this->passwordHasher = $passwordHasher;
     }
+
+
     
     public function load(ObjectManager $manager): void
     {
@@ -127,7 +134,7 @@ class AppFixtures extends Fixture
                 
                 $seance->setDateHeure($faker->dateTimeBetween('-3 months', 'now'))
                        ->setTypeSeance($nbPersonne === 1 ? 'solo' : ($nbPersonne === 2 ? 'duo' : 'trio'))
-                       ->setThemeSeance($faker->word)
+                       ->setThemeSeance($faker->randomElement(self::THEMES_SEANCES))
                        ->setNiveauSeance($faker->randomElement(['débutant', 'intermédiaire', 'avancé']))
                        ->setCoach($coach)
                        ->setStatut($faker->randomElement(['prévue', 'validée', 'annulée']));
