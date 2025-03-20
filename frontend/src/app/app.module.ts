@@ -19,6 +19,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { RegisterComponent } from './register/register.component';
 import { ProfileComponent } from './profile/profile.component';
 import { AuthInterceptor } from './services/auth.interceptor';
+import { EditProfileComponent } from './edit-profile/edit-profile.component';
+import { EditPasswordComponent } from './edit-password/edit-password.component';
 
 registerLocaleData(localeFr);
 
@@ -32,6 +34,8 @@ registerLocaleData(localeFr);
     LoginComponent,
     RegisterComponent,
     ProfileComponent,
+    EditProfileComponent,
+    EditPasswordComponent,
   ],
   imports: [
     BrowserModule,

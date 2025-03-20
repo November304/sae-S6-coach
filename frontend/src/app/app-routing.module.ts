@@ -6,6 +6,8 @@ import { LoginComponent } from './login/login.component';
 import { PlanningComponent } from './planning/planning.component';
 import { RegisterComponent } from './register/register.component';
 import { ProfileComponent } from './profile/profile.component';
+import { EditProfileComponent } from './edit-profile/edit-profile.component';
+import { EditPasswordComponent } from './edit-password/edit-password.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -13,7 +15,9 @@ const routes: Routes = [
   { path: 'planning', component: PlanningComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'profile', component: ProfileComponent }
+  { path: 'profile', component: ProfileComponent },
+  { path: 'edit-profile', component: EditProfileComponent },
+  { path: 'edit-password', component: EditPasswordComponent }
 ];
 
 @NgModule({
