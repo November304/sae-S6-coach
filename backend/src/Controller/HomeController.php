@@ -13,7 +13,7 @@ final class HomeController extends AbstractController
     public function index(AuthorizationCheckerInterface $authChecker): Response
     {
         if (!$authChecker->isGranted('IS_AUTHENTICATED_FULLY')) {
-            return $this->render('security/custom_home.html.twig');
+            return $this->redirect('/app/');
         }
 
         $user = $this->getUser();
@@ -23,7 +23,6 @@ final class HomeController extends AbstractController
         if (in_array('ROLE_COACH', $user->getRoles(), true)) {
             return $this->redirectToRoute('admin');
         }
-
-        return $this->render('security/custom_home.html.twig');
+        return $this->redirect('/app/');
     }
 }
