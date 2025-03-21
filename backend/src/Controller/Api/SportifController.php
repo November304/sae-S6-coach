@@ -15,7 +15,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 
-final class SportifController extends AbstractController{
+final class SportifController extends AbstractController
+{
     #[Route('/api/sportifs/me', name: 'api_get_sportif', methods: ['GET'])]
     public function getSportif(Security $security): JsonResponse
     {
@@ -36,14 +37,17 @@ final class SportifController extends AbstractController{
         $seances = $sportif->getSeances();
         $seancesPresentes = [];
         foreach ($seances as $seance) {
-            foreach($seance->getPresences() as $presence){
-                if($presence->getSportif() === $sportif && $presence->getPresent() === 'Présent'){
-                    $seancesPresentes[] = $seance;
+            $exclude = false;
+            foreach ($seance->getPresences() as $presence) {
+                if ($presence->getSportif() === $sportif && $presence->getPresent() === 'Absent') {
+                    $exclude = true;
                     break;
                 }
             }
-        }   
-
+            if (!$exclude) {
+                $seancesPresentes[] = $seance;
+            }
+        }
         return $this->json($seancesPresentes, JsonResponse::HTTP_OK, [], ['groups' => 'seance:read']);
     }
 
@@ -51,7 +55,7 @@ final class SportifController extends AbstractController{
     public function addSportif(Request $request, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
-        
+
         $sportif = new Sportif();
         $sportif->setNom($data['nom'] ?? null);
         $sportif->setPrenom($data['prenom'] ?? null);
@@ -77,12 +81,11 @@ final class SportifController extends AbstractController{
     }
 
     #[Route('/api/sportifs', name: 'api_update_sportif', methods: ['PUT', 'PATCH'])]
-    public function updatesportif(Request $request,Security $security, EntityManagerInterface $em, ValidatorInterface $validator,UtilisateurRepository $userRepo): JsonResponse
+    public function updatesportif(Request $request, Security $security, EntityManagerInterface $em, ValidatorInterface $validator, UtilisateurRepository $userRepo): JsonResponse
     {
         $user = $security->getUser();
-        
-        if(!$user || !$user instanceof Sportif)
-        {
+
+        if (!$user || !$user instanceof Sportif) {
             return $this->json(['error' => 'Sportif non trouvé'], JsonResponse::HTTP_NOT_FOUND);
         }
         $data = json_decode($request->getContent(), true);
@@ -92,7 +95,7 @@ final class SportifController extends AbstractController{
             $email = $data['email'];
             $userWithSameEmail = $userRepo->findOneBy(['email' => $email]);
             if ($userWithSameEmail && $userWithSameEmail->getId() !== $user->getId()) {
-                return $this->json(['error' => 'Cet email est déjà utilisé','code'=>JsonResponse::HTTP_BAD_REQUEST], JsonResponse::HTTP_BAD_REQUEST);
+                return $this->json(['error' => 'Cet email est déjà utilisé', 'code' => JsonResponse::HTTP_BAD_REQUEST], JsonResponse::HTTP_BAD_REQUEST);
             }
         }
 
@@ -121,13 +124,12 @@ final class SportifController extends AbstractController{
     }
 
     #[Route('/api/sportifs/pwd', name: 'api_update_sportif_password', methods: ['PUT', 'PATCH'])]
-    public function updateSportifPassword(Request $request,Security $security, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
+    public function updateSportifPassword(Request $request, Security $security, EntityManagerInterface $em, ValidatorInterface $validator): JsonResponse
     {
         $user = $security->getUser();
-        
-        if(!$user || !$user instanceof Sportif)
-        {
-            return $this->json(['error' => 'Sportif non trouvé','code'=>JsonResponse::HTTP_NOT_FOUND], JsonResponse::HTTP_NOT_FOUND);
+
+        if (!$user || !$user instanceof Sportif) {
+            return $this->json(['error' => 'Sportif non trouvé', 'code' => JsonResponse::HTTP_NOT_FOUND], JsonResponse::HTTP_NOT_FOUND);
         }
         $data = json_decode($request->getContent(), true);
 
@@ -147,7 +149,7 @@ final class SportifController extends AbstractController{
 
         $em->flush();
 
-        return $this->json(['message'=>'Le mot de passe a bien été modifié','code'=>JsonResponse::HTTP_OK], JsonResponse::HTTP_OK);
+        return $this->json(['message' => 'Le mot de passe a bien été modifié', 'code' => JsonResponse::HTTP_OK], JsonResponse::HTTP_OK);
     }
 
 
@@ -156,7 +158,7 @@ final class SportifController extends AbstractController{
     {
         $sportif = $security->getUser();
         if (!$sportif instanceof Sportif) {
-            return $this->json(['error' => 'Sportif non trouvé','code'=>JsonResponse::HTTP_NOT_FOUND], JsonResponse::HTTP_NOT_FOUND);
+            return $this->json(['error' => 'Sportif non trouvé', 'code' => JsonResponse::HTTP_NOT_FOUND], JsonResponse::HTTP_NOT_FOUND);
         }
 
         $em->remove($sportif);
@@ -169,7 +171,7 @@ final class SportifController extends AbstractController{
     }
 
     #[Route('/api/sportifs/stats', name: 'api_stats_sportif', methods: ['GET'])]
-    public function getSportifStats(Request $request, Security $security,SeanceRepository $seanceRep,LoggerInterface $logger): JsonResponse
+    public function getSportifStats(Request $request, Security $security, SeanceRepository $seanceRep, LoggerInterface $logger): JsonResponse
     {
         $sportif = $security->getUser();
         if (!$sportif instanceof Sportif) {
@@ -183,10 +185,10 @@ final class SportifController extends AbstractController{
             $minDate = new \DateTime($minDateParam);
             $maxDate = new \DateTime($maxDateParam);
         } catch (\Exception $e) {
-            return $this->json(['error' => 'Dates invalides','code' => JsonResponse::HTTP_BAD_REQUEST], JsonResponse::HTTP_BAD_REQUEST);
+            return $this->json(['error' => 'Dates invalides', 'code' => JsonResponse::HTTP_BAD_REQUEST], JsonResponse::HTTP_BAD_REQUEST);
         }
 
-        $seances= $seanceRep->createQueryBuilder('s')
+        $seances = $seanceRep->createQueryBuilder('s')
             ->innerJoin('s.presences', 'p')
             ->where('s.date_heure BETWEEN :minDate AND :maxDate')
             ->andWhere('p.sportif = :sportif')

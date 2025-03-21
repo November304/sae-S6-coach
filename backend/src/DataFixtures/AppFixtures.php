@@ -162,7 +162,11 @@ class AppFixtures extends Fixture
                         $manager->persist($presence);
                     }
                 } else {
-                    $statut = $faker->randomElement(['prévue', 'annulée']);
+                    $statut = $faker->randomElement(['prévue','prévue','annulée']);
+                    $selectedSportifs = $faker->randomElements($sportifs, $faker->numberBetween(1, $nbPersonne));
+                    foreach ($selectedSportifs as $sportif) {
+                        $seance->addSportif($sportif);
+                    }
                 }
                 $seance->setStatut($statut);
                 $seance->setTypeSeance($nbPersonne === 1 ? 'solo' : ($nbPersonne === 2 ? 'duo' : 'trio'))
