@@ -10,10 +10,8 @@
     </div>
 
     <div *ngIf="!loading && !error" class="dashboard">
-        <!-- Informations du sportif -->
         <app-profile></app-profile>
 
-        <!-- Statistiques -->
         <div class="card shadow-sm">
             <div class="card-header bg-primary text-white">
                 <h2 class="mb-0">Ma progression</h2>
@@ -98,7 +96,6 @@
             </p>
         </div>
 
-        <!-- Séances prévues -->
         <div class="seances-prevues card">
             <div class="card-header bg-primary text-white">
                 <h2 class="mb-0">Mes séances à venir</h2>
@@ -126,13 +123,13 @@
                             <td>{{ seance.niveau_seance }}</td>
                             <td>{{ seance.coach.nom }} {{ seance.coach.prenom }}</td>
                             <td>
-                                <button class="btn btn-primary btn-sm" [disabled]="cancellationLoading[seance.id]"
-                                    (click)="annulerSeance(seance.id)">
-                                    <span *ngIf="cancellationLoading[seance.id]">
-                                        <i class="fas fa-spinner fa-spin"></i>
-                                    </span>
-                                    <span *ngIf="!cancellationLoading[seance.id]">Annuler</span>
-                                </button>
+                            <button class="btn btn-primary btn-sm" [disabled]="cancellationLoading[seance.id]"
+                                (click)="openConfirmModal(seance.id)">
+                                <span *ngIf="cancellationLoading[seance.id]">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                </span>
+                                <span *ngIf="!cancellationLoading[seance.id]">Annuler</span>
+                            </button>
                             </td>
                         </tr>
                     </tbody>
@@ -208,6 +205,32 @@
                         Aucun exercice associé à cette séance.
                     </p>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal de confirmation -->
+<div *ngIf="showConfirmModal" class="modal-overlay">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmation d'annulation</h5>
+                <button type="button" class="close" (click)="closeConfirmModal()">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir annuler cette séance ?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" (click)="closeConfirmModal()">Non, garder la
+                    séance</button>
+                <button type="button" class="btn btn-primary" (click)="confirmCancellation()">
+                    <span *ngIf="seanceToCancel !== null && cancellationLoading[seanceToCancel]">
+                        <i class="fas fa-spinner fa-spin"></i>
+                    </span>
+                    Oui, annuler la séance
+                </button>
             </div>
         </div>
     </div>
