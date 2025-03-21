@@ -11,8 +11,10 @@ export class HomeComponent {
   faDumbbell = faDumbbell;
   faHeartPulse = faHeartPulse;
   faUsers = faUsers;
+  
+  imagePath: string = 'assets/salle-sport.jpg';
 
-    constructor(
-      public authService: AuthService,
-    ) {}
+  constructor(
+    public authService: AuthService,
+  ) {}
 }
