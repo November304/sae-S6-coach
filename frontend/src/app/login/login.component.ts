@@ -25,9 +25,7 @@ export class LoginComponent {
             });
           } else if (user.roles.includes('ROLE_RESPONSABLE') || user.roles.includes('ROLE_COACH')) {
             this.authService.logout();
-            this.router.navigate(['/admin']).then(() => {
-              window.location.reload();
-            });
+            window.location.href = '/admin';
           } else {
             this.authService.logout();
             this.errorMessage = 'Identifiants incorrects';
