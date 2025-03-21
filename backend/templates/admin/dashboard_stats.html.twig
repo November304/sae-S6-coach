@@ -1,15 +1,13 @@
 {% extends '@EasyAdmin/page/content.html.twig' %}
 
-{% block title %}
-	Statistiques
-{% endblock %}
+{% block title %} Statistiques {% endblock %}
 
 {% block content %}
-	<div class="container-fluid">
-		<h1 class="mb-4">Statistiques</h1>
+    <div class="container-fluid">
+        <h1 class="mb-4">Statistiques</h1>
 
-		<div class="row">
-			{% set stats_cards = [
+        <div class="row">
+            {% set stats_cards = [
                 { 'title': 'Total séances', 'value': stats.total_seances, 'color': 'primary', 'icon': 'fa-calendar-check' },
                 { 'title': 'Séances ce mois', 'value': stats.seances_mois, 'color': 'success', 'icon': 'fa-calendar-alt' },
                 { 'title': 'Sportifs actifs', 'value': stats.utilisateurs_actifs, 'color': 'info', 'icon': 'fa-users' },
@@ -55,94 +53,98 @@
                     </thead>
                     <tbody>
                         {% for seance in seances_populaires %}
-			<tr>
-				<td>{{ seance.theme }}</td>
-				<td>{{ seance.total_presences }}</td>
-			</tr>
-		{% else %}
-			<tr>
-				<td colspan="2">Aucune séance trouvée.</td>
-			</tr>
-		{% endfor %}
-	</tbody>
-</table></div></div></div><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script>document.addEventListener('DOMContentLoaded', function () { // Graphique d'évolution des réservations
-var ctxReservation = document.getElementById('reservationChart').getContext('2d');
-var reservationChart = new Chart(ctxReservation, {
-type: 'line',
-data: {
-labels: {{ stats.evolution_labels|json_encode|raw }},
-datasets: [
-{
-label: 'Réservations par mois',
-data: {{ stats.evolution_values|json_encode|raw }},
-borderColor: 'rgb(75, 192, 192)',
-tension: 0.2
-}
-]
-},
-options: {
-responsive: true,
-scales: {
-y: {
-beginAtZero: true
-}
-}
-}
-});
+                            <tr>
+                                <td>{{ seance.theme }}</td>
+                                <td>{{ seance.total_presences }}</td>
+                            </tr>
+                        {% else %}
+                            <tr>
+                                <td colspan="2">Aucune séance trouvée.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-// Graphique du taux d'occupation par coach et créneau horaire
-var ctxOccupation = document.getElementById('occupationChart').getContext('2d');
-var occupationChart = new Chart(ctxOccupation, {
-type: 'bar',
-data: {
-labels: {{ stats.taux_occupation.heures|json_encode|raw }},
-datasets: [{% for donnee in stats.taux_occupation.donnees %}
-{
-label: {{ donnee.coach|json_encode|raw }},
-data: [{% for heure in stats.taux_occupation.heures %}
-{{ donnee.data[heure] }},{% endfor %}],
-backgroundColor: 'rgba( {{ (loop.index0 * 50) % 255 }},  {{ (loop.index0 * 80) % 255 }},  {{ (loop.index0 * 120) % 255 }}, 0.7)'
-}
-{% if not loop.last %}, {
-private function getSeancesMois(): int {
-return $this -> seanceRepo -> createQueryBuilder('s') -> select('COUNT(s.id)') -> where('YEAR(s.date_heure) = :year') -> andWhere('MONTH(s.date_heure) = :month') -> setParameter('year', (new \DateTime()) -> format('Y')) -> setParameter('month', (new \DateTime()) -> format('n')) -> getQuery() -> getSingleScalarResult();
-} % endif %
-}{% endfor %}
-]
-},
-options: {
-responsive: true,
-scales: {
-y: {
-beginAtZero: true,
-title: {
-display: true,
-text: 'Taux d\'occupation (%)'
-},
-max: 100
-},
-x: {
-title: {
-display: true,
-text: 'Heure de la journée'
-}
-}
-},
-plugins: {
-tooltip: {
-callbacks: {
-label: function (context) {
-return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
-}
-}
-},
-title: {
-display: true,
-text: 'Taux d\'occupation par coach et créneau horaire'
-}
-}
-}
-}
-);
-});
-</script>{% endblock %}{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Graphique d'évolution des réservations
+            var ctxReservation = document.getElementById('reservationChart').getContext('2d');
+            var reservationChart = new Chart(ctxReservation, {
+                type: 'line',
+                data: {
+                    labels: {{ stats.evolution_labels|json_encode|raw }},
+                    datasets: [{
+                        label: 'Réservations par mois',
+                        data: {{ stats.evolution_values|json_encode|raw }},
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // Graphique du taux d'occupation par coach et créneau horaire
+            var ctxOccupation = document.getElementById('occupationChart').getContext('2d');
+            var occupationChart = new Chart(ctxOccupation, {
+                type: 'bar',
+                data: {
+                    labels: {{ stats.taux_occupation.heures|json_encode|raw }},
+                    datasets: [
+                        {% for donnee in stats.taux_occupation.donnees %}
+                        {
+                            label: {{ donnee.coach|json_encode|raw }},
+                            data: [
+                                {% for heure in stats.taux_occupation.heures %}
+                                {{ donnee.data[heure] }},
+                                {% endfor %}
+                            ],
+                            backgroundColor: 'rgba({{ (loop.index0 * 50) % 255 }}, {{ (loop.index0 * 80) % 255 }}, {{ (loop.index0 * 120) % 255 }}, 0.7)'
+                        }{% if not loop.last %},{% endif %}
+                        {% endfor %}
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Taux d\'occupation (%)'
+                            },
+                            max: 100
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Heure de la journée'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.parsed.y.toFixed(2) + '%';
+                                }
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Taux d\'occupation par coach et créneau horaire'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
