@@ -132,30 +132,30 @@ final class SeanceController extends AbstractController {
 
         if(!$seance || !$seance instanceof Seance){
             return $this->json([
-            'error' => 'Seance non trouvée',
-            'code' => JsonResponse::HTTP_NOT_FOUND
+                'error' => 'Seance non trouvée',
+                'code' => JsonResponse::HTTP_NOT_FOUND
             ], JsonResponse::HTTP_NOT_FOUND);
         }
 
         $user = $security->getUser();
         if (!$user instanceof Sportif) {
             return $this->json([
-            'error' => 'Sportif non trouvé',
-            'code' => JsonResponse::HTTP_NOT_FOUND
+                'error' => 'Sportif non trouvé',
+                'code' => JsonResponse::HTTP_NOT_FOUND
             ], JsonResponse::HTTP_NOT_FOUND);
         }
 
         if(!$seance->getSportifs()->contains($user)){
             return $this->json([
-            'error' => 'Sportif non inscrit à la séance',
-            'code' => JsonResponse::HTTP_BAD_REQUEST
+                'error' => 'Sportif non inscrit à la séance',
+                'code' => JsonResponse::HTTP_BAD_REQUEST
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
         if($seance->getDateHeure() < new DateTime()){
             return $this->json([
-            'error' => 'Seance déjà passée',
-            'code' => JsonResponse::HTTP_BAD_REQUEST
+                'error' => 'Seance déjà passée',
+                'code' => JsonResponse::HTTP_BAD_REQUEST
             ], JsonResponse::HTTP_BAD_REQUEST);
         }
 
@@ -170,8 +170,8 @@ final class SeanceController extends AbstractController {
             $em->persist($presence);
             $em->flush();
             return $this->json([
-            'message' => 'Vous avez marqué absent de la séance',
-            'code' => JsonResponse::HTTP_OK
+                'message' => 'Vous avez été marqué absent de la séance',
+                'code' => JsonResponse::HTTP_OK
             ], JsonResponse::HTTP_OK);
         }
         else 
@@ -181,8 +181,8 @@ final class SeanceController extends AbstractController {
             $seance->removeSportif($user);
             $em->flush();
             return $this->json([
-            'message' => 'Vous avez bien été désinscrit de la séance',
-            'code' => JsonResponse::HTTP_OK
+                'message' => 'Vous avez bien été désinscrit de la séance',
+                'code' => JsonResponse::HTTP_OK
             ], JsonResponse::HTTP_OK);
         }
     }

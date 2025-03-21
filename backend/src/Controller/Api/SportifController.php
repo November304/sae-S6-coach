@@ -34,7 +34,18 @@ final class SportifController extends AbstractController{
         if (!$sportif || !$sportif instanceof Sportif) {
             return $this->json(['error' => 'Sportif non trouvé'], JsonResponse::HTTP_NOT_FOUND);
         }
-        return $this->json($sportif->getSeances(), JsonResponse::HTTP_OK, [], ['groups' => 'seance:read']);
+        $seances = $sportif->getSeances();
+        $seancesPresentes = [];
+        foreach ($seances as $seance) {
+            foreach($seance->getPresences() as $presence){
+                if($presence->getSportif() === $sportif && $presence->getPresent() === 'Présent'){
+                    $seancesPresentes[] = $seance;
+                    break;
+                }
+            }
+        }
+
+        return $this->json($seancesPresentes, JsonResponse::HTTP_OK, [], ['groups' => 'seance:read']);
     }
 
     #[Route('/api/public/sportifs', name: 'api_add_sportif', methods: ['POST'])]
