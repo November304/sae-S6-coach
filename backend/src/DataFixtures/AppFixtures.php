@@ -157,7 +157,7 @@ class AppFixtures extends Fixture
                     $statut = $faker->randomElement(['prévue', 'prévue', 'annulée']);
                 }
 
-                $selectedSportifs = $faker->randomElements($sportifs, $nbPersonne);
+                $selectedSportifs = $faker->randomElements($sportifs, $faker->numberBetween(0, $nbPersonne));
                 foreach ($selectedSportifs as $sportif) {
                     $seance->addSportif($sportif);
                     if ($dateHeure < new \DateTime()) {
