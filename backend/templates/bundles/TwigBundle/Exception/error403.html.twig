@@ -1,9 +1,19 @@
 {% extends 'base.html.twig' %}
 
-{% block title %} Page interdite{% endblock %}
+{% block title %}Page interdite{% endblock %}
 
 {% block body %}
-    <h1>Oups ! Page interdite (403)</h1>
-    <p>Vous n'avez pas les droits pour pouvoir accéder à cette page </p>
-    <a href="{{ path('app_home') }}">Retour à l'accueil</a>
+    <div class="container d-flex flex-column align-items-center justify-content-center min-vh-100 text-center">
+        <div class="card shadow-lg p-4 border-0" style="max-width: 500px;">
+            <div class="card-body">
+                <h1 class="display-4 text-warning">403 - Accès interdit</h1>
+                <p class="lead">Vous n'avez pas les droits nécessaires pour accéder à cette page.</p>
+                <p class="text-muted">Si vous pensez qu'il s'agit d'une erreur, contactez l'administrateur.</p>
+                
+                <a href="{{ path('app_home') }}" class="btn btn-primary mt-3">
+                    <i class="bi bi-arrow-left-circle"></i> Retour à l'accueil
+                </a>
+            </div>
+        </div>
+    </div>
 {% endblock %}

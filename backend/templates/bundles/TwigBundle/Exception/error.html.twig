@@ -3,18 +3,23 @@
 {% block title %}Erreur{% endblock %}
 
 {% block body %}
-    <div class="error-container">
-        <h1>Oups, une erreur est survenue</h1>
-        <p>Une erreur inattendue s'est produite. Nous avons été informés et travaillons pour résoudre le problème. Merci de votre patience.</p>
-        
-        <div class="error-details">
-            <h2>Que faire maintenant ?</h2>
-            <ul>
-                <li>Essayez de recharger la page.</li>
-                <li>Si le problème persiste, veuillez revenir plus tard.</li>
-            </ul>
+    <div class="container d-flex flex-column align-items-center justify-content-center min-vh-100 text-center">
+        <div class="card shadow-lg p-4 border-0" style="max-width: 500px;">
+            <div class="card-body">
+                <h1 class="display-4 text-danger">Oups !</h1>
+                <p class="lead">Une erreur inattendue s'est produite.</p>
+                <p class="text-muted">Nous avons été informés et travaillons pour résoudre le problème. Merci de votre patience.</p>
+                
+                <div class="alert alert-warning mt-3">
+                    <h5>Que faire maintenant ?</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li><i class="bi bi-arrow-clockwise"></i> Essayez de <a href="javascript:location.reload()">recharger la page</a>.</li>
+                        <li><i class="bi bi-house-door"></i> Retournez à <a href="{{ path('app_home') }}">l'accueil</a>.</li>
+                    </ul>
+                </div>
+                
+                <a href="{{ path('app_home') }}" class="btn btn-primary mt-3"><i class="bi bi-arrow-left-circle"></i> Retour à l'accueil</a>
+            </div>
         </div>
-        
-        <a href="{{ path('app_home') }}" class="btn btn-primary">Retour à l'accueil</a>
     </div>
 {% endblock %}
