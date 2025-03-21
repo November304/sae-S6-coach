@@ -72,6 +72,7 @@ final class SeanceController extends AbstractController
         foreach ($seances as $s) {
             $dateDebut = $s->getDateHeure();
             if ($dateDebut > new DateTime()) {
+
                 $cptSeances++;
                 if ($cptSeances >= 3) {
                     return $this->json([

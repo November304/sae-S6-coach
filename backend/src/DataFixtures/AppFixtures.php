@@ -15,17 +15,34 @@ class AppFixtures extends Fixture
     private UserPasswordHasherInterface $passwordHasher;
 
     private const THEMES_SEANCES = [
-        'fitness', 'cardio', 'muscu', 'crossfit', 'yoga', 'pilates', 'zumba', 'hiit', 'aerobic',
-        'boxing', 'spinning', 'piloxing', 'step', 'aquagym', 'tai-chi', 'circuit training', 'kickboxing', 'bootcamp', 'running'
+        'fitness',
+        'cardio',
+        'muscu',
+        'crossfit',
+        'yoga',
+        'pilates',
+        'zumba',
+        'hiit',
+        'aerobic',
+        'boxing',
+        'spinning',
+        'piloxing',
+        'step',
+        'aquagym',
+        'tai-chi',
+        'circuit training',
+        'kickboxing',
+        'bootcamp',
+        'running'
     ];
-    
+
     public function __construct(UserPasswordHasherInterface $passwordHasher)
     {
         $this->passwordHasher = $passwordHasher;
     }
 
 
-    
+
     public function load(ObjectManager $manager): void
     {
 
@@ -79,7 +96,7 @@ class AppFixtures extends Fixture
             $coach->setSpecialites([$faker->word, $faker->word]);
             $coach->setTarifHoraire($faker->randomFloat(2, 20, 100));
             $coach->setDescription($faker->sentence);
-            $coach->setImageFilename(($i+1) . '.jpeg');
+            $coach->setImageFilename(($i + 1) . '.jpeg');
             $coach->setRoles(['ROLE_COACH']);
             $manager->persist($coach);
 
@@ -120,9 +137,9 @@ class AppFixtures extends Fixture
         for ($i = 0; $i < 50; $i++) {
             $exercice = new \App\Entity\Exercice();
             $exercice->setNom($faker->word)
-                     ->setDescription($faker->sentence)
-                     ->setDureeEstimee($faker->numberBetween(5, 30))
-                     ->setDifficulte($faker->randomElement(['facile', 'moyen', 'difficile']));
+                ->setDescription($faker->sentence)
+                ->setDureeEstimee($faker->numberBetween(5, 30))
+                ->setDifficulte($faker->randomElement(['facile', 'moyen', 'difficile']));
             $manager->persist($exercice);
             $exercices[] = $exercice;
         }
@@ -135,26 +152,26 @@ class AppFixtures extends Fixture
                 $seance->setDateHeure($dateHeure);
                 if ($dateHeure < new \DateTime()) {
                     $statut = $faker->randomElement(['validée', 'annulée']);
+                    $selectedSportifs = $faker->randomElements($sportifs, $faker->numberBetween(1, $nbPersonne));
+                    foreach ($selectedSportifs as $sportif) {
+                        $seance->addSportif($sportif);
+                        $presence = new \App\Entity\Presence();
+                        $presence->setSeance($seance);
+                        $presence->setSportif($sportif);
+                        $presence->setPresent($faker->randomElement(['Présent', 'Absent', 'Annulé']));
+                        $manager->persist($presence);
+                    }
                 } else {
                     $statut = $faker->randomElement(['prévue', 'annulée']);
                 }
                 $seance->setStatut($statut);
                 $seance->setTypeSeance($nbPersonne === 1 ? 'solo' : ($nbPersonne === 2 ? 'duo' : 'trio'))
-                       ->setThemeSeance($faker->randomElement(self::THEMES_SEANCES))
-                       ->setNiveauSeance($faker->randomElement(['débutant', 'intermédiaire', 'avancé']))
-                       ->setCoach($coach);
+                    ->setThemeSeance($faker->randomElement(self::THEMES_SEANCES))
+                    ->setNiveauSeance($faker->randomElement(['débutant', 'intermédiaire', 'avancé']))
+                    ->setCoach($coach);
                 $selectedExercices = $faker->randomElements($exercices, $faker->numberBetween(1, 5));
                 foreach ($selectedExercices as $exercice) {
                     $seance->addExercice($exercice);
-                }
-                $selectedSportifs = $faker->randomElements($sportifs, $faker->numberBetween(1, $nbPersonne));
-                foreach ($selectedSportifs as $sportif) {
-                    $seance->addSportif($sportif);
-                    $presence = new \App\Entity\Presence();
-                    $presence->setSeance($seance);
-                    $presence->setSportif($sportif);
-                    $presence->setPresent($faker->randomElement(['Présent', 'Absent', 'Annulé']));
-                    $manager->persist($presence);
                 }
                 $manager->persist($seance);
             }
@@ -164,9 +181,9 @@ class AppFixtures extends Fixture
                 $fiche = new \App\Entity\FicheDePaie();
                 $totalHeures = $faker->numberBetween(10, 40);
                 $fiche->setCoach($coach)
-                      ->setPeriode($faker->randomElement(['mois', 'semaine']))
-                      ->setTotalHeures($totalHeures)
-                      ->setMontantTotal(round($coach->getTarifHoraire() * $totalHeures, 2));
+                    ->setPeriode($faker->randomElement(['mois', 'semaine']))
+                    ->setTotalHeures($totalHeures)
+                    ->setMontantTotal(round($coach->getTarifHoraire() * $totalHeures, 2));
                 $manager->persist($fiche);
             }
         }
