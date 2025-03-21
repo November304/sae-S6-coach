@@ -43,7 +43,7 @@ final class SportifController extends AbstractController{
                     break;
                 }
             }
-        }
+        }   
 
         return $this->json($seancesPresentes, JsonResponse::HTTP_OK, [], ['groups' => 'seance:read']);
     }
