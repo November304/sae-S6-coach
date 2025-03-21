@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -11,7 +11,7 @@ export class LoginComponent {
   model: any = {};
   errorMessage: string | null = null;
 
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private authService: AuthService, private router: Router, public route: ActivatedRoute) {}
 
   onSubmit() {
     this.errorMessage = null;
@@ -19,12 +19,17 @@ export class LoginComponent {
     this.authService.login(this.model.email, this.model.password).subscribe({
       next: (response) => {
         this.authService.currentAuthUser.subscribe((user) => {
-          console.log(user);
           if (user.roles.includes('ROLE_SPORTIF')) {
             this.router.navigate(['/']).then(() => {
               window.location.reload();
             });
+          } else if (user.roles.includes('ROLE_RESPONSABLE') || user.roles.includes('ROLE_COACH')) {
+            this.authService.logout();
+            this.router.navigate(['/admin']).then(() => {
+              window.location.reload();
+            });
           } else {
+            this.authService.logout();
             this.errorMessage = 'Identifiants incorrects';
           }
         });

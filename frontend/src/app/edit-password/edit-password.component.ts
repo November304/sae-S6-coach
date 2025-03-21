@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-edit-password',
@@ -15,7 +16,7 @@ export class EditPasswordComponent {
 
   passwordsMatch: boolean = true;
 
-  constructor(private apiService: ApiService, private router: Router) {}
+  constructor(private apiService: ApiService, private router: Router, private authService: AuthService) {}
 
   checkPasswordMatch() {
     this.passwordsMatch = this.model.password === this.model.confirmPassword;
@@ -29,10 +30,11 @@ export class EditPasswordComponent {
 
       this.apiService.updateSelfPwd(body).subscribe(
         () => {
-          this.router.navigate(['/espace-perso']);
+          this.authService.logout();
+          this.router.navigate(['/login'], { queryParams: { info: 'updated' } });
         },
         (error) => {
-          console.error("❌ Erreur lors de la mise à jour du mot de passe :", error);
+          console.error("Erreur lors de la mise à jour du mot de passe :", error);
         }
       );
     }

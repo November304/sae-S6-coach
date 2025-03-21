@@ -2,6 +2,10 @@
   <div class="card p-4 shadow-lg rounded" style="width: 400px;">
     <h2 class="text-center text-primary mb-4">Connexion</h2>
 
+    <div *ngIf="route.snapshot.queryParams['info'] === 'updated'" class="alert alert-info">
+      Votre profil a bien été modifié. Veuillez vous reconnecter.
+    </div>
+
     <div *ngIf="errorMessage" class="alert alert-dismissible alert-primary">
       <button type="button" class="btn-close" data-bs-dismiss="alert" (click)="errorMessage = null"></button>
       <strong>Erreur :</strong> {{ errorMessage }}

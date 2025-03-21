@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ApiService } from '../services/api.service';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
 @Component({
   selector: 'app-edit-profile',
@@ -12,7 +13,7 @@ export class EditProfileComponent implements OnInit {
   public prenom: string = "";
   public email: string = "";
 
-  constructor(private apiService: ApiService, private router: Router) {}
+  constructor(private apiService: ApiService, private router: Router, private authService: AuthService) {}
 
   ngOnInit() {
     // Récupérer les infos actuelles du profil
@@ -42,7 +43,8 @@ export class EditProfileComponent implements OnInit {
 
     this.apiService.updateSelf(updatedData).subscribe(
       () => {
-        this.router.navigate(['/espace-perso']);
+        this.authService.logout();
+        this.router.navigate(['/login'], { queryParams: { info: 'updated' } });
       },
       (error) => {
         console.error("❌ Erreur lors de la mise à jour :", error);
