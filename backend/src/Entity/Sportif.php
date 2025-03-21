@@ -20,13 +20,13 @@ class Sportif extends Utilisateur
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["débutant", "intermédiaire", "avancé"], message: "Niveau sportif invalide.")]
-    #[Groups(['sportif:read', 'sportif:write','seance:read'])]
+    #[Groups(['sportif:read', 'sportif:write', 'seance:read'])]
     private ?string $niveau_sportif = null;
 
     /**
      * @var Collection<int, Seance>
      */
-    #[ORM\ManyToMany(targetEntity: Seance::class, mappedBy: 'sportifs',cascade:["remove"])]
+    #[ORM\ManyToMany(targetEntity: Seance::class, mappedBy: 'sportifs', cascade: ["remove"])]
     private Collection $seances;
 
     /**
@@ -41,7 +41,7 @@ class Sportif extends Utilisateur
         $this->setRoles(["ROLE_SPORTIF"]);
         $this->presences = new ArrayCollection();
     }
-    
+
     public function getDateInscription(): ?\DateTimeInterface
     {
         return $this->date_inscription;
@@ -62,7 +62,7 @@ class Sportif extends Utilisateur
     public function setNiveauSportif(string $niveau_sportif): static
     {
         $this->niveau_sportif = $niveau_sportif;
-        
+
         // On supprime les séances si le niveau du sportif change en retirant l'association dans chaque séance
         foreach ($this->seances as $seance) {
             $seance->removeSportif($this);
@@ -120,7 +120,6 @@ class Sportif extends Utilisateur
     public function removePresence(Presence $presence): static
     {
         if ($this->presences->removeElement($presence)) {
-            // set the owning side to null (unless already changed)
             if ($presence->getSportif() === $this) {
                 $presence->setSportif(null);
             }

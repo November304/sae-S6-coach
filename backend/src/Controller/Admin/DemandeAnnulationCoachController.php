@@ -24,14 +24,12 @@ class DemandeAnnulationCoachController extends AbstractController
         AdminUrlGenerator $adminUrlGenerator,
         Seance $seance
     ): Response {
-        // Vérifier si une demande d'annulation existe déjà pour cette séance
         $existingDemande = $entityManager->getRepository(DemandeAnnulation::class)
             ->findOneBy(['seance' => $seance]);
 
         if ($existingDemande) {
             $this->addFlash('warning', 'Une demande d\'annulation a déjà été soumise pour cette séance.');
 
-            // Redirection vers la liste des séances
             $url = $adminUrlGenerator
                 ->setController(SeanceCoachCrudController::class)
                 ->setAction('index')
@@ -53,7 +51,6 @@ class DemandeAnnulationCoachController extends AbstractController
             $entityManager->flush();
             $this->addFlash('success', 'Votre demande d\'annulation a été enregistrée');
 
-            // Utiliser AdminUrlGenerator pour la redirection
             $url = $adminUrlGenerator
                 ->setController(SeanceCoachCrudController::class)
                 ->setAction('index')
@@ -62,7 +59,6 @@ class DemandeAnnulationCoachController extends AbstractController
             return $this->redirect($url);
         }
 
-        // Utiliser un template qui n'utilise pas les variables d'EasyAdmin
         return $this->render('admin/annulation/demande_annulation.html.twig', [
             'form' => $form->createView(),
             'seance' => $seance,

@@ -18,7 +18,7 @@ class FicheDePaie
     #[ORM\ManyToOne(inversedBy: 'ficheDePaies')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Coach $coach = null;
-  
+
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["mois", "semaine"], message: "Période invalide.")]
     private ?string $periode = null;

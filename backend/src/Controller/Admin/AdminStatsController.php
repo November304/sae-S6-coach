@@ -2,12 +2,9 @@
 
 namespace App\Controller\Admin;
 
-use App\Entity\Seance;
 use App\Repository\SeanceRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -16,8 +13,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 class AdminStatsController extends AbstractController
 {
 
-    public function __construct(private EntityManagerInterface $em, private SeanceRepository $seanceRepo)
-    {}
+    public function __construct(private EntityManagerInterface $em, private SeanceRepository $seanceRepo) {}
 
     #[Route('/stats', name: 'admin_stats')]
     public function stats(): Response
@@ -114,22 +110,22 @@ class AdminStatsController extends AbstractController
             ->setParameter('statut', 'validée')
             ->getQuery()
             ->getResult();
-        
+
         $coaches = [];
         $heures = [];
         $tauxParCoachEtHeure = [];
-        
+
         foreach ($seances as $row) {
             $coach = $row['coach'];
             $heure = $row['heure'];
-            
+
             if (!in_array($coach, $coaches)) {
                 $coaches[] = $coach;
             }
             if (!in_array($heure, $heures)) {
                 $heures[] = $heure;
             }
-            
+
             // Initialiser le tableau pour ce coach et cette heure
             if (!isset($tauxParCoachEtHeure[$coach][$heure])) {
                 $tauxParCoachEtHeure[$coach][$heure] = [
@@ -137,16 +133,16 @@ class AdminStatsController extends AbstractController
                     'nombre' => 0
                 ];
             }
-            
+
             $seance = $row[0];
             $tauxOccupation = $seance->getTauxOccupation();
-            
+
             $tauxParCoachEtHeure[$coach][$heure]['somme'] += $tauxOccupation;
             $tauxParCoachEtHeure[$coach][$heure]['nombre']++;
         }
-        
+
         sort($heures);
-        
+
         $donnees = [];
         foreach ($coaches as $coach) {
             $donneeCoach = ['coach' => $coach, 'data' => []];
@@ -160,7 +156,7 @@ class AdminStatsController extends AbstractController
             }
             $donnees[] = $donneeCoach;
         }
-        
+
         return [
             'coaches' => $coaches,
             'heures' => $heures,

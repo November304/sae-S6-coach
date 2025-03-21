@@ -24,7 +24,6 @@ final class HomeController extends AbstractController
             return $this->redirectToRoute('admin');
         }
 
-        //TODO : Si c'est un sportif on met un message
         return $this->render('security/custom_home.html.twig');
     }
 }

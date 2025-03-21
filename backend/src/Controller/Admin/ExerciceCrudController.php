@@ -3,7 +3,6 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Exercice;
-use Dom\Text;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IntegerField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\ChoiceField;
@@ -26,14 +25,13 @@ class ExerciceCrudController extends AbstractCrudController
                 return $action
                     ->setLabel('Créer un nouvel exercice')
                     ->setIcon('fa fa-plus');
-           })
-        ->add(Crud::PAGE_INDEX, Action::DETAIL)
-        ->add(Crud::PAGE_EDIT, Action::DETAIL);
+            })
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_EDIT, Action::DETAIL);
     }
 
     public function configureCrud(Crud $crud): Crud
     {
-        // Modification du titre principal
         return $crud
             ->setPageTitle('index', 'Exercices')
             ->setPageTitle('new', 'Créer un exercice')
@@ -43,7 +41,7 @@ class ExerciceCrudController extends AbstractCrudController
 
     public function configureFields(string $pageName): iterable
     {
-       $fields = [
+        $fields = [
             TextField::new('nom', 'Nom'),
             TextField::new('description', 'Description'),
             IntegerField::new('duree_estimee', 'Durée estimée (en min)')
@@ -85,7 +83,7 @@ class ExerciceCrudController extends AbstractCrudController
 
         $hours = floor($minutes / 60);
         $remainingMinutes = $minutes % 60;
-        
+
         return sprintf('%dh%02d', $hours, $remainingMinutes);
     }
 }

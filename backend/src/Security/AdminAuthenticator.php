@@ -7,7 +7,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
@@ -23,8 +22,7 @@ class AdminAuthenticator extends AbstractLoginFormAuthenticator
 
     public const LOGIN_ROUTE = 'app_login';
 
-    public function __construct(private UrlGeneratorInterface $urlGenerator, private LoggerInterface $logger)
-    { }
+    public function __construct(private UrlGeneratorInterface $urlGenerator, private LoggerInterface $logger) {}
 
     public function authenticate(Request $request): Passport
     {
@@ -35,7 +33,8 @@ class AdminAuthenticator extends AbstractLoginFormAuthenticator
             new UserBadge($email),
             new PasswordCredentials($request->getPayload()->getString('_password')),
             [
-                new CsrfTokenBadge('authenticate', $request->getPayload()->getString('_csrf_token')),            ]
+                new CsrfTokenBadge('authenticate', $request->getPayload()->getString('_csrf_token')),
+            ]
         );
     }
 
@@ -44,15 +43,13 @@ class AdminAuthenticator extends AbstractLoginFormAuthenticator
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
-        
-        if(in_array('ROLE_RESPONSABLE', $token->getUser()->getRoles())){
+
+        if (in_array('ROLE_RESPONSABLE', $token->getUser()->getRoles())) {
             return new RedirectResponse($this->urlGenerator->generate('admin'));
-        }
-        else if(in_array('ROLE_COACH', $token->getUser()->getRoles())){
+        } else if (in_array('ROLE_COACH', $token->getUser()->getRoles())) {
             return new RedirectResponse($this->urlGenerator->generate('admin'));
         }
 
-        //TODO : Si c'est un sportif on met un message
         return new RedirectResponse($this->urlGenerator->generate('app_home'));
     }
 

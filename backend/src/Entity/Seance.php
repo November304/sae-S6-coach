@@ -17,31 +17,31 @@ class Seance
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['seance:read','seance:public:read','coach:read','sportif:read'])]
+    #[Groups(['seance:read', 'seance:public:read', 'coach:read', 'sportif:read'])]
     private ?int $id = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     #[Assert\NotNull]
-    #[Groups(['seance:read','seance:public:read','coach:read','sportif:read'])]
+    #[Groups(['seance:read', 'seance:public:read', 'coach:read', 'sportif:read'])]
     private ?\DateTimeInterface $date_heure = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["solo", "duo", "trio"], message: "Type de séance invalide. (solo, duo,trio)")]
-    #[Groups(['seance:read','seance:public:read','coach:read','sportif:read'])]
+    #[Groups(['seance:read', 'seance:public:read', 'coach:read', 'sportif:read'])]
     private ?string $type_seance = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['seance:read','seance:public:read','coach:read','sportif:read'])]
+    #[Groups(['seance:read', 'seance:public:read', 'coach:read', 'sportif:read'])]
     private ?string $theme_seance = null;
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["débutant", "intermédiaire", "avancé"], message: "Niveau de séance invalide.")]
-    #[Groups(['seance:read','seance:public:read','coach:read','sportif:read'])]
+    #[Groups(['seance:read', 'seance:public:read', 'coach:read', 'sportif:read'])]
     private ?string $niveau_seance = null;
 
     #[ORM\ManyToOne(inversedBy: 'seances')]
     #[ORM\JoinColumn(nullable: false)]
-    #[Groups(['seance:read','seance:public:read','sportif:read'])]
+    #[Groups(['seance:read', 'seance:public:read', 'sportif:read'])]
     private ?Coach $coach = null;
 
     /**
@@ -54,14 +54,14 @@ class Seance
 
     #[ORM\Column(length: 255)]
     #[Assert\Choice(choices: ["prévue", "validée", "annulée"], message: "Statut invalide.")]
-    #[Groups(['seance:read','coach:read','sportif:read'])]
+    #[Groups(['seance:read', 'coach:read', 'sportif:read'])]
     private ?string $statut = null;
 
     /**
      * @var Collection<int, Exercice>
      */
     #[ORM\ManyToMany(targetEntity: Exercice::class, inversedBy: 'seances')]
-    #[Groups(['seance:read','seance:public:read'])]
+    #[Groups(['seance:read', 'seance:public:read'])]
     private Collection $exercices;
 
     /**
@@ -215,7 +215,7 @@ class Seance
      */
     public function getRemainingPlaces(): int
     {
-        $maxPlaces = match($this->getTypeSeance()) {
+        $maxPlaces = match ($this->getTypeSeance()) {
             'solo' => 1,
             'duo' => 2,
             'trio' => 3,
@@ -230,14 +230,14 @@ class Seance
     {
         $typeSeance = $this->getTypeSeance();
         $sportifCount = $this->getSportifs()->count();
-        
-        $maxSportifs = match($typeSeance) {
+
+        $maxSportifs = match ($typeSeance) {
             'solo' => 1,
             'duo' => 2,
             'trio' => 3,
             default => 0,
         };
-        
+
         if ($sportifCount > $maxSportifs) {
             $context->buildViolation("Une séance de type '{$typeSeance}' ne peut pas avoir plus de {$maxSportifs} sportif(s).")
                 ->atPath('sportifs')
@@ -276,7 +276,6 @@ class Seance
     public function removePresence(Presence $presence): static
     {
         if ($this->presences->removeElement($presence)) {
-            // set the owning side to null (unless already changed)
             if ($presence->getSeance() === $this) {
                 $presence->setSeance(null);
             }
@@ -306,7 +305,6 @@ class Seance
     public function removeDemandeAnnulation(DemandeAnnulation $demandeAnnulation): static
     {
         if ($this->demandeAnnulations->removeElement($demandeAnnulation)) {
-            // set the owning side to null (unless already changed)
             if ($demandeAnnulation->getSeance() === $this) {
                 $demandeAnnulation->setSeance(null);
             }
@@ -315,15 +313,18 @@ class Seance
         return $this;
     }
 
+    /**
+     * @return float Renvoie le taux d'occupation en % de la séance
+     */
     public function getTauxOccupation(): float
     {
-        $maxPlaces = match($this->getTypeSeance()) {
+        $maxPlaces = match ($this->getTypeSeance()) {
             'solo' => 1,
             'duo' => 2,
             'trio' => 3,
             default => 1,
         };
 
-        return $this->sportifs->count() / $maxPlaces*100;
+        return $this->sportifs->count() / $maxPlaces * 100;
     }
 }

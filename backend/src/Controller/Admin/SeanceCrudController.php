@@ -19,7 +19,7 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_RESPONSABLE')]
 class SeanceCrudController extends AbstractCrudController
 {
-    
+
     public static function getEntityFqcn(): string
     {
         return Seance::class;
@@ -33,8 +33,8 @@ class SeanceCrudController extends AbstractCrudController
                     ->setLabel('Créer une nouvelle séance')
                     ->setIcon('fa fa-plus');
             })
-        ->add(Crud::PAGE_INDEX, Action::DETAIL)
-        ->add(Crud::PAGE_EDIT, Action::DETAIL);
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_EDIT, Action::DETAIL);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -45,7 +45,7 @@ class SeanceCrudController extends AbstractCrudController
             ->setPageTitle('edit', 'Modifier une séance')
             ->setFormThemes(['@EasyAdmin/crud/form_theme.html.twig', 'admin/form/seance_form_theme.html.twig']);
     }
-    
+
     public function configureFields(string $pageName): iterable
     {
         $fields = [
@@ -80,10 +80,10 @@ class SeanceCrudController extends AbstractCrudController
                 ]),
             AssociationField::new('sportifs')
                 ->setLabel("Sportifs")
-                ->setFormTypeOption('choice_label', function($sportif) {
+                ->setFormTypeOption('choice_label', function ($sportif) {
                     return $sportif->getNom() . ' (niveau ' . $sportif->getNiveauSportif() . ')';
                 })
-                ->setFormTypeOption('choice_attr', function($sportif, $key, $value) {
+                ->setFormTypeOption('choice_attr', function ($sportif, $key, $value) {
                     return ['data-level' => $sportif->getNiveauSportif()];
                 })
                 ->setFormTypeOption('attr', [
@@ -132,20 +132,19 @@ class SeanceCrudController extends AbstractCrudController
         ];
 
         if ($pageName === Crud::PAGE_DETAIL) {
-        // Remplacer les champs standards par des champs avec templates personnalisés
-        $fields = [
-            TextField::new('themeSeance', 'Séance')
-                ->setTemplatePath('admin/seance/header_card.html.twig'),
-            DateTimeField::new('dateHeure', 'Date et heure')
-                ->setTemplatePath('admin/seance/date_status_card.html.twig'),
-            AssociationField::new('coach', 'Coach')
-                ->setTemplatePath('admin/seance/coach_card.html.twig'),
-            AssociationField::new('sportifs', 'Sportifs')
-                ->setTemplatePath('admin/seance/sportifs_card.html.twig'),
-            AssociationField::new('exercices', 'Exercices')
-                ->setTemplatePath('admin/seance/exercices_card.html.twig'),
-        ];
-    }
+            $fields = [
+                TextField::new('themeSeance', 'Séance')
+                    ->setTemplatePath('admin/seance/header_card.html.twig'),
+                DateTimeField::new('dateHeure', 'Date et heure')
+                    ->setTemplatePath('admin/seance/date_status_card.html.twig'),
+                AssociationField::new('coach', 'Coach')
+                    ->setTemplatePath('admin/seance/coach_card.html.twig'),
+                AssociationField::new('sportifs', 'Sportifs')
+                    ->setTemplatePath('admin/seance/sportifs_card.html.twig'),
+                AssociationField::new('exercices', 'Exercices')
+                    ->setTemplatePath('admin/seance/exercices_card.html.twig'),
+            ];
+        }
 
         return $fields;
     }
@@ -158,7 +157,7 @@ class SeanceCrudController extends AbstractCrudController
 
         $hours = floor($minutes / 60);
         $remainingMinutes = $minutes % 60;
-        
+
         return sprintf('%dh%02d', $hours, $remainingMinutes);
     }
 
@@ -169,8 +168,8 @@ class SeanceCrudController extends AbstractCrudController
             // On vérifie que le niveau du sportif correspond exactement à celui de la séance
             if ($sportif->getNiveauSportif() !== $sessionNiveau) {
                 throw new \Exception(
-                    "Le sportif " . $sportif->getNom() . " (niveau " . $sportif->getNiveauSportif() . 
-                    ") ne peut pas participer à une séance de niveau " . $sessionNiveau . "."
+                    "Le sportif " . $sportif->getNom() . " (niveau " . $sportif->getNiveauSportif() .
+                        ") ne peut pas participer à une séance de niveau " . $sessionNiveau . "."
                 );
             }
         }
@@ -182,10 +181,10 @@ class SeanceCrudController extends AbstractCrudController
             parent::persistEntity($entityManager, $entityInstance);
             return;
         }
-        
+
         // Vérification du niveau des sportifs
         $this->checkNiveauSportifs($entityInstance);
-        
+
         parent::persistEntity($entityManager, $entityInstance);
     }
 
@@ -195,10 +194,10 @@ class SeanceCrudController extends AbstractCrudController
             parent::updateEntity($entityManager, $entityInstance);
             return;
         }
-        
+
         // Vérification du niveau des sportifs
         $this->checkNiveauSportifs($entityInstance);
-        
+
         parent::updateEntity($entityManager, $entityInstance);
     }
 

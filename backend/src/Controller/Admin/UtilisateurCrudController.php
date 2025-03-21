@@ -29,7 +29,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[IsGranted('ROLE_RESPONSABLE')]
 class UtilisateurCrudController extends AbstractCrudController
 {
-    //TODO : Faut pouvoir gérer les roles -> Mais en fait faut quand meme faire la création de coach/sportif pr les infos associés
     public static function getEntityFqcn(): string
     {
         return Utilisateur::class;
@@ -44,7 +43,7 @@ class UtilisateurCrudController extends AbstractCrudController
         return [
             BeforeEntityPersistedEvent::class => ['hashPassword'],
         ];
-    }   
+    }
 
     public function configureCrud(Crud $crud): Crud
     {
@@ -66,9 +65,9 @@ class UtilisateurCrudController extends AbstractCrudController
                 return $action
                     ->setLabel('Créer un nouveau responsable')
                     ->setIcon('fa fa-plus');
-           })
-        ->add(Crud::PAGE_INDEX, Action::DETAIL)
-        ->add(Crud::PAGE_EDIT, Action::DETAIL);
+            })
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_EDIT, Action::DETAIL);
     }
 
     public function persistEntity(EntityManagerInterface $entityManager, $entityInstance): void
@@ -81,10 +80,10 @@ class UtilisateurCrudController extends AbstractCrudController
 
         parent::persistEntity($entityManager, $entityInstance);
     }
-    
+
     public function configureFields(string $pageName): iterable
     {
-        
+
         $fields = [
             TextField::new('nom')
                 ->setLabel("Nom"),
@@ -93,57 +92,58 @@ class UtilisateurCrudController extends AbstractCrudController
             EmailField::new('email')
                 ->setLabel("Email"),
             ChoiceField::new('roles')
-            ->setLabel('Rôles') 
-            ->setChoices([
-                'Responsable' => 'ROLE_RESPONSABLE', 
-            ])
-            ->allowMultipleChoices() 
-            ->setValue(['ROLE_RESPONSABLE'])
-            ->hideOnForm(), 
-            
+                ->setLabel('Rôles')
+                ->setChoices([
+                    'Responsable' => 'ROLE_RESPONSABLE',
+                ])
+                ->allowMultipleChoices()
+                ->setValue(['ROLE_RESPONSABLE'])
+                ->hideOnForm(),
+
         ];
         if ($pageName === Crud::PAGE_DETAIL) {
             $fields = [
-                 TextField::new('nomComplet', 'Responsable')
+                TextField::new('nomComplet', 'Responsable')
                     ->formatValue(function ($value, $entity) {
                         return $entity->getPrenom() . ' ' . strtoupper($entity->getNom());
                     })
                     ->setTemplatePath('admin/responsable/header_card.html.twig'),
-                
+
                 EmailField::new('email')
                     ->setLabel("Contact")
                     ->setTemplatePath('admin/responsable/contact_card.html.twig'),
             ];
         }
-        if ($pageName == Crud::PAGE_NEW){
-            $fields[] =  [TextField::new('password')
-                ->setFormType(RepeatedType::class)
-                ->setFormTypeOptions([
-                    'type' => PasswordType::class,
-                    'first_options' => [
-                        'label' => 'Mot de passe',
-                        'attr' => ['style' => 'max-width:40.5%;'] // Limite la largeur
-                    ],
-                    'second_options' => [
-                        'label' => 'Confirmer le mot de passe',
-                        'attr' => ['style' => 'max-width:40.5%;'] // Même largeur pour la confirmation
-                    ],
-                    'invalid_message' => 'Les mots de passe ne correspondent pas.',
-                ])
-                ->onlyOnForms()
-                ->onlyWhenCreating(),
-            ChoiceField::new('roles')
-            ->setLabel('Rôles') 
-            ->setChoices([
-                'Responsable' => 'ROLE_RESPONSABLE', 
-            ])
-            ->allowMultipleChoices() 
-            ->setValue(['ROLE_RESPONSABLE'])
-            ->hideOnForm()
-            ->hideOnIndex()
-            ->hideOnDetail(), 
-            
-        ];
+        if ($pageName == Crud::PAGE_NEW) {
+            $fields[] =  [
+                TextField::new('password')
+                    ->setFormType(RepeatedType::class)
+                    ->setFormTypeOptions([
+                        'type' => PasswordType::class,
+                        'first_options' => [
+                            'label' => 'Mot de passe',
+                            'attr' => ['style' => 'max-width:40.5%;'] // Limite la largeur
+                        ],
+                        'second_options' => [
+                            'label' => 'Confirmer le mot de passe',
+                            'attr' => ['style' => 'max-width:40.5%;'] // Même largeur pour la confirmation
+                        ],
+                        'invalid_message' => 'Les mots de passe ne correspondent pas.',
+                    ])
+                    ->onlyOnForms()
+                    ->onlyWhenCreating(),
+                ChoiceField::new('roles')
+                    ->setLabel('Rôles')
+                    ->setChoices([
+                        'Responsable' => 'ROLE_RESPONSABLE',
+                    ])
+                    ->allowMultipleChoices()
+                    ->setValue(['ROLE_RESPONSABLE'])
+                    ->hideOnForm()
+                    ->hideOnIndex()
+                    ->hideOnDetail(),
+
+            ];
         }
 
         return $fields;
@@ -166,7 +166,7 @@ class UtilisateurCrudController extends AbstractCrudController
         // Filtrage des utilisateurs avec le rôle ROLE_RESPONSABLE
         $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
         $qb->andWhere('entity.roles LIKE :role')
-           ->setParameter('role', '%"ROLE_RESPONSABLE"%');
+            ->setParameter('role', '%"ROLE_RESPONSABLE"%');
 
         return $qb;
     }
@@ -176,8 +176,9 @@ class UtilisateurCrudController extends AbstractCrudController
         return $formBuilder->addEventListener(FormEvents::POST_SUBMIT, $this->hashPassword());
     }
 
-    private function hashPassword() {
-        return function($event) {
+    private function hashPassword()
+    {
+        return function ($event) {
             $form = $event->getForm();
             if (!$form->isValid()) {
                 return;
@@ -190,5 +191,5 @@ class UtilisateurCrudController extends AbstractCrudController
             $hash = $this->encoder->hashPassword($event->getData(), $password);
             $form->getData()->setPassword($hash);
         };
-    }    
+    }
 }

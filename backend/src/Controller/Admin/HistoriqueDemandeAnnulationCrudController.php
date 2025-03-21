@@ -57,12 +57,12 @@ class HistoriqueDemandeAnnulationCrudController extends AbstractCrudController
     public function createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters): \Doctrine\ORM\QueryBuilder
     {
         $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
-        
+
         $queryBuilder
             ->andWhere('entity.statut IN (:statuts)')
             ->setParameter('statuts', ['validée', 'refusée'])
             ->orderBy('entity.dateTraitement', 'DESC');
-            
+
         return $queryBuilder;
     }
 }

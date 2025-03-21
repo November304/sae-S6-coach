@@ -18,19 +18,19 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\DiscriminatorColumn(name: "user_type", type: "string")]
 #[ORM\DiscriminatorMap(["utilisateur" => Utilisateur::class, "coach" => Coach::class, "sportif" => Sportif::class])]
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
-#[UniqueEntity(fields: ['email'],entityClass: Utilisateur::class, message: 'Cet email est déjà utilisé.')]
+#[UniqueEntity(fields: ['email'], entityClass: Utilisateur::class, message: 'Cet email est déjà utilisé.')]
 class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['coach:read','sportif:read','sportif:write','seance:read','coach:public:read'])]
+    #[Groups(['coach:read', 'sportif:read', 'sportif:write', 'seance:read', 'coach:public:read'])]
     private ?int $id = null;
 
-    #[ORM\Column(length: 180,unique: true)]
+    #[ORM\Column(length: 180, unique: true)]
     #[Assert\NotBlank]
     #[Assert\Email]
-    #[Groups(['coach:read','sportif:read','sportif:write','seance:read'])]
+    #[Groups(['coach:read', 'sportif:read', 'sportif:write', 'seance:read'])]
     private ?string $email = null;
 
     /**
@@ -39,8 +39,8 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     #[Assert\All([
         new Assert\Choice(choices: ["ROLE_SPORTIF", "ROLE_COACH", "ROLE_RESPONSABLE"], message: "Rôle invalide.")
-    ])]    
-    #[Groups(['sportif:read','sportif:write'])]
+    ])]
+    #[Groups(['sportif:read', 'sportif:write'])]
     private array $roles = [];
 
     /**
@@ -53,15 +53,15 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 50)]
-    #[Groups(['coach:read','sportif:read','sportif:write','seance:read','seance:public:read','coach:public:read'])]
+    #[Groups(['coach:read', 'sportif:read', 'sportif:write', 'seance:read', 'seance:public:read', 'coach:public:read'])]
     private ?string $nom = null;
 
     #[ORM\Column(length: 50)]
     #[Assert\NotBlank]
     #[Assert\Length(min: 2, max: 50)]
-    #[Groups(['coach:read','sportif:read','sportif:write','seance:read','seance:public:read','coach:public:read'])]
+    #[Groups(['coach:read', 'sportif:read', 'sportif:write', 'seance:read', 'seance:public:read', 'coach:public:read'])]
     private ?string $prenom = null;
-  
+
     /**
      * @var Collection<int, DemandeAnnulation>
      */
@@ -203,7 +203,7 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-    
+
     public function getPasswordChangedAt(): ?\DateTimeImmutable
     {
         return $this->passwordChangedAt;
@@ -220,7 +220,6 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
     public function removeDemandeAnnulation(DemandeAnnulation $demandeAnnulation): static
     {
         if ($this->demandeAnnulations->removeElement($demandeAnnulation)) {
-            // set the owning side to null (unless already changed)
             if ($demandeAnnulation->getResponsable() === $this) {
                 $demandeAnnulation->setResponsable(null);
             }
@@ -234,5 +233,5 @@ class Utilisateur implements UserInterface, PasswordAuthenticatedUserInterface
         return [
             'password_changed_at' => $this->passwordChangedAt ? $this->passwordChangedAt->getTimestamp() : null,
         ];
-    }    
+    }
 }

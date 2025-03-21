@@ -15,7 +15,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Config\Dashboard;
 use EasyCorp\Bundle\EasyAdminBundle\Config\MenuItem;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractDashboardController;
 use EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 #[AdminDashboard(routePath: '/admin', routeName: 'admin')]
@@ -26,9 +25,8 @@ class DashboardController extends AbstractDashboardController
         private AdminUrlGenerator $adminUrlGenerator,
     ) {}
 
-   public function index(): Response
+    public function index(): Response
     {
-        // Page d'accueil simple qui redirige vers les différentes sections
         $adminUrl = $this->adminUrlGenerator
             ->setRoute('admin_stats')
             ->generateUrl();
@@ -42,18 +40,17 @@ class DashboardController extends AbstractDashboardController
     {
         return Dashboard::new()
             ->setTitle('Gestion administrateur');
-            
     }
 
     public function configureMenuItems(): iterable
     {
         yield MenuItem::linkToDashboard('Accueil', 'fas fa-home');
-        
+
         yield MenuItem::section('Utilisateurs')->setPermission('ROLE_RESPONSABLE');
         yield MenuItem::linkToCrud('Coachs', 'fas fa-users', Coach::class)->setPermission('ROLE_RESPONSABLE');
         yield MenuItem::linkToCrud('Sportifs', 'fas fa-users', Sportif::class)->setPermission('ROLE_RESPONSABLE');
         yield MenuItem::linkToCrud('Responsables', 'fas fa-users', Utilisateur::class)->setPermission('ROLE_RESPONSABLE');
-        
+
         yield MenuItem::section('Salle de sport');
         yield MenuItem::linkToCrud('Séances', 'fas fa-calendar-alt', Seance::class)
             ->setController(SeanceCrudController::class)

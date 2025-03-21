@@ -6,7 +6,6 @@ use ApiPlatform\Validator\Exception\ValidationException;
 use ApiPlatform\Validator\ValidatorInterface;
 use App\Entity\Sportif;
 use App\Repository\SeanceRepository;
-use App\Repository\SportifRepository;
 use App\Repository\UtilisateurRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;

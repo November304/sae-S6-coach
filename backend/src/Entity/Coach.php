@@ -18,7 +18,7 @@ class Coach extends Utilisateur
 {
     #[ORM\Column]
     #[Assert\NotBlank]
-    #[Groups(['coach:read','coach:public:read','seance:read'])]
+    #[Groups(['coach:read', 'coach:public:read', 'seance:read'])]
     private array $specialites = [];
 
     #[ORM\Column]
@@ -39,11 +39,11 @@ class Coach extends Utilisateur
     private Collection $ficheDePaies;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    #[Groups(['coach:read','coach:public:read'])]
+    #[Groups(['coach:read', 'coach:public:read'])]
     private ?string $description = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    #[Groups(['coach:read','coach:public:read'])]
+    #[Groups(['coach:read', 'coach:public:read'])]
     private ?string $imageFilename = null;
 
     #[Vich\UploadableField(mapping: 'coach', fileNameProperty: 'imageFilename')]
@@ -106,7 +106,6 @@ class Coach extends Utilisateur
     public function removeSeance(Seance $seance): static
     {
         if ($this->seances->removeElement($seance)) {
-            // set the owning side to null (unless already changed)
             if ($seance->getCoach() === $this) {
                 $seance->setCoach(null);
             }
@@ -136,7 +135,6 @@ class Coach extends Utilisateur
     public function removeFicheDePaie(FicheDePaie $ficheDePaie): static
     {
         if ($this->ficheDePaies->removeElement($ficheDePaie)) {
-            // set the owning side to null (unless already changed)
             if ($ficheDePaie->getCoach() === $this) {
                 $ficheDePaie->setCoach(null);
             }

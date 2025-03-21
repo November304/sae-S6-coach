@@ -12,7 +12,7 @@ class AuthController extends AbstractController
 {
     public function __construct(
         private Security $security
-    ) { }
+    ) {}
 
     #[Route('/api/user/me', name: 'api_user_me', methods: ['GET'])]
     public function me()

@@ -3,8 +3,6 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Coach;
-use App\Entity\Utilisateur;
-use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore;
 use EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
@@ -41,7 +39,7 @@ class CoachCrudController extends AbstractCrudController
         return [
             BeforeEntityPersistedEvent::class => ['hashPassword'],
         ];
-    }   
+    }
 
 
     public function configureActions(Actions $actions): Actions
@@ -52,8 +50,8 @@ class CoachCrudController extends AbstractCrudController
                     ->setLabel('Créer un nouveau coach')
                     ->setIcon('fa fa-plus');
             })
-        ->add(Crud::PAGE_INDEX, Action::DETAIL)
-        ->add(Crud::PAGE_EDIT, Action::DETAIL);
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_EDIT, Action::DETAIL);
     }
 
     public function configureCrud(Crud $crud): Crud
@@ -67,11 +65,10 @@ class CoachCrudController extends AbstractCrudController
             ->setEntityLabelInPlural('Coachs')
             ->setDefaultSort(['nom' => 'ASC']);
     }
-    
-   public function configureFields(string $pageName): iterable
+
+    public function configureFields(string $pageName): iterable
     {
         $fields = [
-            // Champs communs pour toutes les pages
             TextField::new('nom')->setLabel("Nom"),
             TextField::new('prenom')->setLabel("Prénom"),
             EmailField::new('email')->setLabel("Email"),
@@ -82,34 +79,32 @@ class CoachCrudController extends AbstractCrudController
             CollectionField::new('specialites')
                 ->setLabel("Spécialités"),
         ];
-        
-        // Personnalisation spécifique pour la page détail
+
         if ($pageName === Crud::PAGE_DETAIL) {
-            // Remplacer les champs standards par des champs avec templates personnalisés
             $fields = [
                 TextField::new('nomComplet', 'Coach')
                     ->formatValue(function ($value, $entity) {
                         return $entity->getPrenom() . ' ' . strtoupper($entity->getNom());
                     })
                     ->setTemplatePath('admin/coach/header_card.html.twig'),
-                
+
                 EmailField::new('email')
                     ->setLabel("Contact")
                     ->setTemplatePath('admin/coach/contact_card.html.twig'),
-                    
+
                 MoneyField::new('tarif_horaire')
                     ->setCurrency('EUR')
                     ->setLabel("Tarif horaire")
                     ->setStoredAsCents(false)
                     ->setTemplatePath('admin/coach/tarif_card.html.twig'),
-                    
+
                 CollectionField::new('specialites')
                     ->setLabel("Spécialités")
                     ->setTemplatePath('admin/coach/specialites_card.html.twig'),
             ];
         }
-        
-        // Ajout des champs de mot de passe uniquement pour la création
+
+        // Mdp uniquement pr la création
         if ($pageName === Crud::PAGE_NEW) {
             $fields[] = TextField::new('password')
                 ->setFormType(RepeatedType::class)
@@ -126,7 +121,7 @@ class CoachCrudController extends AbstractCrudController
                     'invalid_message' => 'Les mots de passe ne correspondent pas.',
                 ]);
         }
-        
+
         return $fields;
     }
 
@@ -147,8 +142,9 @@ class CoachCrudController extends AbstractCrudController
         return $formBuilder->addEventListener(FormEvents::POST_SUBMIT, $this->hashPassword());
     }
 
-    private function hashPassword() {
-        return function($event) {
+    private function hashPassword()
+    {
+        return function ($event) {
             $form = $event->getForm();
             if (!$form->isValid()) {
                 return;
@@ -161,6 +157,5 @@ class CoachCrudController extends AbstractCrudController
             $hash = $this->encoder->hashPassword($event->getData(), $password);
             $form->getData()->setPassword($hash);
         };
-    }    
-    
+    }
 }

@@ -4,7 +4,6 @@ namespace App\Controller\Admin;
 
 use App\Entity\FicheDePaie;
 use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Controller\AbstractCrudController;
 use App\Repository\CoachRepository;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Crud;
@@ -17,7 +16,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\MoneyField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\HiddenField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\EntityDto;
 use EasyCorp\Bundle\EasyAdminBundle\Dto\SearchDto;
 use Symfony\Bundle\SecurityBundle\Security as SecurityBundleSecurity;
@@ -62,31 +60,30 @@ class FicheDePaieCoachCrudController extends AbstractCrudController
             ->addJsFile('js/fiche_de_paie-form.js');
     }
 
-    public function createIndexQueryBuilder(SearchDto $searchDto, EntityDto $entityDto, 
-                                              \EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection $fields, 
-                                              \EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection $filters): QueryBuilder
-    {
+    public function createIndexQueryBuilder(
+        SearchDto $searchDto,
+        EntityDto $entityDto,
+        \EasyCorp\Bundle\EasyAdminBundle\Collection\FieldCollection $fields,
+        \EasyCorp\Bundle\EasyAdminBundle\Collection\FilterCollection $filters
+    ): QueryBuilder {
         $qb = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
-        // Restreindre l'affichage aux fiches de paie du coach connecté
         $qb->andWhere('entity.coach = :currentCoach')
-           ->setParameter('currentCoach', $this->security->getUser());
+            ->setParameter('currentCoach', $this->security->getUser());
 
         return $qb;
     }
 
     public function configureFields(string $pageName): iterable
     {
-        // Récupérer le coach connecté pour son tarif horaire
         $user = $this->security->getUser();
         if (!$user instanceof \App\Entity\Coach) {
-            throw new \LogicException('The user is not a coach.');
+            throw new \LogicException('Vous n\'êtes pas un coach');
         }
         $coach = $this->coachRepository->find($user->getId());
         $tarifs = [$coach->getId() => $coach->getTarifHoraire()];
         $tarifsJson = json_encode($tarifs);
 
         $fields = [
-            // Le champ coach peut être masqué sur les formulaires car il est affecté automatiquement
             AssociationField::new('coach')
                 ->setLabel("Coach")
                 ->setFormTypeOption('choice_label', 'nom')
@@ -115,7 +112,6 @@ class FicheDePaieCoachCrudController extends AbstractCrudController
         ];
 
         if ($pageName === Crud::PAGE_DETAIL) {
-            // Templates personnalisés pour la page détail
             $fields = [
                 IdField::new('id')
                     ->setTemplatePath('admin/fiche_de_paie/header_card.html.twig')

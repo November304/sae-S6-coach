@@ -67,7 +67,6 @@ class SeanceCoachCrudController extends AbstractCrudController
             ->add(Crud::PAGE_DETAIL, $appel)
             ->add(Crud::PAGE_INDEX, $annuler)
             ->add(Crud::PAGE_DETAIL, $annuler)
-            // Modification ici pour la gestion de l'action EDIT
             ->setPermission(Action::EDIT, 'ROLE_COACH')
             ->update(Crud::PAGE_INDEX, Action::EDIT, function (Action $action) {
                 return $action
@@ -129,7 +128,6 @@ class SeanceCoachCrudController extends AbstractCrudController
         // Récupération de l'entité réelle
         $seance = $entityDto->getInstance();
 
-        // Vérification que la séance est bien de type Seance et a le statut attendu
         if (!$seance instanceof Seance || $seance->getStatut() !== 'prévue') {
             $this->addFlash('warning', 'Action impossible sur cette séance');
             return $this->redirectToRoute('admin');
@@ -241,7 +239,6 @@ class SeanceCoachCrudController extends AbstractCrudController
         ];
 
         if ($pageName === Crud::PAGE_DETAIL) {
-            // Remplacer les champs standards par des champs avec templates personnalisés
             $fields = [
                 TextField::new('themeSeance', 'Séance')
                     ->setTemplatePath('admin/seance/header_card.html.twig'),
@@ -304,7 +301,6 @@ class SeanceCoachCrudController extends AbstractCrudController
         $this->logger->info('dateHeure : ' . $dateHeure->format('Y-m-d H:i:s'));
         $this->logger->info('dateHeureFin : ' . $dateHeureFin->format('Y-m-d H:i:s'));
 
-        //Verif si coach a déjà une séance
         $qb = $entityManager->createQueryBuilder();
         $qb->select('s')
             ->from(Seance::class, 's')

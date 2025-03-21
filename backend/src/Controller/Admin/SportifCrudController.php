@@ -21,7 +21,6 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
-use Doctrine\ORM\EntityManagerInterface;
 
 
 
@@ -32,7 +31,7 @@ class SportifCrudController extends AbstractCrudController
         return Sportif::class;
     }
 
-     public function __construct(
+    public function __construct(
         private UserPasswordHasherInterface $encoder
     ) {}
 
@@ -41,7 +40,7 @@ class SportifCrudController extends AbstractCrudController
         return [
             BeforeEntityPersistedEvent::class => ['hashPassword'],
         ];
-    }   
+    }
 
     public function configureActions(Actions $actions): Actions
     {
@@ -51,13 +50,12 @@ class SportifCrudController extends AbstractCrudController
                     ->setLabel('Créer un nouveau sportif')
                     ->setIcon('fa fa-plus');
             })
-        ->add(Crud::PAGE_INDEX, Action::DETAIL)
-        ->add(Crud::PAGE_EDIT, Action::DETAIL);
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_EDIT, Action::DETAIL);
     }
 
     public function configureCrud(Crud $crud): Crud
     {
-        // Modification du titre principal
         return $crud
             ->setPageTitle('index', 'Sportifs')
             ->setPageTitle('new', 'Créer un sportif')
@@ -72,7 +70,6 @@ class SportifCrudController extends AbstractCrudController
     public function configureFields(string $pageName): iterable
     {
         $fields = [
-            // Champs communs pour toutes les pages
             TextField::new('nom')->setLabel("Nom"),
             TextField::new('prenom')->setLabel("Prénom"),
             EmailField::new('email')->setLabel("Email"),
@@ -95,15 +92,15 @@ class SportifCrudController extends AbstractCrudController
                         return $entity->getPrenom() . ' ' . strtoupper($entity->getNom());
                     })
                     ->setTemplatePath('admin/sportif/header_card.html.twig'),
-                
+
                 EmailField::new('email')
                     ->setLabel("Contact")
                     ->setTemplatePath('admin/sportif/contact_card.html.twig'),
-                
+
                 DateField::new('date_inscription')
                     ->setLabel("Date inscription")
                     ->setTemplatePath('admin/sportif/date_inscription_card.html.twig'),
-                
+
                 ChoiceField::new('niveau_sportif')
                     ->setChoices([
                         'Débutant' => 'débutant',
@@ -152,8 +149,9 @@ class SportifCrudController extends AbstractCrudController
         return $formBuilder->addEventListener(FormEvents::POST_SUBMIT, $this->hashPassword());
     }
 
-    private function hashPassword() {
-        return function($event) {
+    private function hashPassword()
+    {
+        return function ($event) {
             $form = $event->getForm();
             if (!$form->isValid()) {
                 return;
@@ -166,6 +164,5 @@ class SportifCrudController extends AbstractCrudController
             $hash = $this->encoder->hashPassword($event->getData(), $password);
             $form->getData()->setPassword($hash);
         };
-    }    
-    
+    }
 }

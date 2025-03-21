@@ -16,7 +16,6 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\AssociationField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\HiddenField;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
-use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
 
 #[IsGranted('ROLE_RESPONSABLE')]
 class FicheDePaieCrudController extends AbstractCrudController
@@ -38,7 +37,7 @@ class FicheDePaieCrudController extends AbstractCrudController
         return $crud
             ->setPageTitle('index', 'Fiches de paie')
             ->setPageTitle('new', 'Créer une fiche de paie')
-            ->setPageTitle('edit', 'Modifier une fiche de paie');           
+            ->setPageTitle('edit', 'Modifier une fiche de paie');
     }
 
     public function configureActions(Actions $actions): Actions
@@ -49,8 +48,8 @@ class FicheDePaieCrudController extends AbstractCrudController
                     ->setLabel('Créer une nouvelle fiche de paie')
                     ->setIcon('fa fa-plus');
             })
-        ->add(Crud::PAGE_INDEX, Action::DETAIL)
-        ->add(Crud::PAGE_EDIT, Action::DETAIL);
+            ->add(Crud::PAGE_INDEX, Action::DETAIL)
+            ->add(Crud::PAGE_EDIT, Action::DETAIL);
     }
 
     public function configureAssets(Assets $assets): Assets
@@ -58,7 +57,7 @@ class FicheDePaieCrudController extends AbstractCrudController
         return $assets
             ->addJsFile('js/fiche_de_paie-form.js');
     }
-    
+
     public function configureFields(string $pageName): iterable
     {
         //On recup les coachs pr leurs tarifs horaires auto calculés
@@ -100,28 +99,24 @@ class FicheDePaieCrudController extends AbstractCrudController
                 ->onlyOnForms()
         ];
 
-          if ($pageName === Crud::PAGE_DETAIL) {
-            // Templates personnalisés pour la page détail
+        if ($pageName === Crud::PAGE_DETAIL) {
             $fields =  [
-                    IdField::new('id')
-                        ->setTemplatePath('admin/fiche_de_paie/header_card.html.twig')
-                        ->hideOnForm(),
-                    AssociationField::new('coach')
-                        ->setLabel("Coach")
-                        ->setTemplatePath('admin/fiche_de_paie/coach_card.html.twig'),
-                    ChoiceField::new('periode', 'Période')
-                        ->setTemplatePath('admin/fiche_de_paie/periode_card.html.twig'),
-                    IntegerField::new('totalHeures', 'Total heures')
-                        ->setTemplatePath('admin/fiche_de_paie/heures_card.html.twig'),
-                    MoneyField::new('montantTotal', 'Montant total')
-                        ->setCurrency('EUR')
-                        ->setStoredAsCents(false)
-                        ->setTemplatePath('admin/fiche_de_paie/montant_card.html.twig'),
-                ];
-            }
+                IdField::new('id')
+                    ->setTemplatePath('admin/fiche_de_paie/header_card.html.twig')
+                    ->hideOnForm(),
+                AssociationField::new('coach')
+                    ->setLabel("Coach")
+                    ->setTemplatePath('admin/fiche_de_paie/coach_card.html.twig'),
+                ChoiceField::new('periode', 'Période')
+                    ->setTemplatePath('admin/fiche_de_paie/periode_card.html.twig'),
+                IntegerField::new('totalHeures', 'Total heures')
+                    ->setTemplatePath('admin/fiche_de_paie/heures_card.html.twig'),
+                MoneyField::new('montantTotal', 'Montant total')
+                    ->setCurrency('EUR')
+                    ->setStoredAsCents(false)
+                    ->setTemplatePath('admin/fiche_de_paie/montant_card.html.twig'),
+            ];
+        }
         return $fields;
-
     }
-
-    
 }

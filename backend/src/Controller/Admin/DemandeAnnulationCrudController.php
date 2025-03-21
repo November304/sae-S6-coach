@@ -3,7 +3,6 @@
 namespace App\Controller\Admin;
 
 use App\Entity\DemandeAnnulation;
-use App\Entity\Seance;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use EasyCorp\Bundle\EasyAdminBundle\Config\Action;
@@ -33,7 +32,7 @@ class DemandeAnnulationCrudController extends AbstractCrudController
             ->setEntityLabelInSingular('Demande d\'annulation')
             ->setEntityLabelInPlural('Demandes d\'annulation')
             ->setPageTitle('index', 'Liste des demandes d\'annulation')
-            ->setPaginatorPageSize(10); // Nombre d'éléments par page
+            ->setPaginatorPageSize(10);
     }
 
     public function configureFields(string $pageName): iterable
@@ -85,22 +84,22 @@ class DemandeAnnulationCrudController extends AbstractCrudController
     {
         $id = $this->getContext()->getRequest()->query->get('entityId');
         $demande = $entityManager->getRepository(DemandeAnnulation::class)->find($id);
-        
+
         if (!$demande) {
             throw $this->createNotFoundException('Demande non trouvée');
         }
-        
+
         $demande->setStatut('validée');
         $demande->setResponsable($this->getUser());
         $demande->setDateTraitement(new DateTime());
-        
+
         $seance = $demande->getSeance();
         $seance->setStatut('annulée');
-        
+
         $entityManager->flush();
-        
+
         $this->addFlash('success', 'La demande d\'annulation a été validée');
-        
+
         return $this->redirect($adminUrlGenerator
             ->setController(self::class)
             ->setAction('index')
@@ -111,19 +110,19 @@ class DemandeAnnulationCrudController extends AbstractCrudController
     {
         $id = $this->getContext()->getRequest()->query->get('entityId');
         $demande = $entityManager->getRepository(DemandeAnnulation::class)->find($id);
-        
+
         if (!$demande) {
             throw $this->createNotFoundException('Demande non trouvée');
         }
-        
+
         $demande->setStatut('refusée');
         $demande->setResponsable($this->getUser());
         $demande->setDateTraitement(new DateTime());
-        
+
         $entityManager->flush();
-        
+
         $this->addFlash('success', 'La demande d\'annulation a été refusée');
-        
+
         return $this->redirect($adminUrlGenerator
             ->setController(self::class)
             ->setAction('index')
@@ -134,12 +133,12 @@ class DemandeAnnulationCrudController extends AbstractCrudController
     public function createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters): \Doctrine\ORM\QueryBuilder
     {
         $queryBuilder = parent::createIndexQueryBuilder($searchDto, $entityDto, $fields, $filters);
-        
+
         $queryBuilder
             ->andWhere('entity.statut = :statut')
             ->setParameter('statut', 'en attente')
             ->orderBy('entity.dateDemande', 'DESC');
-            
+
         return $queryBuilder;
     }
 }

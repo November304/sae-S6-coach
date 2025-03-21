@@ -5,7 +5,6 @@ namespace App\Controller\Admin;
 use App\Entity\Seance;
 use App\Entity\Sportif;
 use App\Entity\Presence;
-use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -30,18 +29,18 @@ class PresenceController extends AbstractController
             $this->addFlash('error', 'Séance introuvable.');
             return $this->redirectToRoute('admin');
         }
-        
+
         // Vérifier que le coach est bien celui assigné à la séance
         if ($seance->getCoach() !== $this->security->getUser()) {
             throw $this->createAccessDeniedException('Vous n\'êtes pas le coach de cette séance');
         }
-        
+
         // Vérifier que la séance est en statut "prévue"
         if ($seance->getStatut() !== 'prévue') {
             $this->addFlash('error', 'L\'appel ne peut être fait que pour une séance prévue');
             return $this->redirectToRoute('app_admin_seance_coach');
         }
-        
+
         // Récupérer tous les sportifs de la séance
         $sportifs = $seance->getSportifs();
 
@@ -60,26 +59,21 @@ class PresenceController extends AbstractController
             throw $this->createAccessDeniedException('Vous n\'êtes pas le coach de cette séance');
         }
 
-        // Récupérer les données du formulaire
         $presences = $request->request->all('presence');
         $presenceStatuses = $request->request->all('presence_status');
-        
-        // Enregistrer les présences
+
         foreach ($seance->getSportifs() as $sportif) {
             $sportifId = $sportif->getId();
-            
-            // Vérifier s'il y a un statut spécial pour ce sportif
+
             if (isset($presenceStatuses[$sportifId])) {
                 $statutPresence = $presenceStatuses[$sportifId];
             } else {
-                // Sinon, utiliser la case à cocher normale
                 $statutPresence = isset($presences[$sportifId]) ? 'Présent' : 'Absent';
             }
-            
+
             $this->enregistrerPresence($seance, $sportif, $statutPresence);
         }
 
-        // Mettre à jour le statut de la séance
         $seance->setStatut('validée');
         $this->entityManager->flush();
 
@@ -89,12 +83,11 @@ class PresenceController extends AbstractController
 
     private function enregistrerPresence(Seance $seance, Sportif $sportif, string $statutPresence): void
     {
-        // Vérifier si une présence existe déjà pour ce sportif dans cette séance
         $existingPresence = $this->entityManager->getRepository(Presence::class)->findOneBy([
             'seance' => $seance,
             'sportif' => $sportif
         ]);
-        
+
         if ($existingPresence) {
             $existingPresence->setPresent($statutPresence);
         } else {
