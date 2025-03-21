@@ -22,6 +22,7 @@ import { AuthInterceptor } from './services/auth.interceptor';
 import { EspacePersoComponent } from './espace-perso/espace-perso.component';
 import { EditProfileComponent } from './edit-profile/edit-profile.component';
 import { EditPasswordComponent } from './edit-password/edit-password.component';
+import { BilanComponent } from './bilan/bilan.component';
 
 registerLocaleData(localeFr);
 
@@ -38,6 +39,7 @@ registerLocaleData(localeFr);
     EspacePersoComponent,
     EditProfileComponent,
     EditPasswordComponent,
+    BilanComponent,
   ],
   imports: [
     BrowserModule,

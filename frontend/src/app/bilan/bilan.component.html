@@ -1,0 +1,152 @@
+<div class="bilan-container">
+    <div class="page-header">
+        <h1>Mon Bilan d'Entraînement</h1>
+        <div class="period-selector">
+            <p class="period-label">Période sélectionnée : {{ dateMin | date:'dd/MM/yyyy' }} - {{ dateMax |
+                date:'dd/MM/yyyy' }}</p>
+            <div class="buttons-group">
+                <button *ngFor="let option of periodOptions" class="btn period-btn"
+                    [class.active]="period === option.value" (click)="setPeriod(option.value)">
+                    {{ option.label }}
+                </button>
+                <button class="btn period-btn" [class.active]="showAdvancedOptions" (click)="toggleAdvancedOptions()">
+                    <i class="fas fa-calendar-alt"></i> Personnalisée
+                </button>
+            </div>
+        </div>
+
+        <!-- Options avancées pour sélection personnalisée -->
+        <div *ngIf="showAdvancedOptions" class="advanced-options">
+            <div class="date-inputs">
+                <div class="date-field">
+                    <label for="startDate">Du :</label>
+                    <input type="date" id="startDate" [value]="dateMin" #startDateInput>
+                </div>
+                <div class="date-field">
+                    <label for="endDate">Au :</label>
+                    <input type="date" id="endDate" [value]="dateMax" #endDateInput>
+                </div>
+            </div>
+            <button class="btn apply-btn" (click)="applyCustomPeriod(startDateInput.value, endDateInput.value)">
+                Appliquer
+            </button>
+        </div>
+
+        <!-- Option de comparaison avec la période précédente -->
+        <div class="comparison-option">
+            <label>
+                <input type="checkbox" [checked]="comparaisonActive" (change)="toggleComparaison()">
+                Comparer avec la période précédente
+            </label>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="loading">
+        <p>Chargement de vos données...</p>
+        <div class="spinner"></div>
+    </div>
+
+    <div *ngIf="error" class="error">
+        <p>{{ error }}</p>
+    </div>
+
+    <div *ngIf="!loading && !error" class="bilan-dashboard">
+        <!-- Chiffres clés -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ bilanData.totalSeances }}</div>
+                    <div class="stat-label">Séances</div>
+                    <div *ngIf="comparaisonActive && periodePrec" class="stat-evolution"
+                        [class.positive]="calculateEvolution(bilanData.totalSeances, periodePrec.totalSeances).isPositive"
+                        [class.negative]="!calculateEvolution(bilanData.totalSeances, periodePrec.totalSeances).isPositive">
+                        <i class="fas"
+                            [class.fa-arrow-up]="calculateEvolution(bilanData.totalSeances, periodePrec.totalSeances).isPositive"
+                            [class.fa-arrow-down]="!calculateEvolution(bilanData.totalSeances, periodePrec.totalSeances).isPositive"></i>
+                        {{ calculateEvolution(bilanData.totalSeances, periodePrec.totalSeances).value.toFixed(1) }}%
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ formatDuration(bilanData.dureeTotal) }}</div>
+                    <div class="stat-label">Durée totale</div>
+                    <div *ngIf="comparaisonActive && periodePrec" class="stat-evolution"
+                        [class.positive]="calculateEvolution(bilanData.dureeTotal, periodePrec.dureeTotal).isPositive"
+                        [class.negative]="!calculateEvolution(bilanData.dureeTotal, periodePrec.dureeTotal).isPositive">
+                        <i class="fas"
+                            [class.fa-arrow-up]="calculateEvolution(bilanData.dureeTotal, periodePrec.dureeTotal).isPositive"
+                            [class.fa-arrow-down]="!calculateEvolution(bilanData.dureeTotal, periodePrec.dureeTotal).isPositive"></i>
+                        {{ calculateEvolution(bilanData.dureeTotal, periodePrec.dureeTotal).value.toFixed(1) }}%
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-dumbbell"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">{{ bilanData.topExercices.length }}</div>
+                    <div class="stat-label">Exercices différents</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Graphiques et listes détaillées -->
+        <div class="charts-container">
+            <!-- Distribution des types de séances -->
+            <div class="chart-card">
+                <h2>Répartition par type de séance</h2>
+                <div *ngIf="bilanData.totalSeances > 0" class="chart-wrapper">
+                    <!-- Graphique à camembert pour les types de séances -->
+                    <div class="pie-chart-container">
+                        <canvas id="typeSeancesChart"></canvas>
+                    </div>
+                    <!-- Liste des types de séances -->
+                    <div class="pie-chart-legend">
+                        <div *ngFor="let type of getObjectKeys(bilanData.repartitionTypes); let i = index"
+                            class="legend-item">
+                            <span class="color-box" [style.background-color]="getPieChartColor(i)"></span>
+                            <span class="type-label">{{ type }}</span>
+                            <span class="type-value">{{ bilanData.repartitionTypes[type] }} ({{
+                                ((bilanData.repartitionTypes[type] / bilanData.totalSeances) * 100).toFixed(1)
+                                }}%)</span>
+                        </div>
+                    </div>
+                </div>
+                <p *ngIf="bilanData.totalSeances === 0" class="no-data">
+                    Aucune séance enregistrée pour cette période.
+                </p>
+            </div>
+
+            <!-- Top exercices -->
+            <div class="chart-card">
+                <h2>Top 3 des exercices les plus pratiqués</h2>
+                <div *ngIf="bilanData.topExercices.length > 0" class="top-exercices">
+                    <div *ngFor="let exercice of bilanData.topExercices; let i = index" class="top-exercice-item">
+                        <div class="exercice-rank">{{ i + 1 }}</div>
+                        <div class="exercice-info">
+                            <div class="exercice-name">{{ exercice.nom }}</div>
+                            <div class="exercice-count">{{ exercice.count }} fois</div>
+                        </div>
+                        <div class="exercice-bar-container">
+                            <div class="exercice-bar"
+                                [style.width.%]="(exercice.count / bilanData.topExercices[0].count) * 100"></div>
+                        </div>
+                    </div>
+                </div>
+                <p *ngIf="bilanData.topExercices.length === 0" class="no-data">
+                    Aucun exercice enregistré pour cette période.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

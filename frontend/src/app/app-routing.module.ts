@@ -9,6 +9,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { EspacePersoComponent } from './espace-perso/espace-perso.component';
 import { EditProfileComponent } from './edit-profile/edit-profile.component';
 import { EditPasswordComponent } from './edit-password/edit-password.component';
+import { BilanComponent } from './bilan/bilan.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -19,7 +20,8 @@ const routes: Routes = [
   { path: 'profile', component: ProfileComponent },
   { path: 'espace-perso', component: EspacePersoComponent },
   { path: 'edit-profile', component: EditProfileComponent },
-  { path: 'edit-password', component: EditPasswordComponent }
+  { path: 'edit-password', component: EditPasswordComponent },
+  { path: 'bilan', component: BilanComponent },
 ];
 
 @NgModule({

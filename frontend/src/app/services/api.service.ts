@@ -6,12 +6,12 @@ import { Sportif } from '../models/sportif';
 import { Seance } from '../models/seance';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
   private apiUrl = 'https://127.0.0.1:8008/api';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   // ------------------- COACH ------------------- //
   getCoachsListPublic(): Observable<Coach[]> {
@@ -62,5 +62,11 @@ export class ApiService {
 
   UnreserveSeance(id: number): Observable<any> {
     return this.http.delete<any>(`${this.apiUrl}/seances/resa/${id}`);
+  }
+
+  getStatsByDateRange(min_date: string, max_date: string): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/sportifs/stats/?min_date=${min_date}&max_date=${max_date}`
+    );
   }
 }

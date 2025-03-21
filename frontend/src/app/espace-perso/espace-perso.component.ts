@@ -3,6 +3,7 @@ import { ApiService } from '../services/api.service';
 import { Sportif } from '../models/sportif';
 import { Seance } from '../models/seance';
 import { forkJoin } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-espace-perso',
@@ -29,7 +30,7 @@ export class EspacePersoComponent implements OnInit {
   showAllExerciceTypes: boolean = false;
   expandedSeances: boolean[] = [];
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private router: Router) {}
 
   ngOnInit(): void {
     this.loadUserData();
@@ -157,6 +158,37 @@ export class EspacePersoComponent implements OnInit {
         this.loading = false;
       },
     });
+  }
+
+  navigateToBilan(): void {
+    // Obtenir la date actuelle
+    const today = new Date();
+
+    // Définir la date de début (1 mois en arrière par défaut)
+    const startDate = new Date();
+    startDate.setMonth(today.getMonth() - 1);
+
+    // Formater les dates au format YYYY-MM-DD
+    const dateMin = this.formatDate(startDate);
+    const dateMax = this.formatDate(today);
+
+    // Naviguer vers le composant bilan avec les paramètres
+    this.router.navigate(['/bilan'], {
+      queryParams: {
+        id_sportif: this.sportif?.id,
+        date_min: dateMin,
+        date_max: dateMax,
+        period: 'month', // Période par défaut (mois)
+      },
+    });
+  }
+
+  // Fonction utilitaire pour formater la date
+  private formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   getObjectKeys(obj: object): string[] {
