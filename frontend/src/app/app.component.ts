@@ -21,21 +21,23 @@ export class AppComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.apiService.getSportifMe().subscribe(
-      (data) => {
-        console.log('Données du sportif :', data); // Debug
+    if (this.authService.currentAuthUserValue.isLogged()) {
+      this.apiService.getSportifMe().subscribe(
+        (data) => {
+          console.log('Données du sportif :', data); // Debug
 
-        if (data && data.nom && data.prenom) {
-          this.nom = data.nom;
-          this.prenom = data.prenom;
-        } else {
-          console.warn('Les données du sportif sont incomplètes !');
+          if (data && data.nom && data.prenom) {
+            this.nom = data.nom;
+            this.prenom = data.prenom;
+          } else {
+            console.warn('Les données du sportif sont incomplètes !');
+          }
+        },
+        (error) => {
+          console.error('Erreur lors de la récupération du profil :', error);
         }
-      },
-      (error) => {
-        console.error('Erreur lors de la récupération du profil :', error);
-      }
-    );
+      );
+    }
   }
 
   logout() {

@@ -20,15 +20,14 @@ export class LoginComponent {
       next: (response) => {
         this.authService.currentAuthUser.subscribe((user) => {
           if (user.roles.includes('ROLE_SPORTIF')) {
+            console.log('ok');
             this.router.navigate(['/']).then(() => {
               window.location.reload();
             });
           } else if (user.roles.includes('ROLE_RESPONSABLE') || user.roles.includes('ROLE_COACH')) {
+            console.log('ok2');
             this.authService.logout();
             window.location.href = '/admin';
-          } else {
-            this.authService.logout();
-            this.errorMessage = 'Identifiants incorrects';
           }
         });
       },
