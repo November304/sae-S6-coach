@@ -150,29 +150,38 @@ class AppFixtures extends Fixture
                 $nbPersonne = $faker->numberBetween(1, 3);
                 $dateHeure = $faker->dateTimeBetween('-3 months', '+1 month');
                 $seance->setDateHeure($dateHeure);
+
                 if ($dateHeure < new \DateTime()) {
                     $statut = $faker->randomElement(['validée', 'annulée']);
-                    $selectedSportifs = $faker->randomElements($sportifs, $faker->numberBetween(1, $nbPersonne));
-                    foreach ($selectedSportifs as $sportif) {
-                        $seance->addSportif($sportif);
+                } else {
+                    $statut = $faker->randomElement(['prévue', 'prévue', 'annulée']);
+                }
+
+                $selectedSportifs = $faker->randomElements($sportifs, $nbPersonne);
+                foreach ($selectedSportifs as $sportif) {
+                    $seance->addSportif($sportif);
+                    if ($dateHeure < new \DateTime()) {
                         $presence = new \App\Entity\Presence();
                         $presence->setSeance($seance);
                         $presence->setSportif($sportif);
-                        $presence->setPresent($faker->randomElement(['Présent', 'Absent', 'Annulé']));
+                        if ($statut === 'annulée') {
+                            $presence->setPresent('Annulé');
+                        } elseif ($statut === 'validée') {
+                            $presence->setPresent($faker->randomElement(['Présent', 'Absent']));
+                        }
                         $manager->persist($presence);
                     }
-                } else {
-                    $statut = $faker->randomElement(['prévue','prévue','annulée']);
-                    $selectedSportifs = $faker->randomElements($sportifs, $faker->numberBetween(1, $nbPersonne));
-                    foreach ($selectedSportifs as $sportif) {
-                        $seance->addSportif($sportif);
-                    }
                 }
+
                 $seance->setStatut($statut);
-                $seance->setTypeSeance($nbPersonne === 1 ? 'solo' : ($nbPersonne === 2 ? 'duo' : 'trio'))
+                // Détermine le type de séance en fonction du nombre de sportifs sélectionnés
+                $seance->setTypeSeance(
+                    $nbPersonne === 1 ? 'solo' : ($nbPersonne === 2 ? 'duo' : 'trio')
+                )
                     ->setThemeSeance($faker->randomElement(self::THEMES_SEANCES))
                     ->setNiveauSeance($faker->randomElement(['débutant', 'intermédiaire', 'avancé']))
                     ->setCoach($coach);
+
                 $selectedExercices = $faker->randomElements($exercices, $faker->numberBetween(1, 5));
                 foreach ($selectedExercices as $exercice) {
                     $seance->addExercice($exercice);
@@ -180,7 +189,6 @@ class AppFixtures extends Fixture
                 $manager->persist($seance);
             }
 
-            //Creation de 3 fiches de paie pour chaque coach
             for ($i = 0; $i < 3; $i++) {
                 $fiche = new \App\Entity\FicheDePaie();
                 $totalHeures = $faker->numberBetween(10, 40);
@@ -191,6 +199,7 @@ class AppFixtures extends Fixture
                 $manager->persist($fiche);
             }
         }
+
         $manager->flush();
     }
 }
